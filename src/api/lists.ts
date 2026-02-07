@@ -15,5 +15,10 @@ export class ListsApi {
     );
   }
 
-  // Batch ceiling for list mutations: 2100 items per request (ls21)
+  async getMetadata(workspaceId: string, modelId: string, listId: string) {
+    const res = await this.client.get<any>(
+      `/workspaces/${workspaceId}/models/${modelId}/lists/${listId}`
+    );
+    return res.metadata ?? res;
+  }
 }

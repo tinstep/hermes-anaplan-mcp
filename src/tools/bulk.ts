@@ -103,6 +103,18 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text", text }] };
   });
 
+  server.tool("delete_file", "Delete a file from a model (WARNING: irreversible)", {
+    workspaceId: z.string().describe("Anaplan workspace ID or name"),
+    modelId: z.string().describe("Anaplan model ID or name"),
+    fileId: z.string().describe("File ID or name to delete"),
+  }, async ({ workspaceId, modelId, fileId }) => {
+    const wId = await resolver.resolveWorkspace(workspaceId);
+    const mId = await resolver.resolveModel(wId, modelId);
+    const fId = await resolver.resolveFile(wId, mId, fileId);
+    await apis.files.delete(wId, mId, fId);
+    return { content: [{ type: "text", text: `File ${fId} deleted successfully.` }] };
+  });
+
   server.tool("get_action_status", "Check status of a running action task", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),

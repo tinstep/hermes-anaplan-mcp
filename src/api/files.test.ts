@@ -68,4 +68,21 @@ describe("FilesApi", () => {
       expect(mockClient.getRaw).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe("delete", () => {
+    beforeEach(() => {
+      mockClient.delete.mockReset();
+    });
+
+    it("calls DELETE /workspaces/{wId}/models/{mId}/files/{fileId}", async () => {
+      mockClient.delete.mockResolvedValue({});
+      const api = new FilesApi(mockClient as any);
+
+      await api.delete("ws1", "m1", "f1");
+
+      expect(mockClient.delete).toHaveBeenCalledWith(
+        "/workspaces/ws1/models/m1/files/f1"
+      );
+    });
+  });
 });

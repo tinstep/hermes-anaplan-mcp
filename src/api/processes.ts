@@ -12,6 +12,13 @@ export class ProcessesApi {
     );
   }
 
+  async get(workspaceId: string, modelId: string, processId: string) {
+    const res = await this.client.get<any>(
+      `/workspaces/${workspaceId}/models/${modelId}/processes/${processId}`
+    );
+    return res.process ?? res;
+  }
+
   async run(workspaceId: string, modelId: string, processId: string, timeoutMs = DEFAULT_TIMEOUT_MS) {
     const base = `/workspaces/${workspaceId}/models/${modelId}/processes/${processId}`;
     const res = await this.client.post<{ task: any }>(`${base}/tasks`, { localeName: "en_US" });

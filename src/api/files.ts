@@ -17,6 +17,12 @@ export class FilesApi {
     await this.client.post(`${path}/complete`, {});
   }
 
+  async delete(workspaceId: string, modelId: string, fileId: string) {
+    return this.client.delete<any>(
+      `/workspaces/${workspaceId}/models/${modelId}/files/${fileId}`
+    );
+  }
+
   async download(workspaceId: string, modelId: string, fileId: string): Promise<string> {
     const res = await this.client.get<any>(
       `/workspaces/${workspaceId}/models/${modelId}/files/${fileId}/chunks`

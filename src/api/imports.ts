@@ -12,6 +12,13 @@ export class ImportsApi {
     );
   }
 
+  async get(workspaceId: string, modelId: string, importId: string) {
+    const res = await this.client.get<any>(
+      `/workspaces/${workspaceId}/models/${modelId}/imports/${importId}`
+    );
+    return res.import ?? res;
+  }
+
   async run(workspaceId: string, modelId: string, importId: string, timeoutMs = DEFAULT_TIMEOUT_MS) {
     const base = `/workspaces/${workspaceId}/models/${modelId}/imports/${importId}`;
     const res = await this.client.post<{ task: any }>(`${base}/tasks`, { localeName: "en_US" });

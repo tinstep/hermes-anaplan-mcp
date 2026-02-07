@@ -13,6 +13,13 @@ export class ExportsApi {
     );
   }
 
+  async get(workspaceId: string, modelId: string, exportId: string) {
+    const res = await this.client.get<any>(
+      `/workspaces/${workspaceId}/models/${modelId}/exports/${exportId}`
+    );
+    return res.export ?? res;
+  }
+
   async run(workspaceId: string, modelId: string, exportId: string, timeoutMs = DEFAULT_TIMEOUT_MS) {
     const base = `/workspaces/${workspaceId}/models/${modelId}/exports/${exportId}`;
     const res = await this.client.post<{ task: any }>(`${base}/tasks`, { localeName: "en_US" });

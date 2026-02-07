@@ -274,6 +274,66 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     return { content: [{ type: "text", text: JSON.stringify(status, null, 2) }] };
   });
 
+  server.tool("show_listmetadata", "Get list metadata (properties, parent, item count)", {
+    workspaceId: z.string().describe("Anaplan workspace ID or name"),
+    modelId: z.string().describe("Anaplan model ID or name"),
+    listId: z.string().describe("List ID or name"),
+  }, async ({ workspaceId, modelId, listId }) => {
+    const wId = await resolver.resolveWorkspace(workspaceId);
+    const mId = await resolver.resolveModel(wId, modelId);
+    const lId = await resolver.resolveList(wId, mId, listId);
+    const metadata = await apis.lists.getMetadata(wId, mId, lId);
+    return { content: [{ type: "text", text: JSON.stringify(metadata, null, 2) }] };
+  });
+
+  server.tool("show_importdetails", "Get import definition metadata", {
+    workspaceId: z.string().describe("Anaplan workspace ID or name"),
+    modelId: z.string().describe("Anaplan model ID or name"),
+    importId: z.string().describe("Import ID or name"),
+  }, async ({ workspaceId, modelId, importId }) => {
+    const wId = await resolver.resolveWorkspace(workspaceId);
+    const mId = await resolver.resolveModel(wId, modelId);
+    const iId = await resolver.resolveImport(wId, mId, importId);
+    const detail = await apis.imports.get(wId, mId, iId);
+    return { content: [{ type: "text", text: JSON.stringify(detail, null, 2) }] };
+  });
+
+  server.tool("show_exportdetails", "Get export definition metadata", {
+    workspaceId: z.string().describe("Anaplan workspace ID or name"),
+    modelId: z.string().describe("Anaplan model ID or name"),
+    exportId: z.string().describe("Export ID or name"),
+  }, async ({ workspaceId, modelId, exportId }) => {
+    const wId = await resolver.resolveWorkspace(workspaceId);
+    const mId = await resolver.resolveModel(wId, modelId);
+    const eId = await resolver.resolveExport(wId, mId, exportId);
+    const detail = await apis.exports.get(wId, mId, eId);
+    return { content: [{ type: "text", text: JSON.stringify(detail, null, 2) }] };
+  });
+
+  server.tool("show_processdetails", "Get process definition metadata", {
+    workspaceId: z.string().describe("Anaplan workspace ID or name"),
+    modelId: z.string().describe("Anaplan model ID or name"),
+    processId: z.string().describe("Process ID or name"),
+  }, async ({ workspaceId, modelId, processId }) => {
+    const wId = await resolver.resolveWorkspace(workspaceId);
+    const mId = await resolver.resolveModel(wId, modelId);
+    const pId = await resolver.resolveProcess(wId, mId, processId);
+    const detail = await apis.processes.get(wId, mId, pId);
+    return { content: [{ type: "text", text: JSON.stringify(detail, null, 2) }] };
+  });
+
+  server.tool("show_actiondetails", "Get action definition metadata", {
+    workspaceId: z.string().describe("Anaplan workspace ID or name"),
+    modelId: z.string().describe("Anaplan model ID or name"),
+    actionId: z.string().describe("Action ID or name"),
+  }, async ({ workspaceId, modelId, actionId }) => {
+    const wId = await resolver.resolveWorkspace(workspaceId);
+    const mId = await resolver.resolveModel(wId, modelId);
+    const aId = await resolver.resolveAction(wId, mId, actionId);
+    const detail = await apis.actions.get(wId, mId, aId);
+    return { content: [{ type: "text", text: JSON.stringify(detail, null, 2) }] };
+  });
+
   server.tool("show_allviews", "List all views in a model (cross-module, includes default and saved)", {
     modelId: z.string().describe("Anaplan model ID"),
     ...paginationParams,
