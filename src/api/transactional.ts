@@ -40,14 +40,10 @@ export class TransactionalApi {
   }
 
   async deleteListItems(workspaceId: string, modelId: string, listId: string, items: Array<{ id: string }>) {
-    const results = [];
-    for (const item of items) {
-      const res = await this.client.delete(
-        `/workspaces/${workspaceId}/models/${modelId}/lists/${listId}/items/${item.id}`
-      );
-      results.push(res);
-    }
-    return { deleted: results.length, items: results };
+    return this.client.post(
+      `/workspaces/${workspaceId}/models/${modelId}/lists/${listId}/items?action=delete`,
+      { items }
+    );
   }
 
   private truncateResponse(data: any): any {
