@@ -120,6 +120,55 @@ describe("TransactionalApi", () => {
     });
   });
 
+  describe("getAllLineItems", () => {
+    it("calls GET /models/{mId}/lineItems", async () => {
+      const client = mockClient();
+      (client.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+        items: [{ id: "li1", name: "Revenue", moduleName: "P&L" }],
+      });
+      const api = new TransactionalApi(client);
+
+      const result = await api.getAllLineItems("m1");
+
+      expect(client.get).toHaveBeenCalledWith("/models/m1/lineItems");
+      expect(result).toEqual([{ id: "li1", name: "Revenue", moduleName: "P&L" }]);
+    });
+
+    it("appends ?includeAll=true when requested", async () => {
+      const client = mockClient();
+      (client.get as ReturnType<typeof vi.fn>).mockResolvedValue({ items: [] });
+      const api = new TransactionalApi(client);
+
+      await api.getAllLineItems("m1", true);
+
+      expect(client.get).toHaveBeenCalledWith("/models/m1/lineItems?includeAll=true");
+    });
+
+    it("returns empty array when no items key", async () => {
+      const client = mockClient();
+      (client.get as ReturnType<typeof vi.fn>).mockResolvedValue({});
+      const api = new TransactionalApi(client);
+
+      const result = await api.getAllLineItems("m1");
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("getLineItemDimensions", () => {
+    it("calls GET /models/{mId}/lineItems/{liId}/dimensions", async () => {
+      const client = mockClient();
+      (client.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+        dimensions: [{ id: "dim1", name: "Products" }],
+      });
+      const api = new TransactionalApi(client);
+
+      const result = await api.getLineItemDimensions("m1", "li1");
+
+      expect(client.get).toHaveBeenCalledWith("/models/m1/lineItems/li1/dimensions");
+      expect(result).toEqual([{ id: "dim1", name: "Products" }]);
+    });
+  });
+
   describe("getViewMetadata", () => {
     it("calls GET on /models/{modelId}/views/{viewId}", async () => {
       const viewMeta = {

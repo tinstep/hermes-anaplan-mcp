@@ -17,6 +17,19 @@ export class TransactionalApi {
     return this.truncateResponse(res);
   }
 
+  async getAllLineItems(modelId: string, includeAll = false) {
+    const suffix = includeAll ? "?includeAll=true" : "";
+    const res = await this.client.get<any>(`/models/${modelId}/lineItems${suffix}`);
+    return res.items ?? [];
+  }
+
+  async getLineItemDimensions(modelId: string, lineItemId: string) {
+    const res = await this.client.get<any>(
+      `/models/${modelId}/lineItems/${lineItemId}/dimensions`
+    );
+    return res.dimensions ?? [];
+  }
+
   async getViewMetadata(modelId: string, viewId: string) {
     return this.client.get<any>(`/models/${modelId}/views/${viewId}`);
   }

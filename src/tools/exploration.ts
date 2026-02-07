@@ -11,6 +11,7 @@ import type { FilesApi } from "../api/files.js";
 import type { ActionsApi } from "../api/actions.js";
 import type { TransactionalApi } from "../api/transactional.js";
 import type { ModelManagementApi } from "../api/modelManagement.js";
+import type { DimensionsApi } from "../api/dimensions.js";
 import type { NameResolver } from "../resolver.js";
 import { formatTable, type FormatOptions } from "./format.js";
 
@@ -26,6 +27,7 @@ interface ExplorationApis {
   actions: ActionsApi;
   transactional: TransactionalApi;
   modelManagement: ModelManagementApi;
+  dimensions: DimensionsApi;
 }
 
 const paginationParams = {
@@ -270,5 +272,87 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     const mId = await resolver.resolveModel(wId, modelId);
     const status = await apis.modelManagement.getStatus(wId, mId);
     return { content: [{ type: "text", text: JSON.stringify(status, null, 2) }] };
+  });
+
+  server.tool("show_alllineitems", "List all line items in a model (cross-module)", {
+    modelId: z.string().describe("Anaplan model ID"),
+    includeAll: z.boolean().optional().describe("Include full metadata (formula, format, version, appliesTo)"),
+    ...paginationParams,
+  }, async ({ modelId, includeAll, offset, limit, search }) => {
+    const items = await apis.transactional.getAllLineItems(modelId, includeAll ?? false);
+    return tableResult(items, [
+      { header: "Name", key: "name" },
+      { header: "Module", key: "moduleName" },
+      { header: "ID", key: "id" },
+    ], "line items", { offset, limit, search });
+  });
+
+  server.tool("show_lineitemdimensions", "List dimension IDs for a line item", {
+    modelId: z.string().describe("Anaplan model ID"),
+    lineItemId: z.string().describe("Line item ID"),
+  }, async ({ modelId, lineItemId }) => {
+    const dims = await apis.transactional.getLineItemDimensions(modelId, lineItemId);
+    return tableResult(dims, [
+      { header: "Name", key: "name" },
+      { header: "ID", key: "id" },
+    ], "dimensions");
+  });
+
+  server.tool("show_dimensionitems", "List all items in a dimension (model-level)", {
+    modelId: z.string().describe("Anaplan model ID"),
+    dimensionId: z.string().describe("Dimension ID"),
+    ...paginationParams,
+  }, async ({ modelId, dimensionId, offset, limit, search }) => {
+    const items = await apis.dimensions.getAllItems(modelId, dimensionId);
+    return tableResult(items, [
+      { header: "Name", key: "name" },
+      { header: "Code", key: "code" },
+      { header: "ID", key: "id" },
+    ], "dimension items", { offset, limit, search });
+  });
+
+  server.tool("show_viewdimensionitems", "List selected items in a dimension for a view (respects filters)", {
+    modelId: z.string().describe("Anaplan model ID"),
+    viewId: z.string().describe("View ID"),
+    dimensionId: z.string().describe("Dimension ID"),
+    ...paginationParams,
+  }, async ({ modelId, viewId, dimensionId, offset, limit, search }) => {
+    const items = await apis.dimensions.getSelectedItems(modelId, viewId, dimensionId);
+    return tableResult(items, [
+      { header: "Name", key: "name" },
+      { header: "Code", key: "code" },
+      { header: "ID", key: "id" },
+    ], "view dimension items", { offset, limit, search });
+  });
+
+  server.tool("lookup_dimensionitems", "Look up dimension items by name or code", {
+    workspaceId: z.string().describe("Anaplan workspace ID or name"),
+    modelId: z.string().describe("Anaplan model ID or name"),
+    dimensionId: z.string().describe("Dimension ID"),
+    names: z.array(z.string()).optional().describe("Item names to look up"),
+    codes: z.array(z.string()).optional().describe("Item codes to look up"),
+  }, async ({ workspaceId, modelId, dimensionId, names, codes }) => {
+    const wId = await resolver.resolveWorkspace(workspaceId);
+    const mId = await resolver.resolveModel(wId, modelId);
+    const items = await apis.dimensions.lookupByNameOrCode(wId, mId, dimensionId, names, codes);
+    return tableResult(items, [
+      { header: "Name", key: "name" },
+      { header: "Code", key: "code" },
+      { header: "ID", key: "id" },
+    ], "matched items");
+  });
+
+  server.tool("show_lineitemdimensionitems", "List dimension items for a specific line item", {
+    modelId: z.string().describe("Anaplan model ID"),
+    lineItemId: z.string().describe("Line item ID"),
+    dimensionId: z.string().describe("Dimension ID"),
+    ...paginationParams,
+  }, async ({ modelId, lineItemId, dimensionId, offset, limit, search }) => {
+    const items = await apis.dimensions.getLineItemDimensionItems(modelId, lineItemId, dimensionId);
+    return tableResult(items, [
+      { header: "Name", key: "name" },
+      { header: "Code", key: "code" },
+      { header: "ID", key: "id" },
+    ], "line item dimension items", { offset, limit, search });
   });
 }
