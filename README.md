@@ -175,6 +175,7 @@ Three layers:
 
 ## Disclaimers
 
+- This project is built against the [Anaplan Integration API v2](https://anaplan.docs.apiary.io/), which served as the primary API reference
 - This is a personal project, not affiliated with or endorsed by Anaplan
 - Users are responsible for compliance with Anaplan's Terms of Service
 - Always test in non-production environments first
