@@ -93,7 +93,7 @@ describe("NameResolver", () => {
       apis.workspaces.list.mockResolvedValue([{ id: HEX_ID, name: "ACG" }]);
       const resolver = new NameResolver(apis);
       await expect(resolver.resolveWorkspace("NonExistent")).rejects.toThrow(
-        "Workspace 'NonExistent' not found. Use list_workspaces to see available names."
+        "Workspace 'NonExistent' not found. Use show_workspaces to see available names."
       );
     });
   });

@@ -93,21 +93,21 @@ Navigate the Anaplan model hierarchy to understand structure before working with
 
 | Tool | Description |
 |------|-------------|
-| `list_workspaces` | List all accessible workspaces |
-| `list_models` | List models in a workspace |
+| `show_workspaces` | List all accessible workspaces |
+| `show_models` | List models in a workspace |
 | `get_model` | Get model details including status and memory usage |
-| `list_modules` | List modules in a model |
+| `show_modules` | List modules in a model |
 | `get_module` | Get module details with dimensions |
-| `list_line_items` | List line items in a module |
-| `list_views` | List saved views in a module |
-| `list_dimensions` | List all dimensions (lists) in a model |
+| `show_lineitems` | List line items in a module |
+| `show_savedviews` | List saved views in a module |
+| `show_lists` | List all dimensions (lists) in a model |
 | `get_list_items` | Get items in a list |
-| `list_imports` | List available import actions |
-| `list_exports` | List available export actions |
-| `list_processes` | List available processes |
-| `list_files` | List files in a model |
+| `show_imports` | List available import actions |
+| `show_exports` | List available export actions |
+| `show_processes` | List available processes |
+| `show_files` | List files in a model |
 
-All 11 list tools support **pagination** and **search**:
+All 11 show tools support **pagination** and **search**:
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|

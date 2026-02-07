@@ -38,14 +38,14 @@ function tableResult(items: any[], columns: { header: string; key: string }[], l
 }
 
 export function registerExplorationTools(server: McpServer, apis: ExplorationApis, resolver: NameResolver) {
-  server.tool("list_workspaces", "List all accessible Anaplan workspaces", {
+  server.tool("show_workspaces", "List all accessible Anaplan workspaces", {
     ...paginationParams,
   }, async ({ offset, limit, search }) => {
     const workspaces = await apis.workspaces.list();
     return tableResult(workspaces, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }, { header: "Active", key: "active" }], "workspaces", { offset, limit, search });
   });
 
-  server.tool("list_models", "List models in a workspace", {
+  server.tool("show_models", "List models in a workspace", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     ...paginationParams,
   }, async ({ workspaceId, offset, limit, search }) => {
@@ -64,7 +64,7 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     return { content: [{ type: "text", text: JSON.stringify(model, null, 2) }] };
   });
 
-  server.tool("list_modules", "List all modules in a model", {
+  server.tool("show_modules", "List all modules in a model", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
@@ -87,7 +87,7 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     return { content: [{ type: "text", text: JSON.stringify(mod, null, 2) }] };
   });
 
-  server.tool("list_line_items", "List line items in a module", {
+  server.tool("show_lineitems", "List line items in a module", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     moduleId: z.string().describe("Anaplan module ID or name"),
@@ -100,7 +100,7 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     return tableResult(items, [{ header: "Name", key: "name" }, { header: "Module", key: "moduleName" }, { header: "ID", key: "id" }], "line items", { offset, limit, search });
   });
 
-  server.tool("list_views", "List saved views in a module", {
+  server.tool("show_savedviews", "List saved views in a module", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     moduleId: z.string().describe("Anaplan module ID or name"),
@@ -113,7 +113,7 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     return tableResult(views, [{ header: "Name", key: "name" }, { header: "Module", key: "moduleId" }, { header: "ID", key: "id" }], "views", { offset, limit, search });
   });
 
-  server.tool("list_dimensions", "List all dimensions (lists) in a model", {
+  server.tool("show_lists", "List all dimensions (lists) in a model", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
@@ -134,10 +134,10 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     const mId = await resolver.resolveModel(wId, modelId);
     const lId = await resolver.resolveList(wId, mId, listId);
     const items = await apis.lists.getItems(wId, mId, lId);
-    return tableResult(items, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }], "list items", { offset, limit, search });
+    return tableResult(items, [{ header: "Name", key: "name" }, { header: "Code", key: "code" }, { header: "ID", key: "id" }], "list items", { offset, limit, search });
   });
 
-  server.tool("list_imports", "List available import actions in a model", {
+  server.tool("show_imports", "List available import actions in a model", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
@@ -148,7 +148,7 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     return tableResult(imports, [{ header: "Name", key: "name" }, { header: "Type", key: "importType" }, { header: "ID", key: "id" }], "imports", { offset, limit, search });
   });
 
-  server.tool("list_exports", "List available export actions in a model", {
+  server.tool("show_exports", "List available export actions in a model", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
@@ -159,7 +159,7 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     return tableResult(exports, [{ header: "Name", key: "name" }, { header: "Format", key: "exportFormat" }, { header: "ID", key: "id" }], "exports", { offset, limit, search });
   });
 
-  server.tool("list_processes", "List available processes in a model", {
+  server.tool("show_processes", "List available processes in a model", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
@@ -170,7 +170,7 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     return tableResult(processes, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }], "processes", { offset, limit, search });
   });
 
-  server.tool("list_files", "List files in a model", {
+  server.tool("show_files", "List files in a model", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,

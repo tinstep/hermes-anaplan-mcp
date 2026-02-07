@@ -57,38 +57,38 @@ export class NameResolver {
   }
 
   async resolveWorkspace(nameOrId: string): Promise<string> {
-    return this.resolve("workspaces", () => this.apis.workspaces.list(), nameOrId, "Workspace", "list_workspaces");
+    return this.resolve("workspaces", () => this.apis.workspaces.list(), nameOrId, "Workspace", "show_workspaces");
   }
 
   async resolveModel(workspaceId: string, nameOrId: string): Promise<string> {
-    return this.resolve(`models:${workspaceId}`, () => this.apis.models.list(workspaceId), nameOrId, "Model", "list_models");
+    return this.resolve(`models:${workspaceId}`, () => this.apis.models.list(workspaceId), nameOrId, "Model", "show_models");
   }
 
   async resolveModule(workspaceId: string, modelId: string, nameOrId: string): Promise<string> {
-    return this.resolve(`modules:${workspaceId}:${modelId}`, () => this.apis.modules.list(workspaceId, modelId), nameOrId, "Module", "list_modules");
+    return this.resolve(`modules:${workspaceId}:${modelId}`, () => this.apis.modules.list(workspaceId, modelId), nameOrId, "Module", "show_modules");
   }
 
   async resolveList(workspaceId: string, modelId: string, nameOrId: string): Promise<string> {
-    return this.resolve(`lists:${workspaceId}:${modelId}`, () => this.apis.lists.list(workspaceId, modelId), nameOrId, "List", "list_dimensions");
+    return this.resolve(`lists:${workspaceId}:${modelId}`, () => this.apis.lists.list(workspaceId, modelId), nameOrId, "List", "show_lists");
   }
 
   async resolveImport(workspaceId: string, modelId: string, nameOrId: string): Promise<string> {
-    return this.resolve(`imports:${workspaceId}:${modelId}`, () => this.apis.imports.list(workspaceId, modelId), nameOrId, "Import", "list_imports");
+    return this.resolve(`imports:${workspaceId}:${modelId}`, () => this.apis.imports.list(workspaceId, modelId), nameOrId, "Import", "show_imports");
   }
 
   async resolveExport(workspaceId: string, modelId: string, nameOrId: string): Promise<string> {
-    return this.resolve(`exports:${workspaceId}:${modelId}`, () => this.apis.exports.list(workspaceId, modelId), nameOrId, "Export", "list_exports");
+    return this.resolve(`exports:${workspaceId}:${modelId}`, () => this.apis.exports.list(workspaceId, modelId), nameOrId, "Export", "show_exports");
   }
 
   async resolveProcess(workspaceId: string, modelId: string, nameOrId: string): Promise<string> {
-    return this.resolve(`processes:${workspaceId}:${modelId}`, () => this.apis.processes.list(workspaceId, modelId), nameOrId, "Process", "list_processes");
+    return this.resolve(`processes:${workspaceId}:${modelId}`, () => this.apis.processes.list(workspaceId, modelId), nameOrId, "Process", "show_processes");
   }
 
   async resolveFile(workspaceId: string, modelId: string, nameOrId: string): Promise<string> {
-    return this.resolve(`files:${workspaceId}:${modelId}`, () => this.apis.files.list(workspaceId, modelId), nameOrId, "File", "list_files");
+    return this.resolve(`files:${workspaceId}:${modelId}`, () => this.apis.files.list(workspaceId, modelId), nameOrId, "File", "show_files");
   }
 
   async resolveView(workspaceId: string, modelId: string, moduleId: string, nameOrId: string): Promise<string> {
-    return this.resolve(`views:${workspaceId}:${modelId}:${moduleId}`, () => this.apis.modules.listViews(workspaceId, modelId, moduleId), nameOrId, "View", "list_views");
+    return this.resolve(`views:${workspaceId}:${modelId}:${moduleId}`, () => this.apis.modules.listViews(workspaceId, modelId, moduleId), nameOrId, "View", "show_savedviews");
   }
 }
