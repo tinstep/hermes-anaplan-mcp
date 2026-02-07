@@ -159,4 +159,4 @@ Built with [Claude Code](https://claude.ai/code) — from architecture design th
 
 ## License
 
-Unlicensed. All rights reserved.
+MIT — see [LICENSE](LICENSE) for details.
