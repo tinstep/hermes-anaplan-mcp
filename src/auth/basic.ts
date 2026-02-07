@@ -20,6 +20,10 @@ export class BasicAuthProvider implements AuthProvider {
       },
     });
 
+    if (!response.ok) {
+      throw new Error(`Authentication request failed: ${response.status} ${response.statusText}`);
+    }
+
     const data = (await response.json()) as AuthResponse;
     if (data.status !== "SUCCESS") {
       throw new Error(`Authentication failed: ${data.statusMessage}`);
@@ -34,6 +38,10 @@ export class BasicAuthProvider implements AuthProvider {
         Authorization: `AnaplanAuthToken ${tokenValue}`,
       },
     });
+
+    if (!response.ok) {
+      throw new Error(`Token refresh request failed: ${response.status} ${response.statusText}`);
+    }
 
     const data = (await response.json()) as AuthResponse;
     if (data.status !== "SUCCESS") {

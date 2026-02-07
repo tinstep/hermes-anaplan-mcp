@@ -51,8 +51,7 @@ export class TransactionalApi {
     if (json.length <= MAX_RESPONSE_CHARS) return data;
     return {
       _truncated: true,
-      _message: `Response truncated from ${json.length} to ${MAX_RESPONSE_CHARS} characters. Use filters or a more specific view to narrow results.`,
-      data: JSON.parse(json.slice(0, MAX_RESPONSE_CHARS) + '"}'),
+      _message: `Response too large (${json.length} characters). Use a more specific view or add filters to narrow results.`,
     };
   }
 }

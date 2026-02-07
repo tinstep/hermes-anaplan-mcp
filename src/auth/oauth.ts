@@ -36,6 +36,10 @@ export class OAuthProvider implements AuthProvider {
       }),
     });
 
+    if (!codeRes.ok) {
+      throw new Error(`OAuth device code request failed: ${codeRes.status} ${codeRes.statusText}`);
+    }
+
     const codeData = (await codeRes.json()) as DeviceCodeResponse;
     console.error(
       `\nOAuth device authorization required.\nGo to: ${codeData.verification_uri}\nEnter code: ${codeData.user_code}\nWaiting for authorization...\n`
@@ -86,6 +90,10 @@ export class OAuthProvider implements AuthProvider {
         refresh_token: refreshToken,
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`OAuth refresh request failed: ${response.status} ${response.statusText}`);
+    }
 
     const data = (await response.json()) as OAuthTokenResponse & { error?: string };
 

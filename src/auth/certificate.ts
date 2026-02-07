@@ -38,6 +38,10 @@ export class CertificateAuthProvider implements AuthProvider {
       body: JSON.stringify({ encodedData, encodedSignedData }),
     });
 
+    if (!response.ok) {
+      throw new Error(`Certificate auth request failed: ${response.status} ${response.statusText}`);
+    }
+
     const data = (await response.json()) as AuthResponse;
     if (data.status !== "SUCCESS") {
       throw new Error(`Certificate authentication failed: ${data.statusMessage}`);
@@ -52,6 +56,10 @@ export class CertificateAuthProvider implements AuthProvider {
         Authorization: `AnaplanAuthToken ${tokenValue}`,
       },
     });
+
+    if (!response.ok) {
+      throw new Error(`Token refresh request failed: ${response.status} ${response.statusText}`);
+    }
 
     const data = (await response.json()) as AuthResponse;
     if (data.status !== "SUCCESS") {
