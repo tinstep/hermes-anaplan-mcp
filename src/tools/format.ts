@@ -9,11 +9,16 @@ export interface FormatOptions {
   search?: string;
 }
 
+export interface FormatResult {
+  table: string;
+  footer: string;
+}
+
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
 
-export function formatTable(items: any[], columns: Column[], label: string, options?: FormatOptions): string {
-  if (items.length === 0) return `No ${label} found.`;
+export function formatTable(items: any[], columns: Column[], label: string, options?: FormatOptions): FormatResult {
+  if (items.length === 0) return { table: "", footer: `No ${label} found.` };
 
   const search = options?.search?.toLowerCase();
   const offset = Math.max(0, options?.offset ?? 0);
@@ -29,42 +34,45 @@ export function formatTable(items: any[], columns: Column[], label: string, opti
     : items;
 
   if (filtered.length === 0) {
-    return `No ${label} matching "${options!.search}". Try a different search term.`;
+    return { table: "", footer: `No ${label} matching "${options!.search}". Try a different search term.` };
   }
 
   const total = filtered.length;
   const display = filtered.slice(offset, offset + limit);
 
-  const headers = columns.map((c) => c.header);
-  const separator = columns.map(() => "---");
-  const rows = display.map((item) =>
-    columns.map((c) => String(item[c.key] ?? ""))
+  const headers = ["#", ...columns.map((c) => c.header)];
+  const separator = headers.map(() => "---");
+  const rows = display.map((item, i) =>
+    [String(offset + i + 1), ...columns.map((c) => String(item[c.key] ?? ""))]
   );
 
-  const lines = [
+  const table = [
     `| ${headers.join(" | ")} |`,
     `| ${separator.join(" | ")} |`,
     ...rows.map((r) => `| ${r.join(" | ")} |`),
-  ];
+  ].join("\n");
 
-  lines.push("");
-
+  const footerLines: string[] = [];
   const start = offset + 1;
   const end = Math.min(offset + limit, total);
   const matchSuffix = search ? ` matching "${options!.search}"` : "";
+  const totalPages = Math.ceil(total / limit);
+  const currentPage = Math.floor(offset / limit) + 1;
 
   if (total <= limit && offset === 0) {
     if (search) {
-      lines.push(`${total} ${label}${matchSuffix}.`);
+      footerLines.push(`${total} ${label}${matchSuffix}.`);
     } else {
-      lines.push(`${total} ${label} found.`);
+      footerLines.push(`${total} ${label} found.`);
     }
   } else {
-    lines.push(`Showing ${start}-${end} of ${total} ${label}${matchSuffix}.`);
-    if (!search && total > limit) {
-      lines.push(`Use 'search' to filter or increase 'limit' (max ${MAX_LIMIT}).`);
-    }
+    footerLines.push(`Page ${currentPage} of ${totalPages} (${start}-${end} of ${total} ${label}${matchSuffix}).`);
+    const hints: string[] = [];
+    if (currentPage < totalPages) hints.push(`"next page" for page ${currentPage + 1}`);
+    if (currentPage > 1) hints.push(`"previous page" for page ${currentPage - 1}`);
+    if (!search) hints.push(`"search <term>" to filter`);
+    if (hints.length > 0) footerLines.push(`Ask for ${hints.join(", ")}.`);
   }
 
-  return lines.join("\n");
+  return { table, footer: footerLines.join("\n") };
 }

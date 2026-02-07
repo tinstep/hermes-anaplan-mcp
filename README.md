@@ -115,7 +115,17 @@ All 11 list tools support **pagination** and **search**:
 | `limit` | Max items to return | 10 (max 50) |
 | `search` | Filter by name or ID (case-insensitive substring match) | — |
 
-Results are returned as markdown tables. When there are more items than the current page, a footer shows the position (e.g., "Showing 11-20 of 47 modules.") and hints to use `search` or increase `limit`.
+Results are returned as numbered markdown tables with a pagination footer. Example:
+
+| # | Name | ID |
+|---|------|-----|
+| 1 | Revenue Model | ABC123 |
+| 2 | Cost Model | DEF456 |
+
+Page 1 of 5 (1-10 of 47 models).
+Ask for "next page" for page 2, "search \<term\>" to filter.
+
+The footer shows page numbers (e.g., "Page 2 of 15") and navigation hints for next/previous page and search filtering. Row numbers are sequential across pages (page 2 starts at 11).
 
 ### Bulk Data Operations (7 tools)
 

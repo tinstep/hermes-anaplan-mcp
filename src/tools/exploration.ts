@@ -30,7 +30,11 @@ const paginationParams = {
 };
 
 function tableResult(items: any[], columns: { header: string; key: string }[], label: string, options?: FormatOptions) {
-  return { content: [{ type: "text" as const, text: formatTable(items, columns, label, options) }] };
+  const { table, footer } = formatTable(items, columns, label, options);
+  const content: { type: "text"; text: string }[] = [];
+  if (table) content.push({ type: "text", text: table });
+  content.push({ type: "text", text: footer });
+  return { content };
 }
 
 export function registerExplorationTools(server: McpServer, apis: ExplorationApis, resolver: NameResolver) {
