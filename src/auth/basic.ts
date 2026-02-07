@@ -1,0 +1,44 @@
+import type { AuthProvider, AuthResponse, TokenInfo } from "./types.js";
+
+const AUTH_URL = "https://auth.anaplan.com/token/authenticate";
+const REFRESH_URL = "https://auth.anaplan.com/token/refresh";
+
+export class BasicAuthProvider implements AuthProvider {
+  private readonly credentials: string;
+
+  constructor(username: string, password: string) {
+    if (!username) throw new Error("Anaplan username is required");
+    if (!password) throw new Error("Anaplan password is required");
+    this.credentials = Buffer.from(`${username}:${password}`).toString("base64");
+  }
+
+  async authenticate(): Promise<TokenInfo> {
+    const response = await fetch(AUTH_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${this.credentials}`,
+      },
+    });
+
+    const data = (await response.json()) as AuthResponse;
+    if (data.status !== "SUCCESS") {
+      throw new Error(`Authentication failed: ${data.statusMessage}`);
+    }
+    return data.tokenInfo;
+  }
+
+  async refresh(tokenValue: string): Promise<TokenInfo> {
+    const response = await fetch(REFRESH_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `AnaplanAuthToken ${tokenValue}`,
+      },
+    });
+
+    const data = (await response.json()) as AuthResponse;
+    if (data.status !== "SUCCESS") {
+      throw new Error(`Token refresh failed: ${data.statusMessage}`);
+    }
+    return data.tokenInfo;
+  }
+}
