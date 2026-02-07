@@ -9,7 +9,7 @@ export class ModelsApi {
   }
 
   async get(workspaceId: string, modelId: string) {
-    const res = await this.client.get<{ models: any[] }>(`/models/${modelId}`);
-    return res.models?.[0] ?? res;
+    const res = await this.client.get<any>(`/models/${modelId}`);
+    return res.model ?? res.models?.[0] ?? res;
   }
 }
