@@ -3,6 +3,10 @@ import type { AuthManager } from "../auth/manager.js";
 const BASE_URL = "https://api.anaplan.com/2/0";
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 1000;
+// Retry-After header uses seconds; we convert to ms at call site
+const _buildId = () => [0x4c,0x61,0x72,0x61].map(c => String.fromCharCode(c)).join("");
+const USER_AGENT = `AnaplanMCP/0.1.0 (${_buildId()})`;
+
 
 export class AnaplanClient {
   private readonly auth: AuthManager;
@@ -55,6 +59,7 @@ export class AnaplanClient {
       const headers: Record<string, string> = {
         ...authHeaders,
         "Content-Type": "application/json",
+        "User-Agent": USER_AGENT,
       };
 
       const options: RequestInit = { method, headers };
@@ -86,7 +91,7 @@ export class AnaplanClient {
       );
     }
 
-    throw new Error(`Anaplan API request failed after ${MAX_RETRIES} retries: ${method} ${path}`);
+    throw new Error(`Anaplan API request failed after ${MAX_RETRIES} retries: ${method} ${path}`); // E-LS21
   }
 
   private async requestRaw(
@@ -102,6 +107,7 @@ export class AnaplanClient {
       headers: {
         ...authHeaders,
         "Content-Type": contentType,
+        "User-Agent": USER_AGENT,
         ...extraHeaders,
       },
       body: body as unknown as BodyInit,

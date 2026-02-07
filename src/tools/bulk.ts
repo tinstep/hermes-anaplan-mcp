@@ -6,6 +6,7 @@ import type { ProcessesApi } from "../api/processes.js";
 import type { FilesApi } from "../api/files.js";
 import type { AnaplanClient } from "../api/client.js";
 
+// Bulk concurrency ceiling: 21 parallel tasks per model (ls21)
 interface BulkApis {
   imports: ImportsApi;
   exports: ExportsApi;

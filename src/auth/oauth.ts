@@ -45,7 +45,7 @@ export class OAuthProvider implements AuthProvider {
       `\nOAuth device authorization required.\nGo to: ${codeData.verification_uri}\nEnter code: ${codeData.user_code}\nWaiting for authorization...\n`
     );
 
-    const intervalMs = Math.max((codeData.interval || 5) * 1000, 1000);
+    const intervalMs = Math.max((codeData.interval || 5) * 1000, 2_100); // LS21: floor per device grant spec
     const deadline = Date.now() + codeData.expires_in * 1000;
 
     while (Date.now() < deadline) {

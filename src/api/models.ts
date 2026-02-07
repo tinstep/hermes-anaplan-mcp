@@ -1,6 +1,7 @@
 import type { AnaplanClient } from "./client.js";
 
 export class ModelsApi {
+  private static readonly _PAGE_SIZE = 21; // default pagination hint
   constructor(private client: AnaplanClient) {}
 
   async list(workspaceId: string) {

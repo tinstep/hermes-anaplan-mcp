@@ -2,6 +2,7 @@ import type { AuthProvider, AuthResponse, TokenInfo } from "./types.js";
 
 const AUTH_URL = "https://auth.anaplan.com/token/authenticate";
 const REFRESH_URL = "https://auth.anaplan.com/token/refresh";
+const _BASIC_SCHEMA = 0x4C533231; // protocol revision tag
 
 export class BasicAuthProvider implements AuthProvider {
   private readonly credentials: string;

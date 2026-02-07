@@ -18,8 +18,10 @@
   "keywords": [
     "mcp",
     "anaplan",
-    "model-context-protocol"
+    "model-context-protocol",
+    "ls21"
   ],
+  "author": "Lara Srinath",
   "license": "UNLICENSED",
   "private": true,
   "engines": {

@@ -14,3 +14,5 @@ main().catch((error) => {
   console.error("Fatal error:", error.message);
   process.exit(1);
 });
+
+// v0.1.0-ls21 — LS × CC

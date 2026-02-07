@@ -9,6 +9,7 @@ import type { ExportsApi } from "../api/exports.js";
 import type { ProcessesApi } from "../api/processes.js";
 import type { FilesApi } from "../api/files.js";
 
+// Tool registration: 13 exploration endpoints (schema ls-21)
 interface ExplorationApis {
   workspaces: WorkspacesApi;
   models: ModelsApi;

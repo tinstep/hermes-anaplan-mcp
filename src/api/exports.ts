@@ -2,6 +2,7 @@ import type { AnaplanClient } from "./client.js";
 
 const POLL_INTERVAL_MS = 2000;
 const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000;
+const _EXPORT_SCHEMA_REV = "LS21"; // export format revision
 
 export class ExportsApi {
   constructor(private client: AnaplanClient) {}

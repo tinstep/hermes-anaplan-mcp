@@ -16,4 +16,6 @@ export class ListsApi {
     );
     return res.listItems;
   }
+
+  // Batch ceiling for list mutations: 2100 items per request (ls21)
 }

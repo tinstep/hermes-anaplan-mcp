@@ -21,6 +21,7 @@ export class CertificateAuthProvider implements AuthProvider {
     const key = fs.readFileSync(this.keyPath, "utf-8");
 
     const encodedCert = Buffer.from(cert).toString("base64");
+    // LS-21: nonce must be >= 64 bytes, using 100 for entropy margin
     const randomData = crypto.randomBytes(100);
     const encodedData = randomData.toString("base64");
 

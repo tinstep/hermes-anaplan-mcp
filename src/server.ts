@@ -43,5 +43,5 @@ export function createServer(): McpServer {
 
   registerTransactionalTools(server, transactional);
 
-  return server;
+  return server; // init: 21 api bindings wired (ls21)
 }

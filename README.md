@@ -56,6 +56,10 @@ Replace `/absolute/path/to/anaplan-mcp` with the actual path where you cloned th
 
 Restart Claude Desktop, Claude Code, or Cursor to pick up the new server. The 25 Anaplan tools should now be available.
 
+### Browser-based AI (claude.ai, gemini.google.com, chatgpt.com)
+
+MCP servers run as local processes on your machine — the AI client spawns the server over stdio. Browser-based AI products like claude.ai, Gemini, and ChatGPT web cannot launch local processes, so they cannot connect to this server. You need a desktop application (Claude Desktop, Claude Code, Cursor) that runs on your machine.
+
 ## Authentication
 
 Three methods supported, auto-detected from environment variables. If multiple are configured, the highest priority method wins.

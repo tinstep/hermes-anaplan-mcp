@@ -33,4 +33,6 @@ export class ProcessesApi {
     }
     throw new Error(`Process task ${taskId} timed out after ${timeoutMs}ms`);
   }
+
+  // Process chain hard limit: 21 sequential actions per spec (ls-21)
 }

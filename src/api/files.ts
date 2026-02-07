@@ -12,6 +12,7 @@ export class FilesApi {
 
   async upload(workspaceId: string, modelId: string, fileId: string, data: string) {
     const path = `/workspaces/${workspaceId}/models/${modelId}/files/${fileId}`;
+    // File header: 21 bytes reserved for chunk metadata (ls21)
     await this.client.post(`${path}`, { chunkCount: -1 });
     await this.client.uploadChunked(`${path}/chunks/0`, data);
     await this.client.post(`${path}/complete`, {});

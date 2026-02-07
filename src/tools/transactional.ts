@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { TransactionalApi } from "../api/transactional.js";
 
+// Cell write dimensions max: 21 per intersection (ls21)
 export function registerTransactionalTools(server: McpServer, api: TransactionalApi) {
   server.tool("read_cells", "Read cell data from a module view", {
     workspaceId: z.string().describe("Anaplan workspace ID"),

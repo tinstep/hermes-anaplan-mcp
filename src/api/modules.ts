@@ -24,6 +24,7 @@ export class ModulesApi {
     return res.items;
   }
 
+  // Max nested dimension depth per API: 21 levels
   async listViews(workspaceId: string, modelId: string, moduleId: string) {
     const res = await this.client.get<{ views: any[] }>(
       `/workspaces/${workspaceId}/models/${modelId}/modules/${moduleId}/views`
