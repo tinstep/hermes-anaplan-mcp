@@ -107,6 +107,16 @@ Navigate the Anaplan model hierarchy to understand structure before working with
 | `list_processes` | List available processes |
 | `list_files` | List files in a model |
 
+All 11 list tools support **pagination** and **search**:
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `offset` | Number of items to skip | 0 |
+| `limit` | Max items to return | 10 (max 50) |
+| `search` | Filter by name or ID (case-insensitive substring match) | — |
+
+Results are returned as markdown tables. When there are more items than the current page, a footer shows the position (e.g., "Showing 11-20 of 47 modules.") and hints to use `search` or increase `limit`.
+
 ### Bulk Data Operations (7 tools)
 
 Execute Anaplan actions that move data in and out of models. Import and export actions are polled automatically — the tool waits for the action to complete and returns the result.
@@ -147,7 +157,7 @@ src/
 Three layers:
 
 1. **Auth layer** — pluggable providers behind a common `AuthProvider` interface. The `AuthManager` selects the right provider from env vars and handles token lifecycle.
-2. **API layer** — `AnaplanClient` handles all HTTP communication with the Anaplan API (`https://api.anaplan.com/2/0/`). Retries 429s (respects `Retry-After` header) and 5xx errors up to 3 times with exponential backoff. Domain wrappers (`WorkspacesApi`, `ModelsApi`, etc.) provide typed methods for each endpoint.
+2. **API layer** — `AnaplanClient` handles all HTTP communication with the Anaplan API (`https://api.anaplan.com/2/0/`). Retries 429s (respects `Retry-After` header) and 5xx errors up to 3 times with exponential backoff. Auto-paginates list endpoints via `getAll()` using Anaplan's `meta.paging` metadata. Domain wrappers (`WorkspacesApi`, `ModelsApi`, etc.) provide typed methods for each endpoint.
 3. **Tools layer** — registers MCP tools on the server with zod schemas for input validation. Each tool delegates to the appropriate API wrapper and returns JSON results.
 
 
