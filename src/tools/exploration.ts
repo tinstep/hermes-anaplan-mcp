@@ -10,6 +10,7 @@ import type { ProcessesApi } from "../api/processes.js";
 import type { FilesApi } from "../api/files.js";
 import type { ActionsApi } from "../api/actions.js";
 import type { TransactionalApi } from "../api/transactional.js";
+import type { ModelManagementApi } from "../api/modelManagement.js";
 import type { NameResolver } from "../resolver.js";
 import { formatTable, type FormatOptions } from "./format.js";
 
@@ -24,6 +25,7 @@ interface ExplorationApis {
   files: FilesApi;
   actions: ActionsApi;
   transactional: TransactionalApi;
+  modelManagement: ModelManagementApi;
 }
 
 const paginationParams = {
@@ -238,5 +240,35 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     formatDimList("Pages", view.pages);
 
     return { content: [{ type: "text", text: lines.join("\n") }] };
+  });
+
+  server.tool("show_workspacedetails", "Get workspace details (size, active status)", {
+    workspaceId: z.string().describe("Anaplan workspace ID or name"),
+  }, async ({ workspaceId }) => {
+    const wId = await resolver.resolveWorkspace(workspaceId);
+    const workspace = await apis.workspaces.get(wId);
+    return { content: [{ type: "text", text: JSON.stringify(workspace, null, 2) }] };
+  });
+
+  server.tool("show_allmodels", "List all models across all workspaces", {
+    ...paginationParams,
+  }, async ({ offset, limit, search }) => {
+    const models = await apis.models.listAll();
+    return tableResult(models, [
+      { header: "Name", key: "name" },
+      { header: "ID", key: "id" },
+      { header: "Workspace", key: "currentWorkspaceName" },
+      { header: "State", key: "activeState" },
+    ], "models", { offset, limit, search });
+  });
+
+  server.tool("show_modelstatus", "Check model status (memory usage, export progress)", {
+    workspaceId: z.string().describe("Anaplan workspace ID or name"),
+    modelId: z.string().describe("Anaplan model ID or name"),
+  }, async ({ workspaceId, modelId }) => {
+    const wId = await resolver.resolveWorkspace(workspaceId);
+    const mId = await resolver.resolveModel(wId, modelId);
+    const status = await apis.modelManagement.getStatus(wId, mId);
+    return { content: [{ type: "text", text: JSON.stringify(status, null, 2) }] };
   });
 }

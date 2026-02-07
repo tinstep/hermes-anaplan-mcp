@@ -12,4 +12,8 @@ export class ModelsApi {
     const res = await this.client.get<any>(`/models/${modelId}`);
     return res.model ?? res.models?.[0] ?? res;
   }
+
+  async listAll() {
+    return this.client.getAll<any>("/models", "models");
+  }
 }
