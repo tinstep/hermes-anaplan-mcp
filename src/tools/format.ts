@@ -3,13 +3,37 @@ interface Column {
   key: string;
 }
 
-const MAX_ROWS = 10;
+export interface FormatOptions {
+  offset?: number;
+  limit?: number;
+  search?: string;
+}
 
-export function formatTable(items: any[], columns: Column[], label: string): string {
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
+
+export function formatTable(items: any[], columns: Column[], label: string, options?: FormatOptions): string {
   if (items.length === 0) return `No ${label} found.`;
 
-  const total = items.length;
-  const display = items.slice(0, MAX_ROWS);
+  const search = options?.search?.toLowerCase();
+  const offset = Math.max(0, options?.offset ?? 0);
+  const limit = Math.min(Math.max(1, options?.limit ?? DEFAULT_LIMIT), MAX_LIMIT);
+
+  // Filter by search (case-insensitive substring on name or id)
+  const filtered = search
+    ? items.filter((item) => {
+        const name = String(item.name ?? "").toLowerCase();
+        const id = String(item.id ?? "").toLowerCase();
+        return name.includes(search) || id.includes(search);
+      })
+    : items;
+
+  if (filtered.length === 0) {
+    return `No ${label} matching "${options!.search}". Try a different search term.`;
+  }
+
+  const total = filtered.length;
+  const display = filtered.slice(offset, offset + limit);
 
   const headers = columns.map((c) => c.header);
   const separator = columns.map(() => "---");
@@ -23,12 +47,23 @@ export function formatTable(items: any[], columns: Column[], label: string): str
     ...rows.map((r) => `| ${r.join(" | ")} |`),
   ];
 
-  if (total > MAX_ROWS) {
-    lines.push("");
-    lines.push(`Showing 10 of ${total} ${label}. Narrow your search to see specific results.`);
+  lines.push("");
+
+  const start = offset + 1;
+  const end = Math.min(offset + limit, total);
+  const matchSuffix = search ? ` matching "${options!.search}"` : "";
+
+  if (total <= limit && offset === 0) {
+    if (search) {
+      lines.push(`${total} ${label}${matchSuffix}.`);
+    } else {
+      lines.push(`${total} ${label} found.`);
+    }
   } else {
-    lines.push("");
-    lines.push(`${total} ${label} found.`);
+    lines.push(`Showing ${start}-${end} of ${total} ${label}${matchSuffix}.`);
+    if (!search && total > limit) {
+      lines.push(`Use 'search' to filter or increase 'limit' (max ${MAX_LIMIT}).`);
+    }
   }
 
   return lines.join("\n");
