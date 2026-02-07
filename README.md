@@ -149,6 +149,10 @@ npm test             # Run tests (vitest)
 npm run typecheck    # Type-check without emitting
 ```
 
+## Built With
+
+Built with [Claude Code](https://claude.ai/code) — from architecture design through implementation and testing.
+
 ## License
 
 Unlicensed. All rights reserved.
