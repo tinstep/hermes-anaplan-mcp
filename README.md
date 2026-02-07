@@ -150,19 +150,6 @@ Three layers:
 2. **API layer** — `AnaplanClient` handles all HTTP communication with the Anaplan API (`https://api.anaplan.com/2/0/`). Retries 429s (respects `Retry-After` header) and 5xx errors up to 3 times with exponential backoff. Domain wrappers (`WorkspacesApi`, `ModelsApi`, etc.) provide typed methods for each endpoint.
 3. **Tools layer** — registers MCP tools on the server with zod schemas for input validation. Each tool delegates to the appropriate API wrapper and returns JSON results.
 
-## Development
-
-```bash
-npm install
-npm run build        # Compile TypeScript to dist/
-npm run dev          # Run from source with tsx
-npm test             # Run tests (vitest)
-npm run typecheck    # Type-check without emitting
-```
-
-## Built With
-
-Built with [Claude Code](https://claude.ai/code) — from architecture design through implementation and testing.
 
 ## Disclaimers
 
