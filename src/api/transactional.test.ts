@@ -169,6 +169,75 @@ describe("TransactionalApi", () => {
     });
   });
 
+  describe("getAllViews", () => {
+    it("calls GET /models/{mId}/views", async () => {
+      const client = mockClient();
+      (client.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+        views: [{ id: "v1", name: "Default", moduleId: "mod1" }],
+      });
+      const api = new TransactionalApi(client);
+
+      const result = await api.getAllViews("m1");
+
+      expect(client.get).toHaveBeenCalledWith("/models/m1/views");
+      expect(result).toEqual([{ id: "v1", name: "Default", moduleId: "mod1" }]);
+    });
+
+    it("returns empty array when no views key", async () => {
+      const client = mockClient();
+      (client.get as ReturnType<typeof vi.fn>).mockResolvedValue({});
+      const api = new TransactionalApi(client);
+
+      const result = await api.getAllViews("m1");
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("getAllModules", () => {
+    it("calls GET /models/{mId}/modules", async () => {
+      const client = mockClient();
+      (client.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+        modules: [{ id: "mod1", name: "P&L" }],
+      });
+      const api = new TransactionalApi(client);
+
+      const result = await api.getAllModules("m1");
+
+      expect(client.get).toHaveBeenCalledWith("/models/m1/modules");
+      expect(result).toEqual([{ id: "mod1", name: "P&L" }]);
+    });
+  });
+
+  describe("getModuleViews", () => {
+    it("calls GET /models/{mId}/modules/{modId}/views", async () => {
+      const client = mockClient();
+      (client.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+        views: [{ id: "v1", name: "Saved View 1" }],
+      });
+      const api = new TransactionalApi(client);
+
+      const result = await api.getModuleViews("m1", "mod1");
+
+      expect(client.get).toHaveBeenCalledWith("/models/m1/modules/mod1/views");
+      expect(result).toEqual([{ id: "v1", name: "Saved View 1" }]);
+    });
+  });
+
+  describe("getModuleLineItems", () => {
+    it("calls GET /models/{mId}/modules/{modId}/lineItems", async () => {
+      const client = mockClient();
+      (client.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+        items: [{ id: "li1", name: "Revenue" }],
+      });
+      const api = new TransactionalApi(client);
+
+      const result = await api.getModuleLineItems("m1", "mod1");
+
+      expect(client.get).toHaveBeenCalledWith("/models/m1/modules/mod1/lineItems");
+      expect(result).toEqual([{ id: "li1", name: "Revenue" }]);
+    });
+  });
+
   describe("getViewMetadata", () => {
     it("calls GET on /models/{modelId}/views/{viewId}", async () => {
       const viewMeta = {

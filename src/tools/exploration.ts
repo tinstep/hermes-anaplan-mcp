@@ -274,6 +274,18 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     return { content: [{ type: "text", text: JSON.stringify(status, null, 2) }] };
   });
 
+  server.tool("show_allviews", "List all views in a model (cross-module, includes default and saved)", {
+    modelId: z.string().describe("Anaplan model ID"),
+    ...paginationParams,
+  }, async ({ modelId, offset, limit, search }) => {
+    const views = await apis.transactional.getAllViews(modelId);
+    return tableResult(views, [
+      { header: "Name", key: "name" },
+      { header: "Module", key: "moduleName" },
+      { header: "ID", key: "id" },
+    ], "views", { offset, limit, search });
+  });
+
   server.tool("show_alllineitems", "List all line items in a model (cross-module)", {
     modelId: z.string().describe("Anaplan model ID"),
     includeAll: z.boolean().optional().describe("Include full metadata (formula, format, version, appliesTo)"),

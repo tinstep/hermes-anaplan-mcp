@@ -30,6 +30,26 @@ export class TransactionalApi {
     return res.dimensions ?? [];
   }
 
+  async getAllViews(modelId: string) {
+    const res = await this.client.get<any>(`/models/${modelId}/views`);
+    return res.views ?? [];
+  }
+
+  async getAllModules(modelId: string) {
+    const res = await this.client.get<any>(`/models/${modelId}/modules`);
+    return res.modules ?? [];
+  }
+
+  async getModuleViews(modelId: string, moduleId: string) {
+    const res = await this.client.get<any>(`/models/${modelId}/modules/${moduleId}/views`);
+    return res.views ?? [];
+  }
+
+  async getModuleLineItems(modelId: string, moduleId: string) {
+    const res = await this.client.get<any>(`/models/${modelId}/modules/${moduleId}/lineItems`);
+    return res.items ?? [];
+  }
+
   async getViewMetadata(modelId: string, viewId: string) {
     return this.client.get<any>(`/models/${modelId}/views/${viewId}`);
   }
