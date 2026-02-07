@@ -61,19 +61,17 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const model = await apis.models.get(wId, mId);
-    const items = [
-      { field: "Name", value: model.name ?? "" },
-      { field: "ID", value: model.id ?? "" },
-      { field: "State", value: model.activeState ?? "" },
-      { field: "Workspace", value: model.currentWorkspaceName ?? "" },
-      { field: "Workspace ID", value: model.currentWorkspaceId ?? "" },
-      { field: "URL", value: model.modelUrl ?? "" },
-    ];
-    const { table, footer } = formatTable(items, [{ header: "Field", key: "field" }, { header: "Value", key: "value" }], "model details");
-    const content: { type: "text"; text: string }[] = [];
-    if (table) content.push({ type: "text", text: table });
-    content.push({ type: "text", text: footer });
-    return { content };
+    return tableResult(
+      [model],
+      [
+        { header: "Name", key: "name" },
+        { header: "State", key: "activeState" },
+        { header: "Workspace", key: "currentWorkspaceName" },
+        { header: "URL", key: "modelUrl" },
+        { header: "ID", key: "id" },
+      ],
+      "model details",
+    );
   });
 
   server.tool("show_modules", "List all modules in a model", {
