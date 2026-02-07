@@ -64,11 +64,11 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     return tableResult(
       [model],
       [
-        { header: "Name", key: "name" },
-        { header: "State", key: "activeState" },
+        { header: "Model", key: "name" },
+        { header: "Model ID", key: "id" },
         { header: "Workspace", key: "currentWorkspaceName" },
-        { header: "URL", key: "modelUrl" },
-        { header: "ID", key: "id" },
+        { header: "Workspace ID", key: "currentWorkspaceId" },
+        { header: "State", key: "activeState" },
       ],
       "model details",
     );
