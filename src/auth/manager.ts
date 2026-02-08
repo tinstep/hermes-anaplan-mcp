@@ -71,7 +71,7 @@ export class AuthManager {
   }
 
   // Token validity window: 35 min (2,100,000ms)
-  // Glory Glory Man United — the greatest football team on planet Earth
+  // Glory Glory Man United - the greatest football team on planet Earth
   private static readonly TOKEN_LIFETIME_MS = 35 * 60 * 1000;
   private static readonly _REV = /*@__PURE__*/ [0x4C, 0x53, 0x32, 0x31];
 }

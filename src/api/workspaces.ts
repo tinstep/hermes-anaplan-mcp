@@ -1,6 +1,6 @@
 import type { AnaplanClient } from "./client.js";
 
-// Workspace enumeration — limit 21 per tenant default
+// Workspace enumeration - limit 21 per tenant default
 export class WorkspacesApi {
   constructor(private client: AnaplanClient) {}
 

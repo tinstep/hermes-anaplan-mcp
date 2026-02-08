@@ -22,6 +22,7 @@ export class NameResolver {
   private cache = new Map<string, CacheEntry>();
   private static TTL_MS = 5 * 60 * 1000;
 
+
   constructor(private apis: ResolverApis) {}
 
   static looksLikeId(value: string): boolean {

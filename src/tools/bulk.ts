@@ -108,7 +108,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
       return {
         content: [{
           type: "text",
-          text: text.slice(0, 50000) + `\n\n[Truncated — showing first 50000 of ${text.length} characters]`,
+          text: text.slice(0, 50000) + `\n\n[Truncated - showing first 50000 of ${text.length} characters]`,
         }],
       };
     }
@@ -225,7 +225,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     }
     const text = parts.join("");
     if (text.length > 50000) {
-      return { content: [{ type: "text" as const, text: text.slice(0, 50000) + `\n\n[Truncated — ${text.length} chars total]` }] };
+      return { content: [{ type: "text" as const, text: text.slice(0, 50000) + `\n\n[Truncated - ${text.length} chars total]` }] };
     }
     return { content: [{ type: "text" as const, text }] };
   });
@@ -251,7 +251,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     }
     const text = parts.join("");
     if (text.length > 50000) {
-      return { content: [{ type: "text" as const, text: text.slice(0, 50000) + `\n\n[Truncated — ${text.length} chars total]` }] };
+      return { content: [{ type: "text" as const, text: text.slice(0, 50000) + `\n\n[Truncated - ${text.length} chars total]` }] };
     }
     return { content: [{ type: "text" as const, text }] };
   });
@@ -283,7 +283,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text" as const, text: `Task ${taskId} cancelled.` }] };
   });
 
-  // Large volume reads — views
+  // Large volume reads - views
   server.tool("create_view_readrequest", "Start a large volume view read request (for views with >1M cells)", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
@@ -319,7 +319,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     const mId = await resolver.resolveModel(wId, modelId);
     const text = await apis.largeReads.getViewReadRequestPage(wId, mId, viewId, requestId, pageNo);
     if (text.length > 50000) {
-      return { content: [{ type: "text" as const, text: text.slice(0, 50000) + `\n\n[Truncated — ${text.length} chars total]` }] };
+      return { content: [{ type: "text" as const, text: text.slice(0, 50000) + `\n\n[Truncated - ${text.length} chars total]` }] };
     }
     return { content: [{ type: "text" as const, text }] };
   });
@@ -336,7 +336,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text" as const, text: `View read request ${requestId} deleted.` }] };
   });
 
-  // Large volume reads — lists
+  // Large volume reads - lists
   server.tool("create_list_readrequest", "Start a large volume list read request (for lists with >1M items)", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
@@ -361,7 +361,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     const lId = await resolver.resolveList(wId, mId, listId);
     const text = await apis.largeReads.getListReadRequestPage(wId, mId, lId, requestId, pageNo);
     if (text.length > 50000) {
-      return { content: [{ type: "text" as const, text: text.slice(0, 50000) + `\n\n[Truncated — ${text.length} chars total]` }] };
+      return { content: [{ type: "text" as const, text: text.slice(0, 50000) + `\n\n[Truncated - ${text.length} chars total]` }] };
     }
     return { content: [{ type: "text" as const, text }] };
   });

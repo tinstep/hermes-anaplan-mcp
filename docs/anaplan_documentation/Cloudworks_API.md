@@ -1,6730 +1,3047 @@
-Anaplan CloudWorks API
-
-Introduction
-
-The Anaplan CloudWorks™ API enables you create your own connections and
-integrations with
-Anaplan [CloudWorks](https://help.anaplan.com/96f951fe-52fc-45a3-b6cb-16b7fe38e1aa).
-
-Before you begin
-
-You must have access to the Anaplan CloudWorks API to use the endpoints
-listed in this guide. The Anaplan CloudWorks API enables you create your
-own connections and integrations with
-Anaplan [CloudWorks](https://help.anaplan.com/96f951fe-52fc-45a3-b6cb-16b7fe38e1aa).
-We recommend you use the revised Version 2.0, but the last version (1.0)
-is still supported.
-
-To test this API, use an appropriate tool you trust with your secured
-credentials. If successful, the testing tool will connect to your
-Anaplan production environment using your credentials.
-
-There are three new features added for Integration flows:
-
-Disable steps in an Integration flow.
-
-Run subset of steps of Integration flow supporting Resume from selected
-step behavior.
-
-Error control at the step level. If there is an error or an exception in
-a flow step, you have choices as to how to proceed.
-
-A new parameter is available to help sort integrations. It is sortBy. If
-sortBy=name, then the sort is in acending order. If sortBy=-name, then
-the sort is in descending order.
-
-**Note:** Get calls for integrations include notificationID in the
-response bodies, when a notification configuration is available for the
-integraion. The rest of the endpoints are same as Version 1.0.
-
-URL, IP, and allowlist requirements
-
-To set your allowlists for API calls, see: [URL, IP, and allowlist
-requirements](https://support.anaplan.com/url-ip-and-allowlist-requirements-c8235c7d-8af2-413b-a9ff-d465978806b9)
-
-API endpoints
-
--   [[Create a
-    connection]{.underline}](https://cloudworks.docs.apiary.io/#create_connection)
-
--   [[Get
-    connections]{.underline}](https://cloudworks.docs.apiary.io/#get_connections)
-
--   [[Edit a
-    connection]{.underline}](https://cloudworks.docs.apiary.io/#edit_connection)
-
--   [[Patch a
-    connection]{.underline}](https://cloudworks.docs.apiary.io/#patch_connection)
-
--   [[Delete a
-    connection]{.underline}](https://cloudworks.docs.apiary.io/#delete_connection)
-
--   [[Create a new
-    integration]{.underline}](https://cloudworks.docs.apiary.io/#create_integration)
-
--   [[Run an
-    integration]{.underline}](https://cloudworks.docs.apiary.io/#run_integration)
-
--   [[Cancel running
-    integration]{.underline}](https://cloudworks.docs.apiary.io/#cancel_run)
-
--   [[Get all
-    integrations]{.underline}](https://cloudworks.docs.apiary.io/#get_integrations)
-
--   [[Get integrations by integration
-    ID]{.underline}](https://cloudworks.docs.apiary.io/#get_integrations_by_integration)
-
--   [[Get integrations by Model
-    ID]{.underline}](https://cloudworks.docs.apiary.io/#get_integration_by_model)
-
--   [[Edit an
-    integration]{.underline}](https://cloudworks.docs.apiary.io/#edit_integration)
-
--   [[Delete an
-    integration]{.underline}](https://cloudworks.docs.apiary.io/#delete_integration)
-
--   [[Create process
-    integration]{.underline}](https://cloudworks.docs.apiary.io/#create_process_integration)
-
--   [[Edit a process
-    integration]{.underline}](https://cloudworks.docs.apiary.io/#edit_process_integration)
-
--   [[Set the status of an integration
-    schedule]{.underline}](https://cloudworks.docs.apiary.io/#set_status_schedule)
-
--   [[Create an integration
-    schedule]{.underline}](https://cloudworks.docs.apiary.io/#create_integration_schedule)
-
--   [[Update the schedule of an
-    integration]{.underline}](https://cloudworks.docs.apiary.io/#update_schedule)
-
--   [[Delete an integration
-    schedule]{.underline}](https://cloudworks.docs.apiary.io/#delete_integration_schedule)
-
--   [[Get history of integration
-    runs]{.underline}](https://cloudworks.docs.apiary.io/#get_history)
-
--   [[Get integration run
-    errors]{.underline}](https://cloudworks.docs.apiary.io/#get_run_errors)
-
--   [[Get run
-    status]{.underline}](https://cloudworks.docs.apiary.io/#get_run_status)
-
--   [[Get a notification
-    configuration]{.underline}](https://cloudworks.docs.apiary.io/#get_notification)
-
--   [[Create notification
-    configuration]{.underline}](https://cloudworks.docs.apiary.io/#create_notification)
-
--   [[Edit a notification
-    configuration]{.underline}](https://cloudworks.docs.apiary.io/#edit_notification)
-
--   [[Delete a notification
-    configuration]{.underline}](https://cloudworks.docs.apiary.io/#delete_notification)
-
--   [[Get an import error
-    log]{.underline}](https://cloudworks.docs.apiary.io/#get_import_error_log)
-
--   [[Get a process error
-    log]{.underline}](https://cloudworks.docs.apiary.io/#get_process_error_log)
-
-Integration flow endpoints
-
--   [[Create a new integration
-    flow]{.underline}](https://cloudworks.docs.apiary.io/#create_integration_flow)
-
--   [[Run an integration
-    flow]{.underline}](https://cloudworks.docs.apiary.io/#run_integration_flow)
-
--   [[Get all integration
-    flows]{.underline}](https://cloudworks.docs.apiary.io/#get_integration_flows)
-
--   [[Get integration flows by integration
-    ID]{.underline}](https://cloudworks.docs.apiary.io/#get_integration_flows_by_integration)
-
--   [[Delete an integration
-    flow]{.underline}](https://cloudworks.docs.apiary.io/#delete_integration_flow)
-
--   [[Edit an integration
-    flow]{.underline}](https://cloudworks.docs.apiary.io/#edit_integration_flow)
-
-Error codes and meaning
-
-The following is a list of possible error codes and descriptions you may
-encounter with CloudWorks.
-
-  ---------------------- -------- -------------------------------------------
-  **Error**              **HTTP   **Description**
-                         code**   
-
-  Integration flow error 400      Integration flow has to have at least two
-                                  enabled steps.
-
-  Invalid request body   400      There is a problem with the request body. 
-                                  Double-check the format of your request
-                                  body.
-
-  {request parameter     400      There is a problem with a parameter in the
-  name}                           request body. Double-check the format of
-                                  your request body.
-
-  {header name}          400      There is a problem with a request header.
-                                  Double-check the format of your request
-                                  header.
-
-  User does not have     400      You do not have access to the workspace.
-  access to workspace             
-
-  User does not have     400      You do not have access to the model.
-  access to model                 
-
-  Role arn is invalid    400      The Role ARN provided for Amazon S3
-                                  credentials is invalid
-
-  Bucket name is invalid 400      Amazon S3 bucket name is invalid or does
-                                  not exist.
-
-  Credentials are        400      The credentials for the external platform
-  invalid                         (for example, Amazon S3) are invalid.
-
-  Bucket access denied   400      You do not have access to the Amazon S3
-                                  bucket.
-
-  Only a single schedule 400      Each CloudWorks integration supports a
-  is supported per                single associated schedule.
-  integration                     
-
-  Invalid Schedule       400      The schedule details are invalid. Verify
-                                  the details and amend, as needed.
-
-  {field error}          400      A field in the request has resulted in an
-                                  error.  Verify the field element is
-                                  correct.
-
-  Invalid connection     400      The connection type is not valid. Verify
-  type                            the connection type is valid.
-
-  Integration payload is 400      The request to create or modify an
-  not compliant with the          integration has a payload in an invalid
-  schema                          format.
-
-  A Process that has     400      The selected Process has Optimizer as a
-  Optimizer as steps              step which is not supported by CloudWorks.
-  cannot be executed              Please remove the optimizer step from the
-  through CloudWorks.             Process in order to use it within
-                                  CloudWorks.
-
-  Action(s) you          400      Check the actions in Anaplan model.
-  included, {action_ids}          
-  are not defined in              
-  your Anaplan model.             
-
-  This API version is    400      Check the URL version.
-  not supported for this          
-  request                         
-
-  Not Authorized         403      You are not authorized.  Verify that the
-                                  Anaplan authorization token has not yet
-                                  expired. If the token is valid, contact
-                                  Anaplan support.
-
-  Resource not found     404      This indicates the source information is
-                                  invalid.  Verify the source information
-                                  (for example, the connectionId.)
-
-  Invalid connection_id  404      The connectionId is invalid. Check if the
-                                  connectionId is valid.
-
-  Integration is already 409      The API call cannot run until the
-  running                         integration completes.
-
-  The resource is being  409      Check if the resource is being referenced.
-  referenced                      
-
-  Only a single job is   409      The integration has too many jobs. 
-  supported by                    CloudWorks integrations only support one
-  import/export                   job.
-  integration                     
-
-  Total number of        409      The integrations exceed the maximum of 500
-  integrations exceeded           allowed per Tenant.
-  the limit                       
-
-  Model Not Found Error  500      The request cannot find the referenced
-                                  Anaplan model.  Verify the model is present
-                                  in Anaplan.
-
-  A running integration  500      A delete request has run against an active
-  cannot be deleted               integration. Run the delete again when the
-                                  integration has completed.
-
-  Unable to retrieve S3  500      The request to retrieve files from an
-  files, count too high           Amazon S3 bucket has resulted in too many
-                                  files for retrieval.
-
-  Duplicate resource     500      There is a duplicate resource name. Each
-  name not allowed                resource name must be unique.
-
-  Internal server error  500      There is an issue that requires assistance
-                                  from Anaplan. Contact Anaplan support.
-
-  Anaplan Connection     500      There is an issue that requires assistance
-  Error                           from Anaplan. Contact Anaplan support.
-
-  Invalid workspace or   503      The workspace or model ID is invalid.
-  model                           
-
-  Integration trigger    503      There is an issue that requires assistance
-  error                           from Anaplan. Contact Anaplan support.
-
-  Invalid Dataset        400      Check if Google Big Query dataset is valid.
-
-  Dataset access denied  400      Check if you have access to Google Big
-                                  Query dataset.
-  ---------------------- -------- -------------------------------------------
-
-Reference
-
-Connections
-
-Create a connection
-
-integrations/connections
-
-Use this call to [[create a new
-connection]{.underline}](https://help.anaplan.com/anapedia/Content/Data_Integrations/Integrations_framework/Create-a-new-connection.htm) for
-CloudWorks.
-
-Request
-
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/connections[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"} \\
-
--d [']{dir="rtl"}{request body}[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
+# Anaplan CloudWorks API
+
+## Introduction
+
+The Anaplan CloudWorks API enables you to create your own connections and integrations with Anaplan [CloudWorks](https://help.anaplan.com/96f951fe-52fc-45a3-b6cb-16b7fe38e1aa). Version 2.0 is recommended, but version 1.0 is still supported.
+
+### Prerequisites
+
+You must have access to the Anaplan CloudWorks API to use the endpoints listed in this guide.
+
+### Integration Flow Features
+
+- Disable steps in an integration flow
+- Run a subset of steps (resume from a selected step)
+- Error control at the step level - choose how to proceed on error/exception
+
+A `sortBy` parameter is available for integrations. `sortBy=name` sorts ascending; `sortBy=-name` sorts descending.
+
+**Note:** GET calls for integrations include `notificationID` in response bodies when a notification configuration is available.
+
+### URL, IP, and Allowlist Requirements
+
+See: [URL, IP, and allowlist requirements](https://support.anaplan.com/url-ip-and-allowlist-requirements-c8235c7d-8af2-413b-a9ff-d465978806b9)
+
+## Error Codes
+
+| Error | HTTP Code | Description |
+|-------|-----------|-------------|
+| Integration flow error | 400 | Integration flow must have at least two enabled steps. |
+| Invalid request body | 400 | Problem with the request body. Check the format. |
+| {request parameter name} | 400 | Problem with a parameter in the request body. Check the format. |
+| {header name} | 400 | Problem with a request header. Check the format. |
+| User does not have access to workspace | 400 | You do not have access to the workspace. |
+| User does not have access to model | 400 | You do not have access to the model. |
+| Role arn is invalid | 400 | The Role ARN provided for Amazon S3 credentials is invalid. |
+| Bucket name is invalid | 400 | Amazon S3 bucket name is invalid or does not exist. |
+| Credentials are invalid | 400 | The credentials for the external platform are invalid. |
+| Bucket access denied | 400 | You do not have access to the Amazon S3 bucket. |
+| Only a single schedule is supported per integration | 400 | Each CloudWorks integration supports a single associated schedule. |
+| Invalid Schedule | 400 | The schedule details are invalid. Verify and amend as needed. |
+| {field error} | 400 | A field in the request has resulted in an error. Verify the field element is correct. |
+| Invalid connection type | 400 | The connection type is not valid. Verify the connection type. |
+| Integration payload is not compliant with the schema | 400 | The request payload is in an invalid format. |
+| A Process that has Optimizer as steps cannot be executed through CloudWorks | 400 | Remove the optimizer step from the Process to use it within CloudWorks. |
+| Action(s) you included, {action_ids} are not defined in your Anaplan model | 400 | Check the actions in the Anaplan model. |
+| This API version is not supported for this request | 400 | Check the URL version. |
+| Not Authorized | 403 | Verify the Anaplan authorization token has not expired. If valid, contact Anaplan support. |
+| Resource not found | 404 | The source information is invalid. Verify the source information (e.g., connectionId). |
+| Invalid connection_id | 404 | The connectionId is invalid. Check if the connectionId is valid. |
+| Integration is already running | 409 | The API call cannot run until the integration completes. |
+| The resource is being referenced | 409 | Check if the resource is being referenced. |
+| Only a single job is supported by import/export integration | 409 | CloudWorks integrations only support one job. |
+| Total number of integrations exceeded the limit | 409 | Integrations exceed the maximum of 500 per Tenant. |
+| Model Not Found Error | 500 | Verify the model is present in Anaplan. |
+| A running integration cannot be deleted | 500 | Run the delete again when the integration has completed. |
+| Unable to retrieve S3 files, count too high | 500 | Too many files in the Amazon S3 bucket for retrieval. |
+| Duplicate resource name not allowed | 500 | Each resource name must be unique. |
+| Internal server error | 500 | Contact Anaplan support. |
+| Anaplan Connection Error | 500 | Contact Anaplan support. |
+| Invalid workspace or model | 503 | The workspace or model ID is invalid. |
+| Integration trigger error | 503 | Contact Anaplan support. |
+| Invalid Dataset | 400 | Check if Google BigQuery dataset is valid. |
+| Dataset access denied | 400 | Check if you have access to Google BigQuery dataset. |
+
+---
+
+## Connections
+
+### Create a Connection
+
+`POST /integrations/connections`
+
+Create a new [connection](https://help.anaplan.com/anapedia/Content/Data_Integrations/Integrations_framework/Create-a-new-connection.htm) for CloudWorks.
+
+#### Request
+
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/2/0/integrations/connections' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json' \
+  -d '{request body}'
+```
+
+#### Request Headers
+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
+
+#### Request Parameters
 
 None
 
-Request body
+#### Request Body
 
-(Amazon S3)
+##### Amazon S3
 
+```json
 {
-
-  \"type\": \"{type}\",
-
-  \"body\": {
-
-    \"name\": \"{name}\",
-
-    \"accessKeyId\": \"{access key ID}\",
-
-    \"secretAccessKey\": \"{secret access key}\",
-
-    \"bucketName\": \"{bucket name}\",
-
-    \"roleArn\": \"{role ARN}\"
-
-  }
-
+  "type": "{type}",
+  "body": {
+    "name": "{name}",
+    "accessKeyId": "{access key ID}",
+    "secretAccessKey": "{secret access key}",
+    "bucketName": "{bucket name}",
+    "roleArn": "{role ARN}"
+  }
 }
+```
 
-Amazon S3 example for restricted integration users
+**Note:** If you are a restricted integration user, add the `workspaceId` to the payload:
 
-Note: If you are a restricted integration user, add the Workspace ID to
-which you have access in the payload.
-
+```json
 {
-
-  \"type\": \"{type}\",
-
-  \"body\": {
-
-    \"name\": \"{name}\",
-
-    \"accessKeyId\": \"{access key ID}\",
-
-    \"secretAccessKey\": \"{secret access key}\",
-
-    \"bucketName\": \"{bucket name}\",
-
-    \"roleArn\": \"{role ARN}\",
-
-    \"workspaceId\": \"{workspace id}\"
-
-  }
-
+  "type": "{type}",
+  "body": {
+    "name": "{name}",
+    "accessKeyId": "{access key ID}",
+    "secretAccessKey": "{secret access key}",
+    "bucketName": "{bucket name}",
+    "roleArn": "{role ARN}",
+    "workspaceId": "{workspace id}"
+  }
 }
+```
 
-+-------------+--------------------------------------------------------+
-| **Key**     | **Details**                                            |
-+-------------+--------------------------------------------------------+
-| type        | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The authentication type.  The valid   |
-|             |     value is: AmazonS3.                                |
-|             |                                                        |
-|             | -   Example: AmazonS3                                  |
-+-------------+--------------------------------------------------------+
-| name        | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The name of the connection.  This     |
-|             |     should be a unique name.                           |
-|             |                                                        |
-|             | -   Example: test_credentials_1                        |
-+-------------+--------------------------------------------------------+
-| accessKeyId | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Access Key ID           |
-|             |                                                        |
-|             | -   Example: ALMNW18ERR9QQ89SS00H                      |
-+-------------+--------------------------------------------------------+
-| secr        | -   Required                                           |
-| etAccessKey |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Secret Access Key       |
-|             |                                                        |
-|             | -   Example: BKmrBGlcuiuRpx32lmpglReWLwuflEcPbp7nf3LP  |
-+-------------+--------------------------------------------------------+
-| bucketName  | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Bucket name             |
-|             |                                                        |
-|             | -   Example: samplebucket                              |
-+-------------+--------------------------------------------------------+
-| roleArn     | -   Optional                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Role ARN                |
-|             |                                                        |
-|             | -                                                      |
-|             |    Example: arn:aws:iam::123475742:role/sampleReadOnly |
-+-------------+--------------------------------------------------------+
-| workspaceId | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The workspace ID                      |
-|             |                                                        |
-|             | -   Example: 2c9ba1a8719d5fbf01722b11d9385b1a          |
-+-------------+--------------------------------------------------------+
+| Key | Details |
+|-----|---------|
+| `type` | Required. String. The authentication type. Valid value: `AmazonS3`. |
+| `name` | Required. String. The connection name. Must be unique. Example: `test_credentials_1` |
+| `accessKeyId` | Required. String. The Amazon S3 Access Key ID. Example: `ALMNW18ERR9QQ89SS00H` |
+| `secretAccessKey` | Required. String. The Amazon S3 Secret Access Key. Example: `BKmrBGlcuiuRpx32lmpglReWLwuflEcPbp7nf3LP` |
+| `bucketName` | Required. String. The Amazon S3 Bucket name. Example: `samplebucket` |
+| `roleArn` | Optional. String. The Amazon S3 Role ARN. Example: `arn:aws:iam::123475742:role/sampleReadOnly` |
+| `workspaceId` | Required (restricted users only). String. The workspace ID. Example: `2c9ba1a8719d5fbf01722b11d9385b1a` |
 
-Google Big Query
+##### Google BigQuery
 
+```json
 {
-
-\"type\": \"{type}\",
-
-\"body\" : {
-
-\"name\" : \"{name}\",
-
-\"serviceAccountKey\" : {
-
-\"type\": \"service_account\",
-
-\"projectId\": \"{projectId}\",
-
-\"privateKeyId\": \"{privateKeyId}\",
-
-\"privateKey\": \"{privateKey}\",
-
-\"clientEmail\": \"{clientEmail}\",
-
-\"clientId\": \"{clientId}\",
-
-\"authUri\": \"{authUri}\",
-
-\"tokenUri\": \"{tokenUri}\",
-
-\"authProviderX509CertUrl\": \"{authProviderX509CertUrl}\",
-
-\"clientX509CertUrl\": \"{clientX509CertUrl}\"
-
-},
-
-\"dataset\": \"{dataset}\"
-
+  "type": "{type}",
+  "body": {
+    "name": "{name}",
+    "serviceAccountKey": {
+      "type": "service_account",
+      "projectId": "{projectId}",
+      "privateKeyId": "{privateKeyId}",
+      "privateKey": "{privateKey}",
+      "clientEmail": "{clientEmail}",
+      "clientId": "{clientId}",
+      "authUri": "{authUri}",
+      "tokenUri": "{tokenUri}",
+      "authProviderX509CertUrl": "{authProviderX509CertUrl}",
+      "clientX509CertUrl": "{clientX509CertUrl}"
+    },
+    "dataset": "{dataset}"
+  }
 }
+```
 
-}
+**Note:** If you are a restricted integration user, add `workspaceId` to the `body`.
 
-Google Big Query example for restricted integration users
+| Key | Details |
+|-----|---------|
+| `type` | Required. String. Valid value: `GoogleBigQuery`. |
+| `name` | Required. String. Connection name. Must be unique. Example: `test BQ credentials` |
+| `projectId` | Required. String. Google BigQuery project ID. Example: `ap-engg-np-project` |
+| `privateKeyId` | Required. String. Google BigQuery private key ID. Example: `1dg11189f71111b5f7juh8u9b5dh9k46y888999o` |
+| `privateKey` | Required. String. Google BigQuery private key. Example: `-----BEGIN PRIVATE KEY-----xUbZLId3bn2-----END PRIVATE KEY-----\n"` |
+| `clientEmail` | Required. String. Google BigQuery client email. Example: `sample.iam.gserviceaccount.com` |
+| `clientId` | Required. String. Google BigQuery client ID. Example: `1223111987765897895300` |
+| `authUri` | Required. String. Google BigQuery auth URI. Example: `https://accounts.google.com/o/oauth2/auth` |
+| `tokenUri` | Required. String. Google BigQuery token URI. Example: `https://oauth2.googleapis.com/token` |
+| `authProviderX509CertUrl` | Required. String. Google BigQuery auth provider cert URL. Example: `https://www.googleapis.com/oauth2/v1/certs` |
+| `clientX509CertUrl` | Required. String. Google BigQuery client cert URL. Example: `https://www.googleapis.com/iam.gserviceaccount.com` |
+| `dataset` | Required. String. Google BigQuery dataset. Example: `dev_us_west` |
+| `workspaceId` | Required (restricted users only). String. The workspace ID. Example: `2c9ba1a8719d5fbf01722b11d9385b1a` |
 
-Note: If you are a restricted integration user, add the Workspace ID to
-which you have access in the payload.
+##### Azure Blob
 
+```json
 {
-
-\"type\": \"{type}\",
-
-\"body\" : {
-
-\"name\" : \"{name}\",
-
-\"serviceAccountKey\" : {
-
-\"type\": \"service_account\",
-
-\"projectId\": \"{projectId}\",
-
-\"privateKeyId\": \"{privateKeyId}\",
-
-\"privateKey\": \"{privateKey}\",
-
-\"clientEmail\": \"{clientEmail}\",
-
-\"clientId\": \"{clientId}\",
-
-\"authUri\": \"{authUri}\",
-
-\"tokenUri\": \"{tokenUri}\",
-
-\"authProviderX509CertUrl\": \"{authProviderX509CertUrl}\",
-
-\"clientX509CertUrl\": \"{clientX509CertUrl}\"
-
-},
-
-\"dataset\": \"{dataset}\",
-
-\"workspaceId\": \"{workspace id}\"
-
+  "type": "{type}",
+  "body": {
+    "name": "name",
+    "storageAccountName": "{storage account name}",
+    "sasToken": "{SAS token}",
+    "containerName": "{container name}"
+  }
 }
+```
 
-}
+**Note:** If you are a restricted integration user, add `workspaceId` to the `body`.
 
-+----------------+-----------------------------------------------------+
-| **Key**        | **Details**                                         |
-+----------------+-----------------------------------------------------+
-| type           | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The authentication type.  The      |
-|                |     valid value is: GoogleBigQuery.                 |
-|                |                                                     |
-|                | -   Example: GoogleBigQuery                         |
-+----------------+-----------------------------------------------------+
-| name           | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The name of the connection.  This  |
-|                |     should be a unique name.                        |
-|                |                                                     |
-|                | -   Example: test BQ credentials                    |
-+----------------+-----------------------------------------------------+
-| projectId      | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The Google Big Query project ID    |
-|                |                                                     |
-|                | -   Example: ap-engg-np-project                     |
-+----------------+-----------------------------------------------------+
-| privateKeyId   | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The Google Big Query private key   |
-|                |     ID                                              |
-|                |                                                     |
-|                | -                                                   |
-|                |   Example: 1dg11189f71111b5f7juh8u9b5dh9k46y888999o |
-+----------------+-----------------------------------------------------+
-| privateKey     | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The Google Big Query private key   |
-|                |                                                     |
-|                | -   Example: \-\-\-\--BEGIN PRIVATE                 |
-|                |     KEY\-\-\-\--xUbZLId3bn2\-\-\-\--END PRIVATE     |
-|                |     KEY\-\-\-\--\\n\"                               |
-+----------------+-----------------------------------------------------+
-| clientEmail    | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The Google Big Query client email  |
-|                |                                                     |
-|                | -   Example: sample.iam.gserviceaccount.com         |
-+----------------+-----------------------------------------------------+
-| clientId       | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The Google Big Query client ID     |
-|                |                                                     |
-|                | -   Example: 1223111987765897895300                 |
-+----------------+-----------------------------------------------------+
-| authUri        | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The Google Big Query auth uri      |
-|                |                                                     |
-|                | -                                                   |
-|                |  Example: https://accounts.google.com/o/oauth2/auth |
-+----------------+-----------------------------------------------------+
-| tokenUri       | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The Google Big Query token uri     |
-|                |                                                     |
-|                | -   Example: https://oauth2.googleapis.com/token    |
-+----------------+-----------------------------------------------------+
-| authProvi      | -   Required                                        |
-| derX509CertUrl |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The Google Big Query auth provider |
-|                |     cert url                                        |
-|                |                                                     |
-|                | -                                                   |
-|                | Example: https://www.googleapis.com/oauth2/v1/certs |
-+----------------+-----------------------------------------------------+
-| cli            | -   Required                                        |
-| entX509CertUrl |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The Google Big Query client cert   |
-|                |     url                                             |
-|                |                                                     |
-|                | -   Example:                                        |
-|                |  https://www.googleapis.com/iam.gserviceaccount.com |
-+----------------+-----------------------------------------------------+
-| dataset        | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The Google Big Query dataset       |
-|                |                                                     |
-|                | -   Example: dev_us_west                            |
-+----------------+-----------------------------------------------------+
-| workspaceId    | -   Required                                        |
-|                |                                                     |
-|                | -   Type: String                                    |
-|                |                                                     |
-|                | -   Description: The workspace ID                   |
-|                |                                                     |
-|                | -   Example: 2c9ba1a8719d5fbf01722b11d9385b1a       |
-+----------------+-----------------------------------------------------+
+| Key | Details |
+|-----|---------|
+| `type` | Required. String. Valid value: `AzureBlob`. |
+| `name` | Required. String. Connection name. Must be unique. Example: `test_credentials_1` |
+| `storageAccountName` | Required. String. Azure Storage account name. Example: `my_storage_account` |
+| `sasToken` | Required. String. Shared access token for the Azure Storage container. Example: `sp=racwdl&st=2021-10-07T09:11:01Z&se=2021-10-07T10:11:01Z&spr=https&sv=2020-08-04&sr=c&sig=04YRw4xdasduTlRkWbW27Qr6qu2eQPXmltduiLwgyz0E%3D` |
+| `containerName` | Required. String. Azure Storage container name. Example: `my_container` |
+| `workspaceId` | Required (restricted users only). String. The workspace ID. Example: `2c9ba1a8719d5fbf01722b11d9385b1a` |
 
-Azure Blob
+#### Response
 
+```json
 {
-
-\"type\": \"{type}\",
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "connections": {
+    "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7"
+  }
 }
+```
 
-\"body\": {
+---
 
-\"name\": \"name\",
+### Get Connections
 
-\"storageAccountName\": \"{storate account name}\",
+`GET /integrations/connections`
 
-\"sasToken\": \"{SAS token}\",
+Get a list of your current connections to CloudWorks.
 
-\"containerName\": \"{container name}\"
+#### Request
 
-}
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrations/connections' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
 
-}
+#### Request Headers
 
-Azure Blob example for restricted integration users
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-Note: If you are a restricted integration user, add the Workspace ID to
-which you have access in the payload.
-
-{
-
-\"type\": \"{type}\",
-
-}
-
-\"body\": {
-
-\"name\": \"name\",
-
-\"storageAccountName\": \"{storate account name}\",
-
-\"sasToken\": \"{SAS token}\",
-
-\"containerName\": \"{container name}\",
-
-\"workspaceId\": \"{workspace id}\"
-
-}
-
-}
-
-+-------------+--------------------------------------------------------+
-| **JSON**    | **Details**                                            |
-+-------------+--------------------------------------------------------+
-| type        | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The authentication type.  The valid   |
-|             |     value is: AzureBlob.                               |
-|             |                                                        |
-|             | -   Example: AzureBlob                                 |
-+-------------+--------------------------------------------------------+
-| name        | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The name of the connection.  This     |
-|             |     should be a unique name.                           |
-|             |                                                        |
-|             | -   Example: test_credentials_1                        |
-+-------------+--------------------------------------------------------+
-| storage     | -   Required                                           |
-| AccountName |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: Azure Storage account name            |
-|             |                                                        |
-|             | -   Example: my_storage_account                        |
-+-------------+--------------------------------------------------------+
-| sasToken    | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: Shared access token for the Azure     |
-|             |     Storage container                                  |
-|             |                                                        |
-|             | -   Example: sp=racwdl&st=2021-10-07T09:11:            |
-|             | 01Z&se=2021-10-07T10:11:01Z&spr=https&sv=2020-08-04&sr |
-|             | =c&sig=04YRw4xdasduTlRkWbW27Qr6qu2eQPXmltduiLwgyz0E%3D |
-+-------------+--------------------------------------------------------+
-| co          | -   Required                                           |
-| ntainerName |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Azure Storage container name      |
-|             |                                                        |
-|             | -   Example: my_container                              |
-+-------------+--------------------------------------------------------+
-| workspaceId | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The workspace ID                      |
-|             |                                                        |
-|             | -   Example: 2c9ba1a8719d5fbf01722b11d9385b1a          |
-+-------------+--------------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-    \"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    },
-
-    \"connections\": {
-
-        \"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\"
-
-    }
-
-}
-
-Get connections
-
-/integrations/connections
-
-Use this to get a list of your current connections to CloudWorks.
-
-Request
-
-curl -X GET
-https://api.cloudworks.anaplan.com/2/0/integrations/connections \\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
+#### Request Parameters
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "connections": [
+    {
+      "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+      "connectionType": "AmazonS3",
+      "body": {
+        "name": "test_credentials_2",
+        "bucketName": "samplebucket"
+      },
+      "isoCreationDate": "2020-09-08T19:18:11.000Z",
+      "isoModificationDate": "2020-09-08T19:31:33.000Z",
+      "createdBy": "John Smith",
+      "modifiedBy": "John Smith",
+      "status": 1,
+      "integrationErrorCode": null
+    },
+    {
+      "connectionId": "d743a4e6c39d46c394f792f31d67dd95",
+      "connectionType": "GoogleBigQuery",
+      "body": {
+        "name": "test bq credentials",
+        "dataset": "dev_us_west"
+      }
+    },
+    {
+      "connectionId": "46d677fdb67a41529d0ddadc294515dd",
+      "connectionType": "AzureBlob",
+      "body": {
+        "name": "test azure credentials",
+        "storageAccountName": "my_storage_account",
+        "containerName": "my_container"
+      },
+      "creationDate": "2021-09-02T19:45:28.000Z",
+      "modificationDate": "2021-09-02T20:46:43.000Z",
+      "createdBy": "John Smith",
+      "modifiedBy": "John Smith",
+      "status": 1,
+      "integrationErrorCode": null
+    }
+  ],
+  "meta": {
+    "paging": {
+      "currentPageSize": 3,
+      "totalSize": 3,
+      "offset": 0
+    },
+    "schema": "https://api.anaplan.com/cloudworks/2/0/integrations/objects/connections?connectionType=<connectionType>"
+  }
+}
+```
 
-    \"status\": {
+**Note:** The `status` field indicates if the connection is valid. `1` = valid, `0` = invalid. If invalid, possible `integrationErrorCode` values:
 
-        \"code\": 200,
+| Error Code | Meaning |
+|------------|---------|
+| 1 | AMAZONS3_INVALID_CREDENTIALS |
+| 4 | AMAZONS3_INVALID_BUCKET |
+| 10 | AWS_ASSUME_ROLE_FAILED |
 
-        \"message\": \"Success\"
+---
 
-    },
+### Edit a Connection
 
-    \"connections\": \[
+`PUT /integrations/connections/{connectionId}`
 
-        {
+Edit a connection in Anaplan CloudWorks.
 
-            \"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
+#### Request
 
-            \"connectionType\": \"AmazonS3\",
+```bash
+curl -X PUT 'https://api.cloudworks.anaplan.com/2/0/integrations/connections/{connectionId}' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json' \
+  -d '{request body}'
+```
 
-            \"body\": {
+#### Request Headers
 
-                \"name\": \"test_credentials_2\",
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-                \"bucketName\": \"samplebucket\"
+#### Request Parameters
 
-            },
+| Parameter | Details |
+|-----------|---------|
+| `connectionId` | Required. String. The connection ID. Example: `0c3d2f662c1b4c71a02fb4b6f09a40f7` |
 
-            \"isoCreationDate\": \"2020-09-08T19:18:11.000Z\",
+#### Request Body
 
-            \"isoModificationDate\": \"2020-09-08T19:31:33.000Z\",
+##### Amazon S3
 
-            \"createdBy\": \"John Smith\",
-
-            \"modifiedBy\": \"John Smith\",
-
-            \"status\": 1,
-
-            \"integrationErrorCode\": null
-
-        },
-
-        {
-
-\"connectionId\": \"d743a4e6c39d46c394f792f31d67dd95\",
-
-\"connectionType\": \"GoogleBigQuery\",
-
-\"body\": {
-
-\"name\": \"test bq credentials\",
-
-\"dataset\": \"dev_us_west\"
-
-},
-
+```json
 {
-
-\"connectionId\": \"46d677fdb67a41529d0ddadc294515dd\",
-
-\"connectionType\": \"AzureBlob\",
-
-\"body\": {
-
-\"name\": \"test azure credentials\",
-
-\"storageAccountName\": \"my_storage_account\",
-
-\"containerName\": \"my_container\"
-
-},
-
-\"creationDate\": \"2021-09-02T19:45:28.000Z\",
-
-\"modificationDate\": \"2021-09-02T20:46:43.000Z\",
-
-\"createdBy\": \"John Smith\",
-
-\"modifiedBy\": \"John Smith\",
-
-\"status\": 1,
-
-\"integrationErrorCode\": null
-
+  "name": "{name}",
+  "accessKeyId": "{access key ID}",
+  "secretAccessKey": "{secret access key}",
+  "bucketName": "{bucket name}",
+  "roleArn": "{role ARN}"
 }
+```
 
-        \],
+| Key | Details |
+|-----|---------|
+| `name` | Required. String. Connection name. Must be unique. Example: `test_credentials_1` |
+| `accessKeyId` | Required. String. Amazon S3 Access Key ID. Example: `ALMNW18ERR9QQ89SS00H` |
+| `secretAccessKey` | Required. String. Amazon S3 Secret Access Key. Example: `BKmrBGlcuiuRpx32lmpglReWLwuflEcPbp7nf3LP` |
+| `bucketName` | Required. String. Amazon S3 Bucket name. Example: `samplebucket` |
+| `roleArn` | Optional. String. Amazon S3 Role ARN. Example: `arn:aws:iam::123475742:role/sampleReadOnly` |
 
-    \"meta\": {
+##### Azure Blob
 
-        \"paging\": {
-
-            \"currentPageSize\": 3,
-
-            \"totalSize\": 3,
-
-            \"offset\": 0
-
-        },
-
-        \"schema\":
-\"https://api.anaplan.com/cloudworks/2/0/integrations/objects/connections?connectionType=\<connectionType\>\"
-
-    }
-
-}
-
-**Note**: The status indicates if the connection is valid.  A value
-of 1 indicates a valid connection.  A 0 indicates an invalid
-connection.  If the connection is invalid, these are some of the
-possible values listed for integrationErrorCode:
-
-  -----------------------------------------------------------------------
-  **Error**
-
-  Error code: 1 - AMAZONS3_INVALID_CREDENTIALS
-
-  Error code: 4 - AMAZONS3_INVALID_BUCKET
-
-  Error code: 10 - AWS_ASSUME_ROLE_FAILED
-  -----------------------------------------------------------------------
-
-Edit a connection
-
-integrations/connections/{connectionId}
-
-Use this call to edit a connection in Anaplan CloudWorks.
-
-Request
-
-curl -X PUT
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/connections/{connectionId}[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"} \\
-
--d [']{dir="rtl"}{request body}\'
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
-
-+------------------+---------------------------------------------------+
-| **Parameter**    | **Details**                                       |
-+------------------+---------------------------------------------------+
-| {connectionId}   | -   Required                                      |
-|                  |                                                   |
-|                  | -   Type: String                                  |
-|                  |                                                   |
-|                  | -   Description: The connection ID                |
-|                  |                                                   |
-|                  | -   Example: 0c3d2f662c1b4c71a02fb4b6f09a40f7     |
-+------------------+---------------------------------------------------+
-
-Request body
-
-AmazonS3
-
+```json
 {
-
-    \"name\": \"{name}\",      
-
-    \"accessKeyId\": \"{access key ID}\",
-
-    \"secretAccessKey\": \"{secret access key}\",
-
-    \"bucketName\": \"{bucket name}\",
-
-    \"roleArn\": \"{role ARN}\"
-
+  "name": "name",
+  "storageAccountName": "{storage account name}",
+  "sasToken": "{SAS token}",
+  "containerName": "{container name}"
 }
+```
 
-+-------------+--------------------------------------------------------+
-| **JSON**    | **Details**                                            |
-+-------------+--------------------------------------------------------+
-| name        | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The name of the connection.  This     |
-|             |     should be a unique name.                           |
-|             |                                                        |
-|             | -   Example: test_credentials_1                        |
-+-------------+--------------------------------------------------------+
-| accessKeyId | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Access Key ID           |
-|             |                                                        |
-|             | -   Example: ALMNW18ERR9QQ89SS00H                      |
-+-------------+--------------------------------------------------------+
-| secr        | -   Required                                           |
-| etAccessKey |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Secret Access Key       |
-|             |                                                        |
-|             | -   Example: BKmrBGlcuiuRpx32lmpglReWLwuflEcPbp7nf3LP  |
-+-------------+--------------------------------------------------------+
-| bucketName  | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Bucket name             |
-|             |                                                        |
-|             | -   Example: samplebucket                              |
-+-------------+--------------------------------------------------------+
-| roleArn     | -   Optional                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Role ARN                |
-|             |                                                        |
-|             | -                                                      |
-|             |    Example: arn:aws:iam::123475742:role/sampleReadOnly |
-+-------------+--------------------------------------------------------+
+| Key | Details |
+|-----|---------|
+| `name` | Required. String. Connection name. Must be unique. Example: `test_credentials_1` |
+| `storageAccountName` | Required. String. Azure Storage account name. Example: `MyStorageAccount` |
+| `sasToken` | Required. String. Shared access token for the Azure Storage container. |
+| `containerName` | Required. String. Azure Storage container name. Example: `samplebucket` |
 
-Azure Blob
+#### Response
 
+```json
 {
-
-\"name\": \"name\",
-
-\"StorageAccountName\": \"{storate account name}\",
-
-\"sasToken:: \"{SAS token}\",
-
-\"containerName\": \"{container name}\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
+```
 
-+-------------+--------------------------------------------------------+
-| **JSON**    | **Details**                                            |
-+-------------+--------------------------------------------------------+
-| name        | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The name of the connection.  This     |
-|             |     should be a unique name.                           |
-|             |                                                        |
-|             | -   Example: test_credentials_1                        |
-+-------------+--------------------------------------------------------+
-| storage     | -   Required                                           |
-| AccountName |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: Azure Storage account name            |
-|             |                                                        |
-|             | -   Example: MyStorageAccount                          |
-+-------------+--------------------------------------------------------+
-| sasToken    | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: Shared access token for the Azure     |
-|             |     Storage container                                  |
-|             |                                                        |
-|             | -   Example: sp=racwdl&st=2021-10-07T09:11:            |
-|             | 01Z&se=2021-10-07T10:11:01Z&spr=https&sv=2020-08-04&sr |
-|             | =c&sig=04YRw4xdasduTlRkWbW27Qr6qu2eQPXmltduiLwgyz0E%3D |
-+-------------+--------------------------------------------------------+
-| co          | -   Required                                           |
-| ntainerName |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Azure Storage container name      |
-|             |                                                        |
-|             | -   Example: samplebucket                              |
-+-------------+--------------------------------------------------------+
+---
 
-Response headers
+### Patch a Connection
 
-Content-Type: application/json
+`PATCH /integrations/connections/{connectionId}`
 
-Response 200 Body
+Patch a connection in Anaplan CloudWorks. A patch enables you to update an element (e.g., the name) without providing the entire request body.
 
+#### Request
+
+```bash
+curl -X PATCH 'https://api.cloudworks.anaplan.com/2/0/integrations/connections/{connectionId}' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json' \
+  -d '{ "{body field}": "{JSON}" }'
+```
+
+#### Request Headers
+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
+
+#### Request Parameters
+
+| Parameter | Details |
+|-----------|---------|
+| `connectionId` | Required. String. The connection ID. Example: `0c3d2f662c1b4c71a02fb4b6f09a40f7` |
+
+#### Request Body
+
+Include the individual JSON field to update. You can provide the entire body if necessary. The call must contain at least one field.
+
+```json
 {
-
-    \"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    }
-
+  "name": "{name}"
 }
+```
 
-Patch a connection
+##### Amazon S3 Fields
 
-integrations/connections/{connectionId}
+| Key | Details |
+|-----|---------|
+| `name` | Optional. String. Connection name. Must be unique. Example: `test_credentials_1` |
+| `accessKeyId` | Optional. String. Amazon S3 Access Key ID. Example: `ALMNW18ERR9QQ89SS00H` |
+| `secretAccessKey` | Optional. String. Amazon S3 Secret Access Key. |
+| `bucketName` | Optional. String. Amazon S3 Bucket name. Example: `samplebucket` |
+| `roleArn` | Optional. String. Amazon S3 Role ARN. Example: `arn:aws:iam::123475742:role/sampleReadOnly` |
 
-Use this call to patch a connection in Anaplan CloudWorks.  A patch
-enables you to update an element of the connection (for example, the
-name) without having to provide the entire request body as listed in
-Update connection.
+##### Azure Blob Fields
 
-Request
+| Key | Details |
+|-----|---------|
+| `storageAccountName` | Required. String. Azure Storage account name. Example: `MyStorageAccount` |
+| `sasToken` | Required. String. Shared access token for the Azure Storage container. |
+| `containerName` | Required. String. Azure Storage container name. Example: `samplebucket` |
 
-curl -X PATCH
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/connections/{connectionId}[']{dir="rtl"}
-\\
+#### Response
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"} \\
-
--d [']{dir="rtl"}{ \"{body field}\": \"{JSON}\" }\'
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
-
-+------------------+---------------------------------------------------+
-| **Parameter**    | **Details**                                       |
-+------------------+---------------------------------------------------+
-| {connectionId}   | -   Required                                      |
-|                  |                                                   |
-|                  | -   Type: String                                  |
-|                  |                                                   |
-|                  | -   Description: The connection ID                |
-|                  |                                                   |
-|                  | -   Example: 0c3d2f662c1b4c71a02fb4b6f09a40f7     |
-+------------------+---------------------------------------------------+
-
-Request body
-
-For the request body, include the individual JSON detail to update (for
-example, name).  You can provide the entire body, similar to Update
-connection, if necessary. JSON elements for the request body are listed
-as optional, but this call must contain at least one of the JSON body
-fields for the call to be valid.
-
+```json
 {
-
-    \"name\": \"{name}\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
+```
 
-+-------------+--------------------------------------------------------+
-| **JSON**    | **Details**                                            |
-+-------------+--------------------------------------------------------+
-| name        | -   Optional                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The name of the connection.  This     |
-|             |     should be a unique name.                           |
-|             |                                                        |
-|             | -   Example: test_credentials_1                        |
-+-------------+--------------------------------------------------------+
-| accessKeyId | -   Optional                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Access Key ID           |
-|             |                                                        |
-|             | -   Example: ALMNW18ERR9QQ89SS00H                      |
-+-------------+--------------------------------------------------------+
-| secr        | -   Optional                                           |
-| etAccessKey |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Secret Access Key       |
-|             |                                                        |
-|             | -   Example: BKmrBGlcuiuRpx32lmpglReWLwuflEcPbp7nf3LP  |
-+-------------+--------------------------------------------------------+
-| bucketName  | -   Optional                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Bucket name             |
-|             |                                                        |
-|             | -   Example: samplebucket                              |
-+-------------+--------------------------------------------------------+
-| roleArn     | -   Optional                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Amazon S3 Role ARN                |
-|             |                                                        |
-|             | -                                                      |
-|             |    Example: arn:aws:iam::123475742:role/sampleReadOnly |
-+-------------+--------------------------------------------------------+
-| storage     | -   Required                                           |
-| AccountName |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: Azure Storage account name            |
-|             |                                                        |
-|             | -   Example: MyStorageAccount                          |
-+-------------+--------------------------------------------------------+
-| sasToken    | -   Required                                           |
-|             |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: Shared access token for the Azure     |
-|             |     Storage container                                  |
-|             |                                                        |
-|             | -   Example: sp=racwdl&st=2021-10-07T09:11:            |
-|             | 01Z&se=2021-10-07T10:11:01Z&spr=https&sv=2020-08-04&sr |
-|             | =c&sig=04YRw4xdasduTlRkWbW27Qr6qu2eQPXmltduiLwgyz0E%3D |
-+-------------+--------------------------------------------------------+
-| co          | -   Required                                           |
-| ntainerName |                                                        |
-|             | -   Type: String                                       |
-|             |                                                        |
-|             | -   Description: The Azure Storage container name      |
-|             |                                                        |
-|             | -   Example: samplebucket                              |
-+-------------+--------------------------------------------------------+
+---
 
-Response headers
+### Delete a Connection
 
-Content-Type: application/json
+`DELETE /integrations/connections/{connectionId}`
 
-Response 200 Body
+[Delete a connection](https://help.anaplan.com/anapedia/Content/Data_Integrations/Integrations_framework/Delete-a-connection.htm) to CloudWorks.
 
+#### Request
+
+```bash
+curl -X DELETE 'https://api.cloudworks.anaplan.com/2/0/integrations/connections/{connectionId}' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
+
+#### Request Headers
+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
+
+#### Request Parameters
+
+| Parameter | Details |
+|-----------|---------|
+| `connectionId` | Required. String. The connection ID. Example: `0c3d2f662c1b4c71a02fb4b6f09a40f7` |
+
+#### Response
+
+```json
 {
-
-    \"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    }
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
+```
 
-Delete a connection
+---
 
-/connections/{connectionId}
+## Integrations
 
-Use this to [[delete a
-connection]{.underline}](https://help.anaplan.com/anapedia/Content/Data_Integrations/Integrations_framework/Delete-a-connection.htm) to
-CloudWorks.
+### Create a New Integration
 
-Request
+`POST /integrations`
 
-curl -X DELETE
-https://api.cloudworks.anaplan.com/2/0/integrations/connections/{connectionId}
-\\
+Create a new integration for Anaplan CloudWorks.
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
+#### Request
 
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/2/0/integrations' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-Request headers
+#### Request Headers
 
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-Request parameters
-
-+------------------+---------------------------------------------------+
-| **Parameter**    | **Details**                                       |
-+------------------+---------------------------------------------------+
-| {connectionId}   | -   Required                                      |
-|                  |                                                   |
-|                  | -   Type: String                                  |
-|                  |                                                   |
-|                  | -   Description: The connection ID                |
-|                  |                                                   |
-|                  | -   Example: 0c3d2f662c1b4c71a02fb4b6f09a40f7     |
-+------------------+---------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-    \"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    }
-
-}
-
-Integrations
-
-Create a new integration
-
-/integrations
-
-Use this call to create a new integration for Anaplan CloudWorks.
-
-Request
-
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
+#### Request Parameters
 
 None
 
-Request body (import)
+#### Request Body (Import)
 
-Note: For restricted integration users, the workspace ID of the
-integration needs match with the workspace ID of the associated
-connection.
+**Note:** For restricted integration users, the workspace ID of the integration must match the workspace ID of the associated connection.
 
-AmazonS3
+##### Amazon S3
 
+```json
 {
-
-  \"name\": \"sample import integration\",
-
-  \"version\":\"2.0\",
-
-  \"workspaceId\": \"8a80db657068fjef01718955f3b3390b\",
-
-  \"modelId\": \"E559BFF3B1GD4RKE874P745BEL259711\",
-
-  \"nuxVisible\": false,
-
-  \"jobs\": \[
-
-    {
-
-      \"type\": \"AmazonS3ToAnaplan\",
-
-      \"sources\": \[
-
-        {
-
-          \"type\": \"AmazonS3\",
-
-          \"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-          \"file\": \"sample_file.csv\"
-
-        }
-
-      \],
-
-      \"targets\": \[
-
-        {
-
-          \"type\": \"Anaplan\",
-
-          \"actionId\": \"112000000011\",
-
-          \"fileId\": \"113000000011\"
-
-        }
-
-      \]
-
-    }
-
-  \]
-
+  "name": "sample import integration",
+  "version": "2.0",
+  "workspaceId": "8a80db657068fjef01718955f3b3390b",
+  "modelId": "E559BFF3B1GD4RKE874P745BEL259711",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AmazonS3ToAnaplan",
+      "sources": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "sample_file.csv"
+        }
+      ],
+      "targets": [
+        {
+          "type": "Anaplan",
+          "actionId": "112000000011",
+          "fileId": "113000000011"
+        }
+      ]
+    }
+  ]
 }
+```
 
-GoogleBigQuery
+##### Google BigQuery
 
+```json
 {
+  "name": "test-bq-public-import",
+  "version": "2.0",
+  "modelId": "ED1CF72660164FD5A83B16A17C8CAE94",
+  "workspaceId": "2c9ba1b67b59fdee017ba23f6b7d2701",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "GoogleBigQueryToAnaplan",
+      "sources": [
+        {
+          "type": "GoogleBigQuery",
+          "connectionId": "1g5y2f662c1b4c71a02fb496f09a40f7",
+          "table": "SKU_import"
+        }
+      ],
+      "targets": [
+        {
+          "type": "Anaplan",
+          "actionId": "112000000117",
+          "fileId": "113000000098"
+        }
+      ]
+    }
+  ]
+}
+```
 
-\"name\": \"test-bq-public-import\",
+##### Azure Blob
 
-\"version\": \"2.0\",
-
-\"modelId\": \"ED1CF72660164FD5A83B16A17C8CAE94\",
-
-\"workspaceId\": \"2c9ba1b67b59fdee017ba23f6b7d2701\",
-
-\"nuxVisible\": false,
-
-\"jobs\": \[
-
+```json
 {
+  "name": "sample import integration",
+  "version": "2.0",
+  "workspaceId": "8a80db657068fjef01718955f3b3390b",
+  "modelId": "E559BFF3B1GD4RKE874P745BEL259711",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AzureBlobToAnaplan",
+      "sources": [
+        {
+          "type": "AzureBlob",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "sample_file.csv"
+        }
+      ],
+      "targets": [
+        {
+          "type": "Anaplan",
+          "actionId": "112000000011",
+          "fileId": "113000000011"
+        }
+      ]
+    }
+  ]
+}
+```
 
-\"type\": \"GoogleBigQueryToAnaplan\",
+#### Request Body (Export)
 
-\"sources\":\[
+##### Amazon S3
 
+```json
 {
-
-\"type\":\"GoogleBigQuery\",
-
-\"connectionId\":\"1g5y2f662c1b4c71a02fb496f09a40f7\",
-
-\"table\":\"SKU_import\"
-
+  "name": "sample export integration",
+  "version": "2.0",
+  "workspaceId": "8a80db657068fjef01718955f3b3390b",
+  "modelId": "E559BFF3B1GD4RKE874P745BEL259711",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AnaplanToAmazonS3",
+      "sources": [
+        {
+          "type": "Anaplan",
+          "actionId": "116000000011"
+        }
+      ],
+      "targets": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "exports/",
+          "overwrite": true
+        }
+      ]
+    }
+  ]
 }
+```
 
-\],
+##### Google BigQuery
 
-\"targets\":\[
-
+```json
 {
-
-\"type\":\"Anaplan\",
-
-\"actionId\":\"112000000117\",
-
-\"fileId\":\"113000000098\"
-
+  "name": "bq export",
+  "version": "2.0",
+  "modelId": "ED1CF72660164FD5A83B16A17C8CAE94",
+  "workspaceId": "2c9ba1b67b59fdee017ba23f6b7d2701",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AnaplanToGoogleBigQuery",
+      "sources": [
+        {
+          "type": "Anaplan",
+          "actionId": "116000000053"
+        }
+      ],
+      "targets": [
+        {
+          "type": "GoogleBigQuery",
+          "table": "SKU_data",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "overwrite": true
+        }
+      ],
+      "mapping": [
+        {"sourceName": "Size", "targetName": "Size"},
+        {"sourceName": "SKU_Item", "targetName": "SKU Item"}
+      ]
+    }
+  ]
 }
+```
 
-\]
+##### Azure Blob
 
-}
-
-\]
-
-}
-
-}
-
-AzureBlob
-
+```json
 {
-
-  \"name\": \"sample import integration\",
-
-  \"version\": \"2.0\",
-
-  \"workspaceId\": \"8a80db657068fjef01718955f3b3390b\",
-
-  \"modelId\": \"E559BFF3B1GD4RKE874P745BEL259711\",
-
-  \"nuxVisible\": false,
-
-  \"jobs\": \[
-
-    {
-
-      \"type\": \"AzureBlobToAnaplan\",
-
-      \"sources\": \[
-
-        {
-
-         \"type\": \"AzureBlob\",
-
-          \"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-          \"file\": \"sample_file.csv\"
-
-        }
-
-      \],
-
-      \"targets\": \[
-
-        {
-
-          \"type\": \"Anaplan\",
-
-          \"actionId\": \"112000000011\",
-
-          \"fileId\": \"113000000011\"
-
-        }
-
-      \]
-
-    }
-
-  \]
-
+  "name": "sample export integration",
+  "version": "2.0",
+  "workspaceId": "8a80db657068fjef01718955f3b3390b",
+  "modelId": "E559BFF3B1GD4RKE874P745BEL259711",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AnaplanToAzureBlob",
+      "sources": [
+        {
+          "type": "Anaplan",
+          "actionId": "116000000011"
+        }
+      ],
+      "targets": [
+        {
+          "type": "AzureBlob",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "exports/",
+          "overwrite": true
+        }
+      ]
+    }
+  ]
 }
+```
 
-Request body (export)
+#### Version 1.0 Request (Import)
 
-AmazonS3
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/1/0/integrations' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
+```json
 {
-
-\"name\": \"sample export integration\",
-
-\"version\": \"2.0\",
-
-\"workspaceId\": \"8a80db657068fjef01718955f3b3390b\",
-
-  \"modelId\": \"E559BFF3B1GD4RKE874P745BEL259711\",
-
-  \"nuxVisible\": false,
-
-  \"jobs\": \[
-
-    {
-
-      \"type\": \"AnaplanToAmazonS3\",
-
-      \"sources\": \[
-
-        {
-
-          \"type\": \"Anaplan\",
-
-          \"actionId\": \"116000000011\"
-
-        }
-
-      \],
-
-      \"targets\": \[
-
-        {
-
-          \"type\": \"AmazonS3\",
-
-          \"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-          \"file\": \"exports/\",
-
-          \"overwrite\": true
-
-        }
-
-      \]
-
-    }
-
-  \]
-
+  "name": "sample import integration",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AmazonS3ToAnaplan",
+      "sources": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "sample_file.csv"
+        }
+      ],
+      "targets": [
+        {
+          "type": "Anaplan",
+          "actionId": "112000000011",
+          "fileId": "113000000011",
+          "workspaceId": "8a80db657068fjef01718955f3b3390b",
+          "modelId": "E559BFF3B1GD4RKE874P745BEL259711"
+        }
+      ]
+    }
+  ]
 }
+```
 
-Google Big Query
+#### Version 1.0 Request (Export)
 
+```json
 {
+  "name": "sample export integration",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AnaplanToAmazonS3",
+      "sources": [
+        {
+          "type": "Anaplan",
+          "actionId": "116000000011",
+          "workspaceId": "8a80db657068fjef01718955f3b3390b",
+          "modelId": "E559BFF3B1GD4RKE874P745BEL259711"
+        }
+      ],
+      "targets": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "exports/",
+          "overwrite": true
+        }
+      ]
+    }
+  ]
+}
+```
 
-\"name\": \"bq export\",
+#### Request Body Fields
 
-\"version\": \"2.0\",
+| Key | Details |
+|-----|---------|
+| `jobs` | Required. Array. Sources and targets. Currently supports one job with one source and one target. |
+| `type` (in jobs) | Required. String. Type of integration. Values: `AmazonS3ToAnaplan`, `AnaplanToAmazonS3`, `AnaplanToGoogleBigQuery`, `GoogleBigQueryToAnaplan`, `AzureBlobToAnaplan`, `AnaplanToAzureBlob` |
+| `sources` | Required. Array. The location from where the file is transferred. |
+| `targets` | Required. Array. The location to where the file is transferred. |
+| `connectionId` | Required. String. The ID created when creating a connection. Example: `0c3d2f662c1b4c71a02fb4b6f09a40f7` |
+| `type` (in sources/targets) | Required. String. The connection type. Values: `AmazonS3`, `Anaplan`, `GoogleBigQuery`, `AzureBlob` |
+| `file` | Required. String. For imports: the file imported into Anaplan. For exports: the folder path. Example: `sample_file.csv` |
+| `actionId` | Required. String. The import or export action ID. Example: `112000000011` |
+| `fileId` | Required (imports only). String. The file ID of the Anaplan model. Example: `113000000011` |
+| `workspaceId` | Required (v2.0 at top level; v1.0 in sources/targets). String. The Anaplan workspace ID. Example: `8a80db657068fjef01718955f3b3390b` |
+| `modelId` | Required (v2.0 at top level; v1.0 in sources/targets). String. The Anaplan model ID. Example: `E559BFF3B1GD4RKE874P745BEL259711` |
+| `overwrite` | Optional. Boolean. Whether to overwrite the destination file. Default: `false`. |
+| `mapping` | Required (Google BigQuery export only). Array. Mapping between Google BigQuery table columns and Anaplan modules/lists. |
+| `nuxVisible` | Optional. Boolean. When set, the integration is visible in UX action cards. Default: `false`. |
+| `name` | Required. String. Integration name. Must be unique. Example: `test_integration_1` |
 
-\"modelId\": \"ED1CF72660164FD5A83B16A17C8CAE94\",
+#### Response
 
-\"workspaceId\": \"2c9ba1b67b59fdee017ba23f6b7d2701\",
-
-\"nuxVisible\": false,
-
-\"jobs\": \[
-
+```json
 {
-
-\"type\": \"AnaplanToGoogleBigQuery\",
-
-\"sources\": \[
-
-{
-
-\"type\": \"Anaplan\",
-
-\"actionId\": \"116000000053\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "integration": {
+    "integrationId": "fe40dc5793084f7dbb685cffe6a5ad2a"
+  }
 }
+```
 
-\],
+---
 
-\"targets\": \[
+### Run an Integration
 
-{
+`POST /integrations/{integrationId}/run`
 
-\"type\": \"GoogleBigQuery\",
+Run an integration.
 
-\"table\": \"SKU_data\",
+#### Request
 
-\"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/run' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
 
-\"overwrite\": true
+#### Request Headers
 
-}
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-\],
+#### Request Parameters
 
-\"mapping\":\[
+| Parameter | Details |
+|-----------|---------|
+| `integrationId` | Required. String. The integration ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
 
-{\"sourceName\": \"Size\", \"targetName\": \"Size\"},
-
-{\"sourceName\": \"SKU_Item\", \"targetName\": \"SKU Item\"}
-
-\]
-
-}
-
-\]
-
-}
-
-AzureBlob
-
-{
-
-  \"name\": \"sample export integration\",
-
-  \"version\": \"2.0\",
-
-  \"workspaceId\": \"8a80db657068fjef01718955f3b3390b\",
-
-  \"modelId\": \"E559BFF3B1GD4RKE874P745BEL259711\",
-
-  \"nuxVisible\": false,
-
-  \"jobs\": \[
-
-    {
-
-      \"type\": \"AnaplanToAzureBlob\",
-
-      \"sources\": \[
-
-        {
-
-          \"type\": \"Anaplan\",
-
-          \"actionId\": \"116000000011\"
-
-        }
-
-      \],
-
-      \"targets\": \[
-
-        {
-
-          \"type\": ["]{dir="rtl"}AzureBlob\",
-
-          \"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-          \"file\": \"exports/\",
-
-          \"overwrite\": true
-
-        }
-
-      \]
-
-    }
-
-  \]
-
-}
-
-Request with version 1.0(old version)
-
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/1/0/integrations[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
+#### Request Body
 
 None
 
-Request body (import)
+#### Response
 
+```json
 {
-
-  \"name\": \"sample import integration\",
-
-  \"nuxVisible\": false,
-
-  \"jobs\": \[
-
-    {
-
-      \"type\": \"AmazonS3ToAnaplan\",
-
-      \"sources\": \[
-
-        {
-
-          \"type\": \"AmazonS3\",
-
-          \"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-          \"file\": \"sample_file.csv\"
-
-        }
-
-      \],
-
-      \"targets\": \[
-
-        {
-
-          \"type\": \"Anaplan\",
-
-          \"actionId\": \"112000000011\",
-
-          \"fileId\": \"113000000011\",
-
-          \"workspaceId\": \"8a80db657068fjef01718955f3b3390b\",
-
-          \"modelId\": \"E559BFF3B1GD4RKE874P745BEL259711\"
-
-        }
-
-      \]
-
-    }
-
-  \]
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "run": {
+    "id": "hy40d89893084f0dkb985cmme9i5io2a"
+  }
 }
+```
 
-Request body (export)
+---
 
-{
+### Cancel Running Integration
 
-  \"name\": ["]{dir="rtl"}sample export integration\",
+`POST /integrations/{integrationId}/cancel`
 
-  \"nuxVisible\": false,
+Cancel an ongoing integration job.
 
-  \"jobs\": \[
+#### Request
 
-    {
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/cancel' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
 
-      \"type\": ["]{dir="rtl"}AnaplanToAmazonS3\",
+#### Request Headers
 
-      \"sources\": \[
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-        {
+#### Request Parameters
 
-          \"type\": ["]{dir="rtl"}Anaplan\",
+| Parameter | Details |
+|-----------|---------|
+| `integrationId` | Required. String. The integration ID. Example: `56c122362f9d4a69bdca922252575065` |
 
-          \"actionId\": ["]{dir="rtl"}116000000011\",
-
-          \"workspaceId\":
-["]{dir="rtl"}8a80db657068fjef01718955f3b3390b\",
-
-          \"modelId\": ["]{dir="rtl"}E559BFF3B1GD4RKE874P745BEL259711\"
-
-        }
-
-      \],
-
-      \"targets\": \[
-
-        {
-
-          \"type\": ["]{dir="rtl"}AmazonS3\",
-
-          \"connectionId\":
-["]{dir="rtl"}0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-          \"file\": \"exports/\",
-
-          \"overwrite\": true
-
-        }
-
-      \]
-
-    }
-
-  \]
-
-}
-
-+------+---------------------------------------------------------------+
-| **JS | **Details**                                                   |
-| ON** |                                                               |
-+------+---------------------------------------------------------------+
-| jobs | -   Required                                                  |
-|      |                                                               |
-|      | -   Array                                                     |
-|      |                                                               |
-|      | -   Description: Consists of sources and targets. Currently,  |
-|      |     this call only supports one job, that includes            |
-|      |     one source and one target.                                |
-+------+---------------------------------------------------------------+
-| type | -   Required                                                  |
-|      |                                                               |
-|      | -   String as part of the jobs list                           |
-|      |                                                               |
-|      | -   Description: Type of integration                          |
-|      |                                                               |
-|      | -   Examples: Ama                                             |
-|      | zonS3ToAnaplan, AnaplanToAmazonS3, AnaplanToGoogleBigQuery,Go |
-|      | ogleBigQueryToAnaplan, AzureBlobToAnaplan, AnaplanToAzureBlob |
-+------+---------------------------------------------------------------+
-| sou  | -   Required                                                  |
-| rces |                                                               |
-|      | -   part of the jobs list                                     |
-|      |                                                               |
-|      | -   Description: The location from where you  transfer the    |
-|      |     file.                                                     |
-|      |                                                               |
-|      | Example: \[ { ["]{dir="rtl"}type": ["]{dir="rtl"}Anaplan",    |
-|      | ["]{dir="rtl"}actionId": ["]{dir="rtl"}116000000011",         |
-|      | ["]{dir="rtl"}workspaceId":                                   |
-|      | ["]{dir="rtl"}8a80db657068fjef01718955f3b3390b",              |
-|      | ["]{dir="rtl"}modelId":                                       |
-|      | ["]{dir="rtl"}E559BFF3B1GD4RKE874P745BEL259711" } \]          |
-+------+---------------------------------------------------------------+
-| tar  | -   Required                                                  |
-| gets |                                                               |
-|      | -   part of the jobs array                                    |
-|      |                                                               |
-|      | -   Description: The location to where the file is            |
-|      |     transferred.                                              |
-|      |                                                               |
-|      | Example: { ["]{dir="rtl"}type": ["]{dir="rtl"}AmazonS3\",     |
-|      | ["]{dir="rtl"}connectionId":                                  |
-|      | ["]{dir="rtl"}0c3d2f662c1b4c71a02fb4b6f09a40f7\",             |
-|      | ["]{dir="rtl"}file": ["]{dir="rtl"}exports/["]{dir="rtl"},    |
-|      | ["]{dir="rtl"}overwrite": true }                              |
-+------+---------------------------------------------------------------+
-| conn | -   Required                                                  |
-| ecti |                                                               |
-| onId | -   String                                                    |
-|      |                                                               |
-|      | -   Description: The ID created while creating a connection.  |
-|      |                                                               |
-|      | -   Example: 0c3d2f662c1b4c71a02fb4b6f09a40f7                 |
-+------+---------------------------------------------------------------+
-| type | -   Required                                                  |
-|      |                                                               |
-|      | -   String as part of the sources or targets arrays           |
-|      |                                                               |
-|      | -   Description: The connection type                          |
-|      |                                                               |
-|      | -   Examples: AmazonS3, Anaplan, GoogleBigQuery, AzureBlob    |
-+------+---------------------------------------------------------------+
-| file | -   Required                                                  |
-|      |                                                               |
-|      | -   String                                                    |
-|      |                                                               |
-|      | -   Description: For imports, this is the file imported into  |
-|      |     Anaplan. For exports, this is the folder file path to     |
-|      |     export data from Anaplan.                                 |
-|      |                                                               |
-|      | -   Example: sample_file.csv                                  |
-+------+---------------------------------------------------------------+
-| acti | -   Required                                                  |
-| onId |                                                               |
-|      | -   String                                                    |
-|      |                                                               |
-|      | -   Description: The Import or Export action ID of Anaplan    |
-|      |     model, depending on the type of integration. If the       |
-|      |     action is an import, this value is the import ID. If the  |
-|      |     action is an export, this value is the export ID.         |
-|      |                                                               |
-|      | -   Example: 112000000011                                     |
-+------+---------------------------------------------------------------+
-| fi   | -   Required if the integration is an import                  |
-| leId |                                                               |
-|      | -   String                                                    |
-|      |                                                               |
-|      | -   Description: The file ID of Anaplan model.                |
-|      |                                                               |
-|      | -   Example: 113000000011                                     |
-+------+---------------------------------------------------------------+
-| wor  | -   Required if the integration is an import                  |
-| kspa |                                                               |
-| ceId | -   String                                                    |
-|      |                                                               |
-|      | -   Description: The Anaplan workspace ID.                    |
-|      |                                                               |
-|      | -   Example: 8a80db657068fjef01718955f3b3390b                 |
-+------+---------------------------------------------------------------+
-| mod  | -   Required if the integration is an import                  |
-| elId |                                                               |
-|      | -   String                                                    |
-|      |                                                               |
-|      | -   Description: The Anaplan model ID.                        |
-|      |                                                               |
-|      | -   Example: E559BFF3B1GD4RKE874P745BEL259711                 |
-+------+---------------------------------------------------------------+
-| o    | -   Optional                                                  |
-| verw |                                                               |
-| rite | -   Boolean                                                   |
-|      |                                                               |
-|      | -   Description: This setting determines if the integration   |
-|      |     should overwrite the destination file.  For example: If   |
-|      |     set to false (the default value), or not set, the API     |
-|      |     creates a new file in S3, if the connectionType is        |
-|      |     AmazonS3.  If set to true, the API overrides the previous |
-|      |     file.                                                     |
-|      |                                                               |
-|      | -   Example: false                                            |
-+------+---------------------------------------------------------------+
-| map  | -   Required in Google Big Query Export integration           |
-| ping |                                                               |
-|      | -   String                                                    |
-|      |                                                               |
-|      | -   Description: This mapping between the columns of Google   |
-|      |     Big Query table and Anaplan modules/list.                 |
-+------+---------------------------------------------------------------+
-| nu   | -   Optional                                                  |
-| xVis |                                                               |
-| ible | -   Boolean                                                   |
-|      |                                                               |
-|      | -   Description: Optional field. When this field is set, this |
-|      |     integration is visible in UX action cards. The default    |
-|      |     value is false.                                           |
-+------+---------------------------------------------------------------+
-| name | -   Required                                                  |
-|      |                                                               |
-|      | -   Type: String                                              |
-|      |                                                               |
-|      | -   Description: The name of the integration. This should be  |
-|      |     a unique name.                                            |
-|      |                                                               |
-|      | -   Example: test_integration_1                               |
-+------+---------------------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-    \"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    },
-
-    \"integration\": {
-
-        \"integrationId\": \"fe40dc5793084f7dbb685cffe6a5ad2a\"
-
-    }
-
-}
-
-Run Integration
-
-Run an integration
-
-/integrations/{integrationId}/run
-
-Use this call to run an integration.
-
-Request
-
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/run[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
-
-Request parameters
-
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: the integration ID               |
-|                   |                                                   |
-|                   | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a     |
-+-------------------+---------------------------------------------------+
-
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
-
-\"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    },
-
-    \"run\": {
-
-        \"id\": \"hy40d89893084f0dkb985cmme9i5io2a\"
-
-    }
-
-   
-
+  "success": true,
+  "message": {
+    "integration_id": "56c122362f9d4a69bdca922252575065",
+    "state": "cancelled"
+  }
 }
+```
 
-Cancel running integrations
+---
 
-Cancel running integration
+### Get All Integrations
 
-/integrations/{integrationId}/cancel
+`GET /integrations`
 
-Use this call to cancel an ongoing integration job.
+Retrieve all your integrations.
 
-Request
+#### Request
 
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/cancel[']{dir="rtl"}
-\\
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrations' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
+#### Request Headers
 
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-Request headers
+#### Request Parameters
 
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
+| Parameter | Details |
+|-----------|---------|
+| `offset` | Optional. Number. Items to skip before collecting results. First element is 0. Example: `0` |
+| `limit` | Optional. Number. Number of elements to return. Example: `10` |
+| `myIntegrations` | Optional. Number. If `1`, returns only current user's integrations. |
 
-Request parameters
+**Note:** If `offset` and `limit` are not provided, defaults to 25 integrations.
 
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: the integration ID               |
-|                   |                                                   |
-|                   | -   Example: 56c122362f9d4a69bdca922252575065     |
-+-------------------+---------------------------------------------------+
-
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
-
-\"success\": true,
-
-\"message\": {
-
-\"integration_id\": \"56c122362f9d4a69bdca922252575065\",
-
-\"state\": \"cancelled\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "integrations": [
+    {
+      "integrationId": "fe40dc5793084f7dbb685cffe6a5ad2aa",
+      "name": "sample import integration",
+      "createdBy": "John Smith",
+      "creationDate": "2020-09-29T01:31:16.000Z",
+      "modificationDate": "2020-09-29T01:31:26.000Z",
+      "modifiedBy": "John Smith",
+      "latestRun": {
+        "triggeredBy": "John Smith",
+        "startDate": "2020-09-28T23:09:31.000Z",
+        "endDate": "2020-09-28T23:13:07.000Z",
+        "success": true,
+        "message": "Success",
+        "executionErrorCode": null
+      },
+      "notificationId": "a72d86ac0a9c454aa8baf67c1db67486",
+      "nuxVisible": false
+    },
+    {
+      "integrationId": "4caad0c1b91545d983cb6a2bb62d755e",
+      "name": "sample process integration",
+      "processId": "118000000001",
+      "createdBy": "John Smith",
+      "creationDate": "2021-01-29T01:31:16.000Z",
+      "modificationDate": "2021-01-29T01:31:26.000Z",
+      "modifiedBy": "John Smith",
+      "latestRun": {
+        "triggeredBy": "John Smith",
+        "startDate": "2021-01-29T23:09:31.000Z",
+        "endDate": "2021-01-29T23:13:07.000Z",
+        "success": true,
+        "message": "Success",
+        "executionErrorCode": null
+      },
+      "notificationId": "37945d3f7543463a859949e690dc4b60",
+      "nuxVisible": false
+    }
+  ],
+  "meta": {
+    "paging": {
+      "currentPageSize": 2,
+      "totalSize": 2,
+      "offset": 0
+    },
+    "schema": "https://api.anaplan.com/cloudworks/2/0/integrations/objects/integrations"
+  }
 }
+```
 
-}
+---
 
-Get Integrations
+### Get Integration by Integration ID
 
-Get all integrations
+`GET /integrations/{integrationId}`
 
-/integrations
+Get details for a specific integration.
 
-Use this call to retrieve all your integrations.
+#### Request
 
-Request
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-curl -X GET
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations[']{dir="rtl"}
-\\
+#### Request Headers
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
+#### Request Parameters
 
-Request headers
+| Parameter | Details |
+|-----------|---------|
+| `integrationId` | Required. String. The integration ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
 
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
-
-+-------------+--------------------------------------------------------+
-| **          | **Details**                                            |
-| Parameter** |                                                        |
-+-------------+--------------------------------------------------------+
-| {offset}    | -   Optional                                           |
-|             |                                                        |
-|             | -   Type: Number                                       |
-|             |                                                        |
-|             | -   Description: The number of items to skip before    |
-|             |     starting to collect the result set. The first      |
-|             |     element starts at 0.                               |
-|             |                                                        |
-|             | -   Example: 0                                         |
-+-------------+--------------------------------------------------------+
-| {limit}     | -   Optional                                           |
-|             |                                                        |
-|             | -   Type: Number                                       |
-|             |                                                        |
-|             | -   Description: The number of elements to return.     |
-|             |                                                        |
-|             | -   Example: 10                                        |
-+-------------+--------------------------------------------------------+
-| {myIn       | -   Optional                                           |
-| tegrations} |                                                        |
-|             | -   Type: Number                                       |
-|             |                                                        |
-|             | -   Description: Returns the list of current users\'s  |
-|             |     integrations if its value is 1.                    |
-|             |                                                        |
-|             | -   Example: 1                                         |
-+-------------+--------------------------------------------------------+
-
-**Note**: if this call does not provide {offset} or {limit}, it
-retrieves 25 integrations.
-
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
-
-\"status\": {
-
-\"code\": 200,
-
-\"message\": \"Success\"
-
-},
-
-\"integrations\": \[
-
-{
-
-\"integrationId\": \"fe40dc5793084f7dbb685cffe6a5ad2aa\",
-
-\"name\": \"sample import integration\",
-
-\"createdBy\": \"John Smith\",
-
-\"creationDate\": \"2020-09-29T01:31:16.000Z\",
-
-\"modificationDate\": \"2020-09-29T01:31:26.000Z\",
-
-\"modifiedBy\": \"John Smith\",
-
-\"latestRun\": {
-
-\"triggeredBy\": \"John Smith\",
-
-\"startDate\": \"2020-09-28T23:09:31.000Z\",
-
-\"endDate\": \"2020-09-28T23:13:07.000Z\",
-
-\"success\": true,
-
-\"message\": \"Success\",
-
-\"executionErrorCode\": null
-
-},
-
-\"notificationId\": \"a72d86ac0a9c454aa8baf67c1db67486\",
-
-\"nuxVisible\": false
-
-},
-
-{
-
-\"integrationId\": \"4caad0c1b91545d983cb6a2bb62d755e\",
-
-\"name\": \"sample process integration\",
-
-\"processId\": \"118000000001\",
-
-\"createdBy\": \"John Smith\",
-
-\"creationDate\": \"2021-01-29T01:31:16.000Z\",
-
-\"modificationDate\": \"2021-01-29T01:31:26.000Z\",
-
-\"modifiedBy\": \"John Smith\",
-
-\"latestRun\": {
-
-\"triggeredBy\": \"John Smith\",
-
-\"startDate\": \"2021-01-29T23:09:31.000Z\",
-
-\"endDate\": \"2021-01-29T23:13:07.000Z\",
-
-\"success\": true,
-
-\"message\": \"Success\",
-
-\"executionErrorCode\": null
-
-},
-
-\"notificationId\": \"37945d3f7543463a859949e690dc4b60\",
-
-\"nuxVisible\": false
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "integration": {
+    "jobs": [
+      {
+        "sources": [
+          {
+            "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+            "type": "AmazonS3",
+            "file": "sample_file.csv"
+          }
+        ],
+        "targets": [
+          {
+            "type": "Anaplan",
+            "actionId": "112000000011",
+            "fileId": "113000000011"
+          }
+        ],
+        "type": "AmazonS3ToAnaplan"
+      }
+    ],
+    "name": "sample import integration",
+    "integrationId": "fe40dc57-9308-4f7d-bb68-5cffe6a5ad2aa",
+    "workspaceId": "8a80db657068fjef01718955f3b3390b",
+    "modelId": "E559BFF3B1GD4RKE874P745BEL259711",
+    "createdBy": "John Smith",
+    "creationDate": "2020-09-28T23:08:24.000Z",
+    "modificationDate": "2020-09-28T23:08:26.000Z",
+    "modifiedBy": "None",
+    "latestRun": {
+      "triggeredBy": "John Smith",
+      "startDate": "2020-09-28T23:09:31.000Z",
+      "endDate": "2020-09-28T23:13:07.000Z",
+      "success": true,
+      "message": "Success",
+      "executionErrorCode": null
+    },
+    "notificationId": "a72d86ac0a9c454aa8baf67c1db67486",
+    "nuxVisible": false
+  },
+  "meta": {
+    "schema": "https://api.cloudworks.anaplan.com//0/integrations/objects/integration"
+  }
 }
+```
 
-\],
+---
 
-\"meta\": {
+### Get Integrations by Model ID
 
-\"paging\": {
+`GET /integrations/anaplanModels/{modelId}`
 
-\"currentPageSize\": 2,
+Get all integrations for an Anaplan model.
 
-\"totalSize\": 2,
+#### Request
 
-\"offset\": 0
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrations/anaplanModels/{modelId}' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-},
+#### Request Headers
 
-\"schema\":
-\"https://api.anaplan.com/cloudworks/2/0/integrations/objects/integrations\"
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {token_value}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-}
+#### Request Parameters
 
-Get integrations by integration ID
+| Parameter | Details |
+|-----------|---------|
+| `modelId` | Required. String. Anaplan model ID. Example: `E559BFF3B1GD4RKE874P745BEL259711` |
 
-/integrations/{integrationId}
-
-Use this call to get integration details for a specific integration.
-
-Request
-
-curl -X GET
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"} \\
-
-Request headers
-
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
-
-Request parameters
-
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: the Integration ID.              |
-|                   |                                                   |
-|                   | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a     |
-+-------------------+---------------------------------------------------+
-
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "integrations": [
+    {
+      "jobs": [
+        {
+          "sources": [
+            {
+              "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+              "type": "AmazonS3",
+              "file": "sample_file.csv"
+            }
+          ],
+          "targets": [
+            {
+              "type": "Anaplan",
+              "actionId": "112000000011",
+              "fileId": "113000000011"
+            }
+          ],
+          "type": "AmazonS3ToAnaplan"
+        }
+      ],
+      "name": "sample import integration",
+      "integrationId": "fe40dc5793084f7dbb685cffe6a5ad2aa",
+      "workspaceId": "8a80db657068fjef01718955f3b3390b",
+      "modelId": "E559BFF3B1GD4RKE874P745BEL259711",
+      "createdBy": "John Smith",
+      "creationDate": "2020-09-26T04:21:51.000Z",
+      "modificationDate": "2020-09-26T04:21:51.000Z",
+      "modifiedBy": "None",
+      "latestRun": {
+        "triggeredBy": "John Smith",
+        "startDate": "2020-09-02T06:39:08.000Z",
+        "endDate": "2020-09-02T06:40:18.000Z",
+        "success": true,
+        "message": "Success",
+        "executionErrorCode": null
+      },
+      "schedule": {
+        "name": "test-schedule",
+        "time": "22:00",
+        "type": "monthly_specific_day",
+        "endDate": "2020-12-01",
+        "timezone": "Europe/Paris",
+        "startDate": "2020-09-03",
+        "dayOfMonth": 11,
+        "status": "Active"
+      },
+      "notificationId": "a72d86ac0a9c454aa8baf67c1db67486",
+      "nuxVisible": false
+    }
+  ],
+  "meta": {
+    "paging": {
+      "currentPageSize": 1,
+      "totalSize": 1,
+      "offset": 0
+    },
+    "schema": "https://api.cloudworks.anaplan.com/2/0/integrations/objects/model"
+  }
+}
+```
 
-\"status\": {
+---
 
-        \"code\": 200,
+### Edit an Integration
 
-        \"message\": \"Success\"
+`PUT /integrations/{integrationId}`
 
-    },
+Edit an integration (import or export) for CloudWorks.
 
-    \"integration\":
+#### Request
 
-        {
+```bash
+curl -X PUT 'https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-            \"jobs\": \[
+#### Request Headers
 
-                {
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-                    \"sources\": \[
+#### Request Parameters
 
-                        {
+| Parameter | Details |
+|-----------|---------|
+| `integrationId` | Required. String. The integration ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
 
-                            \"connectionId\":
-\"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
+#### Request Body (Import)
 
-                            \"type\": \"AmazonS3\",
+**Note:** For restricted integration users, the workspace ID of the integration must match the workspace ID of the associated connection.
 
-                            \"file\": \"sample_file.csv\"
+```json
+{
+  "name": "sample import integration updated",
+  "workspaceId": "8a80db657068fjef01718955f3b3390b",
+  "modelId": "E559BFF3B1GD4RKE874P745BEL259711",
+  "version": "2.0",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AmazonS3ToAnaplan",
+      "sources": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "sample_file.csv"
+        }
+      ],
+      "targets": [
+        {
+          "type": "Anaplan",
+          "actionId": "112000000011",
+          "fileId": "113000000011"
+        }
+      ]
+    }
+  ]
+}
+```
 
-                        }
+#### Request Body Fields
 
-                    \],
+| Key | Details |
+|-----|---------|
+| `jobs` | Required. Array. Sources and targets. Currently supports one job with one source and one target. |
+| `type` (in jobs) | Required. String. Type of integration. Values: `AmazonS3ToAnaplan`, `AnaplanToAmazonS3`, `AzureBlobToAnaplan`, `AnaplanToAzureBlob` |
+| `sources` | Required. Array. The location from where the file is transferred. |
+| `targets` | Required. Array. The location to where the file is transferred. |
+| `connectionId` | Required. String. The connection ID. Example: `0c3d2f66-2c1b-4c71-a02f-b4b6f09a40f7` |
+| `type` (in sources/targets) | Required. String. The connection type. Values: `AmazonS3`, `Anaplan`, `GoogleBigQuery`, `AzureBlob` |
+| `file` | Required. String. For imports: the file. For exports: the folder path. Example: `sample_file.csv` |
+| `actionId` | Required. String. Import or export action ID. Example: `112000000011` |
+| `fileId` | Required (imports only). String. File ID of the Anaplan model. Example: `113000000011` |
+| `workspaceId` | Required (imports). String. Anaplan workspace ID. Example: `8a80db657068fjef01718955f3b3390b` |
+| `modelId` | Required (imports). String. Anaplan model ID. Example: `E559BFF3B1GD4RKE874P745BEL259711` |
+| `overwrite` | Optional. Boolean. Overwrite the destination file. Default: `false`. |
+| `nuxVisible` | Optional. Boolean. Visible in UX action cards. Default: `false`. |
+| `name` | Required. String. Integration name. Must be unique. Example: `test_integration_1` |
 
-                    \"targets\": \[
+#### Response
 
-                        {
+```json
+{
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
+}
+```
 
-                            \"type\": \"Anaplan\",
+---
 
-                            \"actionId\": \"112000000011\",
+### Delete an Integration
 
-                            \"fileId\": \"113000000011\"
+`DELETE /integrations/{integrationId}`
 
-                        }
+Delete an integration in CloudWorks.
 
-                    \],
+#### Request
 
-                    \"type\": \"AmazonS3ToAnaplan\"                  
+```bash
+curl -X DELETE 'https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-                }
+#### Request Headers
 
-            \],
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-            \"name\": \"sample import integration\",
+#### Request Parameters
 
-            \"integrationId\":
-\"fe40dc57-9308-4f7d-bb68-5cffe6a5ad2aa\",
+| Parameter | Details |
+|-----------|---------|
+| `integrationId` | Required. String. The integration ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
 
-            \"workspaceId\": \"8a80db657068fjef01718955f3b3390b\",
-
-            \"modelId\": \"E559BFF3B1GD4RKE874P745BEL259711\",
-
-            \"createdBy\": \"John Smith\",
-
-            \"creationDate\": \"2020-09-28T23:08:24.000Z\",
-
-            \"modificationDate\": \"2020-09-28T23:08:26.000Z\",
-
-            \"modifiedBy\": \"None\",
-
-            \"latestRun\": {
-
-                \"triggeredBy\": \"John Smith\",
-
-                \"startDate\": \"2020-09-28T23:09:31.000Z\",
-
-                \"endDate\": \"2020-09-28T23:13:07.000Z\",
-
-                \"success\": true,
-
-                \"message\": \"Success\",
-
-                \"executionErrorCode\": null
-
-            },
-
-            \"notificationId\": \"a72d86ac0a9c454aa8baf67c1db67486\",
-
-            \"nuxVisible\": false
-
-        },
-
-    \"meta\": {
-
-        \"schema\":
-\"https://api.cloudworks.anaplan.com//0/integrations/objects/integration\"
-
-    }
-
-Get integrations by Model ID
-
-/integrations/anaplanModels/{modelId}
-
-Use this call to get all integrations from an Anaplan model.
-
-Request
-
-curl -X GET
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/anaplanModels/{modelId}[']{dir="rtl"}
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+------------------------------+---------------------------------------+
-| **Header**                   | **Details**                           |
-+------------------------------+---------------------------------------+
-| Authorization:               | -   Required                          |
-| AnaplanAuthToken             |                                       |
-| {token_value}                | -   Description: the Anaplan          |
-|                              |     authentication token              |
-+------------------------------+---------------------------------------+
-| Content-Type                 | -   Required                          |
-|                              |                                       |
-|                              | -   Description: This call uses a     |
-|                              |     content type of application/json. |
-+------------------------------+---------------------------------------+
-
-Request parameters
-
-+--------------+-------------------------------------------------------+
-| *            | **Details**                                           |
-| *Parameter** |                                                       |
-+--------------+-------------------------------------------------------+
-| {modelId}    | -   Required                                          |
-|              |                                                       |
-|              | -   Type: String                                      |
-|              |                                                       |
-|              | -   Description: Anaplan model ID.                    |
-|              |                                                       |
-|              | -   Example: E559BFF3B1GD4RKE874P745BEL259711         |
-+--------------+-------------------------------------------------------+
-
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
-
-\"status\": {
-
-    \"code\": 200,
-
-    \"message\": \"Success\"
-
-},
-
-\"integrations\": \[
-
-    {
-
-        \"jobs\": \[
-
-            {
-
-                \"sources\": \[
-
-                    {
-
-                        \"connectionId\":
-\"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-                        \"type\": \"AmazonS3\",
-
-                        \"file\": \"sample_file.csv\"
-
-                    }
-
-                \],
-
-                \"targets\": \[
-
-                    {
-
-                        \"type\": \"Anaplan\",
-
-                        \"actionId\": \"112000000011\",
-
-                        \"fileId\": \"113000000011\"
-
-                    }
-
-                \],
-
-                \"type\": \"AmazonS3ToAnaplan\"
-
-            }
-
-        \],
-
-        \"name\": \"sample import integration\",
-
-        \"integrationId\": \"fe40dc5793084f7dbb685cffe6a5ad2aa\",
-
-        \"workspaceId\": \"8a80db657068fjef01718955f3b3390b\",
-
-        \"modelId\": \"E559BFF3B1GD4RKE874P745BEL259711\",
-
-        \"createdBy\": \"John Smith\",
-
-        \"creationDate\": \"2020-09-26T04:21:51.000Z\",
-
-        \"modificationDate\": \"2020-09-26T04:21:51.000Z\",
-
-        \"modifiedBy\": \"None\",
-
-        \"latestRun\": {
-
-            \"triggeredBy\": \"John Smith\",
-
-            \"startDate\": \"2020-09-02T06:39:08.000Z\",
-
-            \"endDate\": \"2020-09-02T06:40:18.000Z\",
-
-            \"success\": true,
-
-            \"message\": \"Success\",
-
-            \"executionErrorCode\": null},
-
-        \"schedule\": {
-
-            \"name\": \"test-schedule\",
-
-            \"time\": \"22:00\",
-
-            \"type\": \"monthly_specific_day\",
-
-            \"endDate\": \"2020-12-01\",
-
-            \"timezone\": \"Europe/Paris\",
-
-            \"startDate\": \"2020-09-03\",
-
-            \"dayOfMonth\": 11,
-
-            \"status\": \"Active\"
-
-        },
-
-        \"notificationId\": \"a72d86ac0a9c454aa8baf67c1db67486\",
-
-        \"nuxVisible\": false
-
-    \],
-
-\"meta\": {
-
-    \"paging\": {
-
-        \"currentPageSize\": 1,
-
-        \"totalSize\": 1,
-
-        \"offset\": 0
-
-    },
-
-    \"schema\":
-\"https://api.cloudworks.anaplan.com/2/0/integrations/objects/model\"
-
-  }
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
+```
 
-Edit an integration
+---
 
-/integrations/{integrationId}
+## Process Integrations
 
-Use this call to edit an integration, import, or export for CloudWorks.
+### Create a Process Integration
 
-Request
+`POST /integrations`
 
- curl -X PUT
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}[']{dir="rtl"}
-\\
+Create a process integration in CloudWorks using version 2.0.
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
+#### Request
 
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/2/0/integrations' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-Request headers
+#### Request Headers
 
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-Request parameters
-
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: The integration ID               |
-|                   |                                                   |
-|                   | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a     |
-+-------------------+---------------------------------------------------+
-
-Request body (import)
-
-Note: For restricted integration users, the workspace ID of the
-integration needs match with the workspace ID of the associated
-connection.
-
-{
-
-\"name\": \"sample import integration updated\",
-
-\"workspaceId\": \"8a80db657068fjef01718955f3b3390b\",
-
-\"modelId\": \"E559BFF3B1GD4RKE874P745BEL259711\",
-
-\"version\":\"2.0\",
-
-\"nuxVisible\": false,
-
-\"jobs\": \[
-
-{
-
-\"type\": \"AmazonS3ToAnaplan\",
-
-\"sources\": \[
-
-{
-
-\"type\": \"AmazonS3\",
-
-\"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-\"file\": \"sample_file.csv\"
-
-}
-
-\],
-
-\"targets\": \[
-
-{
-
-\"type\": \"Anaplan\",
-
-\"actionId\": \"112000000011\",
-
-\"fileId\": \"113000000011\"
-
-}
-
-\]
-
-}
-
-\]
-
-}
-
-+---------+------------------------------------------------------------+
-| *       | **Details**                                                |
-| *JSON** |                                                            |
-+---------+------------------------------------------------------------+
-| jobs    | -   Required                                               |
-|         |                                                            |
-|         | -   Array                                                  |
-|         |                                                            |
-|         | -   Description: Consists of sources and targets.          |
-|         |     Currently, this call only supports one job, that       |
-|         |     includes one source and one target.                    |
-+---------+------------------------------------------------------------+
-| type    | -   Required                                               |
-|         |                                                            |
-|         | -   String as part of the jobs list                        |
-|         |                                                            |
-|         | -   Description: Type of integration                       |
-|         |                                                            |
-|         | -   Examples: AmazonS3ToAnaplan,                           |
-|         |  AnaplanToAmazonS3, AzureBlobToAnaplan, AnaplanToAzureBlob |
-+---------+------------------------------------------------------------+
-| sources | -   Required                                               |
-|         |                                                            |
-|         | -   part of the jobs list                                  |
-|         |                                                            |
-|         | -   Description: The location from where you  transfer the |
-|         |     file.                                                  |
-+---------+------------------------------------------------------------+
-| targets | -   Required                                               |
-|         |                                                            |
-|         | -   part of the jobs array                                 |
-|         |                                                            |
-|         | -   Description: The location to where the file is         |
-|         |     transferred.                                           |
-+---------+------------------------------------------------------------+
-| conne   | -   Required                                               |
-| ctionId |                                                            |
-|         | -   String                                                 |
-|         |                                                            |
-|         | -   Description: The ID created while creating a           |
-|         |     connection.                                            |
-|         |                                                            |
-|         | -   Example: 0c3d2f66-2c1b-4c71-a02f-b4b6f09a40f7          |
-+---------+------------------------------------------------------------+
-| type    | -   Required                                               |
-|         |                                                            |
-|         | -   String as part of the sources or targets arrays        |
-|         |                                                            |
-|         | -   Description: The connection type                       |
-|         |                                                            |
-|         | -   Examples: AmazonS3, Anaplan, GoogleBigQuery, AzureBlob |
-+---------+------------------------------------------------------------+
-| file    | -   Required                                               |
-|         |                                                            |
-|         | -   String                                                 |
-|         |                                                            |
-|         | -   Description: For imports, this is the file imported    |
-|         |     into Anaplan. For exports, this is the folder file     |
-|         |     path to export data from Anaplan.                      |
-|         |                                                            |
-|         | -   Example: sample_file.csv                               |
-+---------+------------------------------------------------------------+
-| a       | -   Required                                               |
-| ctionId |                                                            |
-|         | -   String                                                 |
-|         |                                                            |
-|         | -   Description: The Import or Export action ID of Anaplan |
-|         |     model, depending on the type of integration. If the    |
-|         |     action is an import, this value is the import ID. If   |
-|         |     the action is an export, this value is the export ID.  |
-|         |                                                            |
-|         | -   Example: 112000000011                                  |
-+---------+------------------------------------------------------------+
-| fileId  | -   Required if the integration is an import               |
-|         |                                                            |
-|         | -   String                                                 |
-|         |                                                            |
-|         | -   Description: The file ID of Anaplan model.             |
-|         |                                                            |
-|         | -   Example: 113000000011                                  |
-+---------+------------------------------------------------------------+
-| work    | -   Required if the integration is an import               |
-| spaceId |                                                            |
-|         | -   String                                                 |
-|         |                                                            |
-|         | -   Description: The Anaplan workspace ID.                 |
-|         |                                                            |
-|         | -   Example: 8a80db657068fjef01718955f3b3390b              |
-+---------+------------------------------------------------------------+
-| modelId | -   Required if the integration is an import               |
-|         |                                                            |
-|         | -   String                                                 |
-|         |                                                            |
-|         | -   Description: The Anaplan model ID.                     |
-|         |                                                            |
-|         | -   Example: E559BFF3B1GD4RKE874P745BEL259711              |
-+---------+------------------------------------------------------------+
-| ov      | -   Optional                                               |
-| erwrite |                                                            |
-|         | -   Boolean                                                |
-|         |                                                            |
-|         | -   Description: This setting determines if the            |
-|         |     integration should overwrite the destination file.     |
-|         |     For example: If set to false (the default value), or   |
-|         |     not set, the API creates a new file in S3, if          |
-|         |     the connectionType is AmazonS3.  If set to true, the   |
-|         |     API overrides the previous file.                       |
-|         |                                                            |
-|         | -   Example: false                                         |
-+---------+------------------------------------------------------------+
-| nux     | -   Optional                                               |
-| Visible |                                                            |
-|         | -   Boolean                                                |
-|         |                                                            |
-|         | -   Description: Optional field. When this field is set,   |
-|         |     this integration is visible in UX action cards. The    |
-|         |     default value is The default value is false.           |
-+---------+------------------------------------------------------------+
-| name    | -   Required                                               |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: The name of the integration. This should  |
-|         |     be a unique name.                                      |
-|         |                                                            |
-|         | -   Example: test_integration_1                            |
-+---------+------------------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
- {
-
-     \"status\": {
-
-         \"code\": 200,
-
-         \"message\": \"Success\"
-
-     }
-
- }
-
-Delete an integration
-
-/integrations/{integrationId}
-
-Use this call to delete an integration, import or export in CloudWorks.
-
-Request
-
-curl -X DELETE
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
-
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: The integration ID               |
-|                   |                                                   |
-|                   | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a     |
-+-------------------+---------------------------------------------------+
-
-Request body
+#### Request Parameters
 
 None
 
-Response headers
+**Note:** A process integration with version 2.0 can contain zero or more jobs. Include only those import/export actions in the `jobs` section that are associated with the Amazon S3 file.
 
-Content-Type: application/json
+#### Request Body (Process)
 
-Response 200 Body
-
+```json
 {
-
-   \"status\": {
-
-       \"code\": 200,
-
-       \"message\": \"Success\"
-
-    }
-
+  "name": "sample process integration",
+  "version": "2.0",
+  "processId": "118000000001",
+  "workspaceId": "8b90db657068fjef01718955f3b3390b",
+  "modelId": "E229BFF3B1GD4RKE874P745BEL259711",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AmazonS3ToAnaplan",
+      "sources": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "sample_file_1.csv"
+        }
+      ],
+      "targets": [
+        {
+          "type": "Anaplan",
+          "actionId": "112000000011",
+          "fileId": "113000000011"
+        }
+      ]
+    },
+    {
+      "type": "AnaplanToAmazonS3",
+      "sources": [
+        {
+          "type": "Anaplan",
+          "actionId": "116000000000"
+        }
+      ],
+      "targets": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0d3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "Exports/"
+        }
+      ]
+    }
+  ]
 }
+```
 
-Process
+You can also create an integration where the Anaplan Process does not contain any actions associated with an Amazon S3 file (e.g., a process containing only model-to-model import actions and delete actions):
 
-Create a process integration
+```json
+{
+  "name": "sample process integration2",
+  "version": "2.0",
+  "processId": "118000000001",
+  "workspaceId": "8b90db657068fjef01718955f3b3390b",
+  "modelId": "E229BFF3B1GD4RKE874P745BEL259711"
+}
+```
 
-/integrations/{integrationId}
+#### Version 1.0 Request (Process)
 
-Use this call to create a process integration in CloudWorks using
-Version 2.0.
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/1/0/integrations' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-Request
+**Note:** Process integration with v1.0 can contain one or more jobs. Include only actions associated with the Amazon S3 file. The first job runs an import, the second runs an export.
 
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations[']{dir="rtl"}
-\\
+```json
+{
+  "name": "sample process integration",
+  "processId": "118000000001",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AmazonS3ToAnaplan",
+      "sources": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "sample_file_1.csv"
+        }
+      ],
+      "targets": [
+        {
+          "type": "Anaplan",
+          "actionId": "112000000011",
+          "fileId": "113000000011",
+          "workspaceId": "8b90db657068fjef01718955f3b3390b",
+          "modelId": "E229BFF3B1GD4RKE874P745BEL259711"
+        }
+      ]
+    },
+    {
+      "type": "AnaplanToAmazonS3",
+      "sources": [
+        {
+          "type": "Anaplan",
+          "actionId": "116000000000",
+          "workspaceId": "8b90db657068fjef01718955f3b3390b",
+          "modelId": "E229BFF3B1GD4RKE874P745BEL259711"
+        }
+      ],
+      "targets": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0d3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "Exports/"
+        }
+      ]
+    }
+  ]
+}
+```
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
+#### Request Body Fields
 
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
+| Key | Details |
+|-----|---------|
+| `jobs` | Required. Array. Sources and targets. |
+| `processId` | Required. String. Anaplan process ID. |
+| `type` (in jobs) | Required. String. Type of integration. Values: `AmazonS3ToAnaplan`, `AnaplanToAmazonS3`, `AzureBlobToAnaplan`, `AnaplanToAzureBlob` |
+| `sources` | Required. Array. The source location. |
+| `targets` | Required. Array. The target location. Example: `{ "type": "AmazonS3", "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7", "file": "exports/", "overwrite": true }` |
+| `connectionId` | Required. String. The connection ID. Example: `0c3d2f662c1b4c71a02fb4b6f09a40f7` |
+| `type` (in sources/targets) | Required. String. The connection type. Values: `AmazonS3`, `Anaplan`, `AzureBlob` |
+| `file` | Required. String. For imports: the file. For exports: the folder path. Example: `sample_file.csv` |
+| `actionId` | Required. String. Import or export action ID. Example: `112000000011` |
+| `fileId` | Required (imports only). String. File ID of Anaplan model. Example: `113000000011` |
+| `workspaceId` | Required. String. Anaplan workspace ID. Example: `8b90db657068fjef01718955f3b3390b` |
+| `modelId` | Required. String. Anaplan model ID. Example: `E229BFF3B1GD4RKE874P745BEL259711` |
+| `overwrite` | Optional. Boolean. Default: `false`. Overwrite the destination file. |
+| `version` | Required. String. CloudWorks API version. Example: `2.0` |
+| `nuxVisible` | Optional. Boolean. Visible in UX action cards. Default: `false`. |
+| `name` | Required. String. Integration name. Must be unique. Example: `test_integration_1` |
 
-Request headers
+#### Response
 
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
+```json
+{
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "integration": {
+    "integrationId": "4caad0c1b91545d983cb6a2bb62d755e"
+  }
+}
+```
 
-Request parameters
+---
+
+### Edit a Process Integration
+
+`PUT /integrations/{integrationId}`
+
+Edit a process integration using version 2.0.
+
+#### Request
+
+```bash
+curl -X PUT 'https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
+
+#### Request Headers
+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
+
+#### Request Parameters
+
+| Parameter | Details |
+|-----------|---------|
+| `integrationId` | Required. String. The integration ID. Example: `4caad0c1b91545d983cb6a2bb62d755e` |
+
+#### Request Body (Process)
+
+```json
+{
+  "name": "sample process integration updated",
+  "processId": "118000000001",
+  "version": "2.0",
+  "workspaceId": "8b90db657068fjef01718955f3b3390b",
+  "modelId": "E229BFF3B1GD4RKE874P745BEL259711",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AmazonS3ToAnaplan",
+      "sources": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "sample_file_updated.csv"
+        }
+      ],
+      "targets": [
+        {
+          "type": "Anaplan",
+          "actionId": "112000000011",
+          "fileId": "113000000011"
+        }
+      ]
+    },
+    {
+      "type": "AnaplanToAmazonS3",
+      "sources": [
+        {
+          "type": "Anaplan",
+          "actionId": "116000000000"
+        }
+      ],
+      "targets": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0d3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "Exports/"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### Version 1.0 Request
+
+```bash
+curl -X PUT 'https://api.cloudworks.anaplan.com/1/0/integrations/{integrationId}' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
+
+```json
+{
+  "name": "sample process integration updated",
+  "processId": "118000000001",
+  "nuxVisible": false,
+  "jobs": [
+    {
+      "type": "AmazonS3ToAnaplan",
+      "sources": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0c3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "sample_file_updated.csv"
+        }
+      ],
+      "targets": [
+        {
+          "type": "Anaplan",
+          "actionId": "112000000011",
+          "fileId": "113000000011",
+          "workspaceId": "8b90db657068fjef01718955f3b3390b",
+          "modelId": "E229BFF3B1GD4RKE874P745BEL259711"
+        }
+      ]
+    },
+    {
+      "type": "AnaplanToAmazonS3",
+      "sources": [
+        {
+          "type": "Anaplan",
+          "actionId": "116000000000",
+          "workspaceId": "8b90db657068fjef01718955f3b3390b",
+          "modelId": "E229BFF3B1GD4RKE874P745BEL259711"
+        }
+      ],
+      "targets": [
+        {
+          "type": "AmazonS3",
+          "connectionId": "0d3d2f662c1b4c71a02fb4b6f09a40f7",
+          "file": "Exports/"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### Request Body Fields
+
+| Key | Details |
+|-----|---------|
+| `jobs` | Required. Array. Sources and targets. |
+| `processId` | Required. String. Anaplan process ID. |
+| `type` (in jobs) | Required. String. Type of integration. Values: `AmazonS3ToAnaplan`, `AnaplanToAmazonS3` |
+| `sources` | Required. Array. Source location. |
+| `targets` | Required. Array. Target location. |
+| `connectionId` | Required. String. Connection ID. Example: `0c3d2f662c1b4c71a02fb4b6f09a40f7` |
+| `type` (in sources/targets) | Required. String. Connection type. Values: `AmazonS3`, `Anaplan` |
+| `file` | Required. String. Folder path. Example: `sample_file.csv` |
+| `actionId` | Required. String. Import or export action ID. Example: `112000000011` |
+| `fileId` | Required (imports only). String. File ID. Example: `113000000011` |
+| `workspaceId` | Required. String. Workspace ID. Example: `8b90db657068fjef01718955f3b3390b` |
+| `modelId` | Required. String. Model ID. Example: `E229BFF3B1GD4RKE874P745BEL259711` |
+| `overwrite` | Optional. Boolean. Default: `false`. |
+| `version` | Required. String. CloudWorks API version. Example: `'2.0'` |
+| `nuxVisible` | Optional. Boolean. Default: `false`. |
+| `name` | Required. String. Integration name. Must be unique. |
+
+#### Response
+
+```json
+{
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
+}
+```
+
+---
+
+## Schedules
+
+### Set the Status of an Integration Schedule
+
+`POST /integrations/{integrationId}/schedule/status/{status}`
+
+Set the status of a scheduled integration.
+
+#### Request
+
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/schedule/status/{status}' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
+
+#### Request Headers
+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
+
+#### Request Parameters
+
+| Parameter | Details |
+|-----------|---------|
+| `integrationId` | Required. String. The integration ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
+| `status` | Required. String. The schedule status. Example: `enabled` |
+
+#### Request Body
 
 None
 
-Note: A Process integration with Version 2.0 can contain none or more
-than one job. Include only those import/export actions in the
-["]{dir="rtl"}jobs" section of the request body which are associated
-with the Amazon S3 file.
+#### Response
 
-Request body (process)
-
+```json
 {
-
-\"name\": \"sample process integration\",
-
-\"version\": \"2.0\",
-
-\"processId\": \"118000000001\",
-
-\"workspaceId\": \"8b90db657068fjef01718955f3b3390b\",
-
-\"modelId\": \"E229BFF3B1GD4RKE874P745BEL259711\",
-
-\"nuxVisible\": false,
-
-\"jobs\": \[
-
-{
-
-\"type\": \"AmazonS3ToAnaplan\",
-
-\"sources\": \[
-
-{
-
-\"type\": \"AmazonS3\",
-
-\"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-\"file\": \"sample_file_1.csv\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
+```
 
-\],
+---
 
-\"targets\": \[
+### Create an Integration Schedule
 
+`POST /integrations/{integrationId}/schedule`
+
+Create an integration schedule. Supports a maximum of one schedule per integration.
+
+#### Request
+
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/schedule' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
+
+#### Request Headers
+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {token_value}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
+
+#### Request Parameters
+
+| Parameter | Details |
+|-----------|---------|
+| `integrationId` | Required. String. The integration ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
+
+#### Request Body by Schedule Type
+
+##### weekly - Runs on specific days of the week
+
+```json
 {
-
-\"type\": \"Anaplan\",
-
-\"actionId\": \"112000000011\",
-
-\"fileId\": \"113000000011\"
-
+  "integrationId": "fe40dc5793084f7dbb685cffe6a5ad2a",
+  "schedule": {
+    "name": "test schedule",
+    "type": "weekly",
+    "time": "12:45",
+    "daysOfWeek": [0, 6],
+    "startDate": "2020-07-03",
+    "endDate": "2020-12-01",
+    "timezone": "Europe/Paris"
+  }
 }
+```
 
-\]
+##### monthly_specific_day - Runs on a specific day of the month
 
-},
-
+```json
 {
-
-\"type\": \"AnaplanToAmazonS3\",
-
-\"sources\": \[
-
-{
-
-\"type\": \"Anaplan\",
-
-\"actionId\": \"116000000000\"
-
+  "integrationId": "fe40dc5793084f7dbb685cffe6a5ad2a",
+  "schedule": {
+    "name": "test schedule",
+    "type": "monthly_specific_day",
+    "dayOfMonth": 12,
+    "time": "22:00",
+    "startDate": "2020-09-03",
+    "endDate": "2020-12-01",
+    "timezone": "Europe/Paris"
+  }
 }
+```
 
-\],
+##### monthly_relative_weekday - Runs on a day of the week relative to the start of the month
 
-\"targets\": \[
-
+```json
 {
-
-\"type\": \"AmazonS3\",
-
-\"connectionId\": \"0d3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-\"file\": \"Exports/\"
-
+  "integrationId": "fe40dc5793084f7dbb685cffe6a5ad2a",
+  "schedule": {
+    "name": "test schedule",
+    "type": "monthly_relative_weekday",
+    "time": "12:45",
+    "dayOfWeek": 3,
+    "repeatEvery": 2,
+    "startDate": "2020-07-03",
+    "endDate": "2020-12-01",
+    "timezone": "Europe/Paris"
+  }
 }
+```
 
-\]
+##### hourly - Runs on specific days, each hour, between start and end hour
 
+```json
+{
+  "integrationId": "fe40dc5793084f7dbb685cffe6a5ad2a",
+  "schedule": {
+    "name": "test schedule",
+    "type": "hourly",
+    "repeatEvery": 2,
+    "fromTime": "20:00",
+    "toTime": "23:20",
+    "daysOfWeek": [0, 6],
+    "startDate": "2020-07-03",
+    "endDate": "2020-12-01",
+    "timezone": "Europe/Paris"
+  }
 }
+```
 
-\]
+##### daily - Runs each day at a specified time
 
+```json
+{
+  "integrationId": "fe40dc5793084f7dbb685cffe6a5ad2a",
+  "schedule": {
+    "name": "test schedule",
+    "type": "daily",
+    "time": "11:55",
+    "startDate": "2020-07-03",
+    "endDate": "2020-12-01",
+    "timezone": "Europe/Paris"
+  }
 }
+```
 
-Users can also create an integration if the Anaplan Process does not
-contain any actions associated with an AmazonS3 file. eg: A process
-containing only Model-to-Model import actions and delete action.
+#### Schedule Fields
 
-Request body
+| Key | Details |
+|-----|---------|
+| `name` | Required. String. Name of schedule. Example: `test-schedule` |
+| `type` | Required. String. Schedule type. Values: `monthly_specific_day`, `monthly_relative_weekday`, `hourly`, `weekly`, `daily` |
+| `dayOfMonth` | Required (`monthly_specific_day`). Integer. Day of the month (1-31). Example: `12` |
+| `daysOfWeek` | Required (`weekly`, `hourly`, `monthly_relative_weekday`). Array. Days of the week (Sunday = 0). Example: `[0, 6]` |
+| `repeatEvery` | Required (`monthly_relative_weekday`, `hourly`). Integer. Repeat interval. Example: `2` (every second Wednesday if type is `monthly_relative_weekday`) |
+| `time` | Required. String. Schedule time. Example: `22:00` |
+| `fromTime` | Required (`hourly`). String. Start time. Example: `20:00` |
+| `toTime` | Required (`hourly`). String. End time. Example: `23:20` |
+| `startDate` | Required. String. Start date (YYYY-MM-DD). Example: `2020-09-03` |
+| `endDate` | Optional. String. End date (YYYY-MM-DD). Example: `2020-12-01` |
+| `timezone` | Required. String. Timezone. Example: `Europe/Paris` |
 
-A process containing Anaplan actions that are not associated with the
-cloud service.
+#### Response
 
+```json
 {
-
-\"name\": \"sample process integration2\",
-
-\"version\": \"2.0\",
-
-\"processId\": \"118000000001\",
-
-\"workspaceId\": \"8b90db657068fjef01718955f3b3390b\",
-
-\"modelId\": \"E229BFF3B1GD4RKE874P745BEL259711\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "scheduledIntegration": {
+    "id": "0995f32adf2443a9b2420739cedc17f9"
+  }
 }
+```
 
-Request with version 1.0 (old version)
+---
 
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/1/0/integrations[']{dir="rtl"}
-\\
+### Update the Schedule of an Integration
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
+`PUT /integrations/{integrationId}/schedule`
 
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
+Update the schedule of an integration.
 
-Request headers
+#### Request
 
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
+```bash
+curl -X PUT 'https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/schedule' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
 
-Request body (process) with version 1.0
+#### Request Headers
 
-Note:  Process integration can contain one or more jobs. Include only
-those actions in the request body which are associated with the Amazon
-S3 file. For the following request, the first job runs an import action
-to get data into Anaplan and the second job runs an export action to get
-data out of Anaplan.
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
+#### Request Parameters
+
+| Parameter | Details |
+|-----------|---------|
+| `integrationId` | Required. String. The integration ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
+
+#### Request Body
+
+Same as [Create an Integration Schedule](#request-body-by-schedule-type) - uses the same schedule types and fields.
+
+#### Response
+
+```json
 {
-
-\"name\": \"sample process integration\",
-
-\"processId\": \"118000000001\",
-
-\"nuxVisible\": false,
-
-\"jobs\": \[
-
-{
-
-\"type\": \"AmazonS3ToAnaplan\",
-
-\"sources\": \[
-
-{
-
-\"type\": \"AmazonS3\",
-
-\"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-\"file\": \"sample_file_1.csv\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
+```
 
-\],
+---
 
-\"targets\": \[
+### Delete an Integration Schedule
 
-{
+`DELETE /integrations/{integrationId}/schedule`
 
-\"type\": \"Anaplan\",
+Delete an integration schedule.
 
-\"actionId\": \"112000000011\",
+#### Request
 
-\"fileId\": \"113000000011\",
+```bash
+curl -X DELETE 'https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/schedule' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
 
-\"workspaceId\": \"8b90db657068fjef01718955f3b3390b\",
+#### Request Headers
 
-\"modelId\": \"E229BFF3B1GD4RKE874P745BEL259711\"
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-}
+#### Request Parameters
 
-\]
+| Parameter | Details |
+|-----------|---------|
+| `integrationId` | Required. String. The integration ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
 
-},
-
-{
-
-\"type\": \"AnaplanToAmazonS3\",
-
-\"sources\": \[
-
-{
-
-\"type\": \"Anaplan\",
-
-\"actionId\": \"116000000000\",
-
-\"workspaceId\": \"8b90db657068fjef01718955f3b3390b\",
-
-\"modelId\": \"E229BFF3B1GD4RKE874P745BEL259711\"
-
-}
-
-\],
-
-\"targets\": \[
-
-{
-
-\"type\": \"AmazonS3\",
-
-\"connectionId\": \"0d3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-\"file\": \"Exports/\"
-
-}
-
-\]
-
-}
-
-\]
-
-}
-
-+----------+-----------------------------------------------------------+
-| **JSON** | **Details**                                               |
-+----------+-----------------------------------------------------------+
-| jobs     | -   Required                                              |
-|          |                                                           |
-|          | -   List                                                  |
-|          |                                                           |
-|          | -   Description: Consists of sources and targets.         |
-+----------+-----------------------------------------------------------+
-| p        | -   Required                                              |
-| rocessId |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: Anaplan process id.                      |
-+----------+-----------------------------------------------------------+
-| type     | -   Required                                              |
-|          |                                                           |
-|          | -   String as part of the jobs list                       |
-|          |                                                           |
-|          | -   Description: Type of integration                      |
-|          |                                                           |
-|          | -   Examples: AmazonS3ToAnaplan,                          |
-|          |                                                           |
-|          | AnaplanToAmazonS3, AzureBlobToAnaplan, AnaplanToAzureBlob |
-+----------+-----------------------------------------------------------+
-| sources  | -   Required                                              |
-|          |                                                           |
-|          | -   part of the jobs list                                 |
-|          |                                                           |
-|          | -   Description: The location from where you  transfer    |
-|          |     the file. AmazonS3 in case of import action.          |
-+----------+-----------------------------------------------------------+
-| targets  | -   Required                                              |
-|          |                                                           |
-|          | -   part of the jobs list                                 |
-|          |                                                           |
-|          | -   Description: The location to where the file is        |
-|          |     transferred.                                          |
-|          |                                                           |
-|          | Example: { \"type\": \"AmazonS3\", \"connectionId\":      |
-|          | \"0c3d2f662c1b4c71a02fb4b6f09a40f7\", \"file\":           |
-|          | \"exports/\", \"overwrite\": true }                       |
-+----------+-----------------------------------------------------------+
-| conn     | -   Required                                              |
-| ectionId |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The ID created while creating a          |
-|          |     connection.                                           |
-|          |                                                           |
-|          | -   Example: 0c3d2f66-2c1b-4c71-a02f-b4b6f09a40f7         |
-+----------+-----------------------------------------------------------+
-| type     | -   Required                                              |
-|          |                                                           |
-|          | -   String as part of the sources or targets lists        |
-|          |                                                           |
-|          | -   Description: The connection type                      |
-|          |                                                           |
-|          | -   Examples: AmazonS3, Anaplan, AzureBlob                |
-+----------+-----------------------------------------------------------+
-| file     | -   Required                                              |
-|          |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: For imports, this is the file imported   |
-|          |     into Anaplan. For exports, this is the folder file    |
-|          |     path to export data from Anaplan.                     |
-|          |                                                           |
-|          | -   Example: sample_file.csv                              |
-+----------+-----------------------------------------------------------+
-| actionId | -   Required                                              |
-|          |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The Import or Export action ID of        |
-|          |     Anaplan model, depending on the type of integration.  |
-|          |     If the action is an import, this value is the import  |
-|          |     ID. If the action is an export, this value is the     |
-|          |     export ID.                                            |
-|          |                                                           |
-|          | -   Example: 112000000011                                 |
-+----------+-----------------------------------------------------------+
-| fileId   | -   Required if the integration is an import              |
-|          |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The file ID of Anaplan model.            |
-|          |                                                           |
-|          | -   Example: 113000000011                                 |
-+----------+-----------------------------------------------------------+
-| wor      | -   Required                                              |
-| kspaceId |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The Anaplan workspace ID.                |
-|          |                                                           |
-|          | -   Example: 8b90db657068fjef01718955f3b3390b             |
-+----------+-----------------------------------------------------------+
-| modelId  | -   Required                                              |
-|          |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The Anaplan model ID.                    |
-|          |                                                           |
-|          | -   Example: E229BFF3B1GD4RKE874P745BEL259711             |
-+----------+-----------------------------------------------------------+
-| o        | -   Optional (Default value is false)                     |
-| verwrite |                                                           |
-|          | -   Boolean                                               |
-|          |                                                           |
-|          | -   Description: This setting determines if the           |
-|          |     integration should overwrite the destination file.    |
-|          |     For example: If set to false (the default value), or  |
-|          |     not set, the API creates a new file in S3, if         |
-|          |     the connectionType is AmazonS3.  If set to true, the  |
-|          |     API overrides the previous file.                      |
-|          |                                                           |
-|          | -   Example: false                                        |
-+----------+-----------------------------------------------------------+
-| version  | -   Required                                              |
-|          |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: Cloudworks API version.                  |
-|          |                                                           |
-|          | -   Example: 2.0                                          |
-+----------+-----------------------------------------------------------+
-| nu       | -   Optional                                              |
-| xVisible |                                                           |
-|          | -   Boolean                                               |
-|          |                                                           |
-|          | -   Description: Optional field. When this field is set,  |
-|          |     this integration is visible in UX action cards. The   |
-|          |     default value is The default value is false.          |
-+----------+-----------------------------------------------------------+
-| name     | -   Required                                              |
-|          |                                                           |
-|          | -   Type: String                                          |
-|          |                                                           |
-|          | -   Description: The name of the integration. This should |
-|          |     be a unique name.                                     |
-|          |                                                           |
-|          | -   Example: test_integration_1                           |
-+----------+-----------------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-    \"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    },
-
-    \"integration\": {
-
-        \"integrationId\": \"4caad0c1b91545d983cb6a2bb62d755e\"
-
-    }
-
-}
-
-Edit a process integration
-
-/integrations/{integrationId}
-
-Use this call to edit a process integration using Version 2.0.
-
-Request
-
- curl -X PUT
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"} \\
-
-Request headers
-
-+--------------------------------+--------------------------------------+
-| **Header**                     | **Details**                          |
-+--------------------------------+--------------------------------------+
-| Authorization:                 | -   Required                         |
-| AnaplanAuthToken               |                                      |
-| {anaplan_auth_token}           | -   Description: the Anaplan         |
-|                                |     authentication token             |
-+--------------------------------+--------------------------------------+
-| Content-Type                   | -   Required                         |
-|                                |                                      |
-|                                | -   Description: This call uses a    |
-|                                |     content type                     |
-|                                |     of application/json.             |
-+--------------------------------+--------------------------------------+
-
-Request parameters
-
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: The integration ID               |
-|                   |                                                   |
-|                   | -   Example: 4caad0c1b91545d983cb6a2bb62d755e     |
-+-------------------+---------------------------------------------------+
-
-Request body (process)
-
-{
-
-\"name\": \"sample process integration updated\",
-
-\"processId\": \"118000000001\",
-
-\"version\": \"2.0\",
-
-\"workspaceId\": \"8b90db657068fjef01718955f3b3390b\",
-
-\"modelId\": \"E229BFF3B1GD4RKE874P745BEL259711\",
-
-\"nuxVisible\": false,
-
-\"jobs\": \[
-
-{
-
-\"type\": \"AmazonS3ToAnaplan\",
-
-\"sources\": \[
-
-{
-
-\"type\": \"AmazonS3\",
-
-\"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-\"file\": \"sample_file_updated.csv\"
-
-}
-
-\],
-
-\"targets\": \[
-
-{
-
-\"type\": \"Anaplan\",
-
-\"actionId\": \"112000000011\",
-
-\"fileId\": \"113000000011\"
-
-}
-
-\]
-
-},
-
-{
-
-\"type\": \"AnaplanToAmazonS3\",
-
-\"sources\": \[
-
-{
-
-\"type\": \"Anaplan\",
-
-\"actionId\": \"116000000000\"
-
-}
-
-\],
-
-\"targets\": \[
-
-{
-
-\"type\": \"AmazonS3\",
-
-\"connectionId\": \"0d3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-\"file\": \"Exports/\"
-
-}
-
-\]
-
-}
-
-\]
-
-}
-
-Request with version 1.0 (old version)
-
- curl -X PUT
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/1/0/integrations/{integrationId}[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"} \\
-
-Request headers
-
-+--------------------------------+--------------------------------------+
-| **Header**                     | **Details**                          |
-+--------------------------------+--------------------------------------+
-| Authorization:                 | -   Required                         |
-| AnaplanAuthToken               |                                      |
-| {anaplan_auth_token}           | -   Description: the Anaplan         |
-|                                |     authentication token             |
-+--------------------------------+--------------------------------------+
-| Content-Type                   | -   Required                         |
-|                                |                                      |
-|                                | -   Description: This call uses a    |
-|                                |     content type                     |
-|                                |     of application/json.             |
-+--------------------------------+--------------------------------------+
-
-Request parameters
-
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: The integration ID               |
-|                   |                                                   |
-|                   | -   Example: 4caad0c1b91545d983cb6a2bb62d755e     |
-+-------------------+---------------------------------------------------+
-
-{
-
-\"name\": \"sample process integration updated\",
-
-\"processId\": \"118000000001\",
-
-\"nuxVisible\": false,
-
-\"jobs\": \[
-
-{
-
-\"type\": \"AmazonS3ToAnaplan\",
-
-\"sources\": \[
-
-{
-
-\"type\": \"AmazonS3\",
-
-\"connectionId\": \"0c3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-\"file\": \"sample_file_updated.csv\"
-
-}
-
-\],
-
-\"targets\": \[
-
-{
-
-\"type\": \"Anaplan\",
-
-\"actionId\": \"112000000011\",
-
-\"fileId\": \"113000000011\",
-
-\"workspaceId\": \"8b90db657068fjef01718955f3b3390b\",
-
-\"modelId\": \"E229BFF3B1GD4RKE874P745BEL259711\"
-
-}
-
-\]
-
-},
-
-{
-
-\"type\": \"AnaplanToAmazonS3\",
-
-\"sources\": \[
-
-{
-
-\"type\": \"Anaplan\",
-
-\"actionId\": \"116000000000\",
-
-\"workspaceId\": \"8b90db657068fjef01718955f3b3390b\",
-
-\"modelId\": \"E229BFF3B1GD4RKE874P745BEL259711\"
-
-}
-
-\],
-
-\"targets\": \[
-
-{
-
-\"type\": \"AmazonS3\",
-
-\"connectionId\": \"0d3d2f662c1b4c71a02fb4b6f09a40f7\",
-
-\"file\": \"Exports/\"
-
-}
-
-\]
-
-}
-
-\]
-
-}
-
-+----------+-----------------------------------------------------------+
-| **JSON** | **Details**                                               |
-+----------+-----------------------------------------------------------+
-| jobs     | -   Required                                              |
-|          |                                                           |
-|          | -   List                                                  |
-|          |                                                           |
-|          | -   Description: Consists of sources and targets.         |
-+----------+-----------------------------------------------------------+
-| p        | -   Required                                              |
-| rocessId |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: Anaplan process id                       |
-+----------+-----------------------------------------------------------+
-| type     | -   Required                                              |
-|          |                                                           |
-|          | -   String as part of the jobs list                       |
-|          |                                                           |
-|          | -   Description: Type of integration                      |
-|          |                                                           |
-|          | -   Examples: AmazonS3ToAnaplan, AnaplanToAmazonS3        |
-+----------+-----------------------------------------------------------+
-| sources  | -   Required                                              |
-|          |                                                           |
-|          | -   List as part of the jobs list                         |
-|          |                                                           |
-|          | -   Description: The location from where you transfer the |
-|          |     file.                                                 |
-+----------+-----------------------------------------------------------+
-| targets  | -   Required                                              |
-|          |                                                           |
-|          | -   List as part of the jobs list                         |
-|          |                                                           |
-|          | -   Description: The location where the file is           |
-|          |     transferred.                                          |
-+----------+-----------------------------------------------------------+
-| conn     | -   Required                                              |
-| ectionId |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The ID created while creating a          |
-|          |     connection.                                           |
-|          |                                                           |
-|          | -   Example: 0c3d2f662c1b4c71a02fb4b6f09a40f7             |
-+----------+-----------------------------------------------------------+
-| type     | -   Required                                              |
-|          |                                                           |
-|          | -   String as part of the sources or targets lists        |
-|          |                                                           |
-|          | -   Description: The connection type                      |
-|          |                                                           |
-|          | -   Examples: AmazonS3, Anaplan                           |
-+----------+-----------------------------------------------------------+
-| file     | -   Required                                              |
-|          |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The folder path                          |
-|          |                                                           |
-|          | -   Example: sample_file.csv                              |
-+----------+-----------------------------------------------------------+
-| actionId | -   Required                                              |
-|          |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The Import or Export action ID of        |
-|          |     Anaplan model, depending on the type of integration.  |
-|          |     If the action is an import, this value is the import  |
-|          |     ID. If the action is an export, this value is the     |
-|          |     export ID.                                            |
-|          |                                                           |
-|          | -   Example: 112000000011                                 |
-+----------+-----------------------------------------------------------+
-| fileId   | -   Required if the integration is an import              |
-|          |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The file ID of Anaplan model.            |
-|          |                                                           |
-|          | -   Example: 113000000011                                 |
-+----------+-----------------------------------------------------------+
-| wor      | -   Required                                              |
-| kspaceId |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The Anaplan workspace ID.                |
-|          |                                                           |
-|          | -   Example: 8b90db657068fjef01718955f3b3390b             |
-+----------+-----------------------------------------------------------+
-| modelId  | -   Required                                              |
-|          |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: The Anaplan model ID.                    |
-|          |                                                           |
-|          | -   Example: E229BFF3B1GD4RKE874P745BEL259711             |
-+----------+-----------------------------------------------------------+
-| o        | -   Optional (Default value is false)                     |
-| verwrite |                                                           |
-|          | -   Boolean                                               |
-|          |                                                           |
-|          | -   Description: This setting determines if the           |
-|          |     integration should overwrite the destination file.    |
-|          |     For example: when set to false (the default value),   |
-|          |     or not set, the API creates a new file in S3, if      |
-|          |     the connectionType is AmazonS3.  If set to true, the  |
-|          |     API overrides the previous file.                      |
-|          |                                                           |
-|          | -   Example: false                                        |
-+----------+-----------------------------------------------------------+
-| version  | -   Required                                              |
-|          |                                                           |
-|          | -   String                                                |
-|          |                                                           |
-|          | -   Description: CloudWorks API version.                  |
-|          |                                                           |
-|          | -   Example: \'2.0\'                                      |
-+----------+-----------------------------------------------------------+
-| nu       | -   Optional                                              |
-| xVisible |                                                           |
-|          | -   Boolean                                               |
-|          |                                                           |
-|          | -   Description: Optional field. When this field is set,  |
-|          |     this integration is visible in UX action cards. The   |
-|          |     default value is The default value is false.          |
-+----------+-----------------------------------------------------------+
-| name     | -   Required                                              |
-|          |                                                           |
-|          | -   Type: String                                          |
-|          |                                                           |
-|          | -   Description: The name of the integration. This should |
-|          |     be a unique name.                                     |
-|          |                                                           |
-|          | -   Example: test_integration_1                           |
-+----------+-----------------------------------------------------------+
-
-Response header
-
-Content-Type: application/json
-
-Response 200 Body
-
- {
-
-     \"status\": {
-
-         \"code\": 200,
-
-         \"message\": \"Success\"
-
-     }
-
- }
-
-Set the status of an integration schedule
-
-/integrations/{integrationId}/schedule/status/{status}
-
-Use this call to set the status of a scheduled integration.
-
-Request
-
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/schedule/status/{status}[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
-
-Request parameters
-
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: the integration ID               |
-|                   |                                                   |
-|                   | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a     |
-+-------------------+---------------------------------------------------+
-| {status}          | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: the integration ID               |
-|                   |                                                   |
-|                   | -   Example: enabled                              |
-+-------------------+---------------------------------------------------+
-
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
-
-\"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    } 
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
+```
 
-Schedule
+---
 
-Create an integration schedule
+## History
 
-/integrations/{integrationId}/schedule
+### Get History of Integration Runs
 
-Use this call to create an integration schedule. This call supports a
-maximum of one schedule per integration.
+`GET /integrations/runs/{integrationId}`
 
-Request
+Get the integration run history.
 
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/schedule[']{dir="rtl"}
-\\ 
+#### Request
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrations/runs/{integrationId}' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
 
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
+#### Request Headers
 
-Request headers
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-+------------------------------+---------------------------------------+
-| **Header**                   | **Details**                           |
-+------------------------------+---------------------------------------+
-| Authorization:               | -   Required                          |
-| AnaplanAuthToken             |                                       |
-| {token_value}                | -   Description: the Anaplan          |
-|                              |     authentication token              |
-+------------------------------+---------------------------------------+
-| Content-Type                 | -   Required                          |
-|                              |                                       |
-|                              | -   Description: This call uses a     |
-|                              |     content type of application/json. |
-+------------------------------+---------------------------------------+
+#### Request Parameters
 
-Request parameters
+| Parameter | Details |
+|-----------|---------|
+| `offset` | Required. Number. Items to skip. First element is 0. Example: `0` |
+| `limit` | Required. Number. Number of elements to return. Example: `2` |
+| `integrationId` | Required. String. The integration ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
 
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: the integration ID               |
-|                   |                                                   |
-|                   | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a     |
-+-------------------+---------------------------------------------------+
-
-Request body based on schedule type
-
-Schedule Type: weekly. It runs on specific days of the week.
-
-{
-
-      \"integrationId\":  fe40dc5793084f7dbb685cffe6a5ad2a,
-
-      \"schedule\": {
-
-            \"name\": \"test schedule\",
-
-            \"type\": \"weekly\",
-
-            \"time\": \"12:45\",
-
-            \"daysOfWeek\": \[0, 6\]
-
-            \"startDate\": \"2020-07-03\",
-
-            \"endDate\": \"2020-12-01\",
-
-            \"timezone\": \"Europe/Paris\"
-
-          }
-
-}
-
-Schedule Type: monthly_specific_day . It runs on a specific day of the
-month.
-
-{
-
-     \"integrationId\":  fe40dc5793084f7dbb685cffe6a5ad2a,
-
-      \"schedule\": {
-
-                \"name\": \"test schedule\",
-
-                \"type\": \"monthly_specific_day\",
-
-                \"dayOfMonth\": 12,
-
-                \"time\": \"22:00\",
-
-                \"startDate\": \"2020-09-03\",
-
-                \"endDate\": \"2020-12-01\",
-
-                \"timezone\": \"Europe/Paris\"
-
-            }
-
-}
-
-Schedule Type: monthly_relative_weekday. It runs on a day of the week
-relative to the start of the month.
-
-{
-
-     \"integrationId\":  fe40dc5793084f7dbb685cffe6a5ad2a,
-
-      \"schedule\": {
-
-                \"name\": \"test schedule\",
-
-                \"type\": \"monthly_relative_weekday\",
-
-                \"time\": \"12:45\",
-
-                \"dayOfWeek\": 3,
-
-                \"repeatEvery\": 2
-
-                \"startDate\": \"2020-07-03\",
-
-                \"endDate\": \"2020-12-01\",
-
-                \"timezone\": \"Europe/Paris\"
-
-            }
-
-}
-
-Schedule Type: hourly. It runs on specific days of the week, each hour,
-between a start and end hour.
-
-{
-
-     \"integrationId\":  fe40dc5793084f7dbb685cffe6a5ad2a,
-
-      \"schedule\": {
-
-                \"name\": \"test schedule\",
-
-                \"type\": \"hourly\",
-
-                \"repeatEvery\": 2,
-
-                \"fromTime\": \"20:00\",
-
-                \"toTime\": \"23:20\",
-
-                \"daysOfWeek\": \[0, 6\],
-
-                \"startDate\": \"2020-07-03\",
-
-                \"endDate\": \"2020-12-01\",
-
-                \"timezone\": \"Europe/Paris\"
-
-            }
-
-}
-
-Schedule Type: daily. It runs each day, at a specified time.
-
-{
-
-  \"integrationId\":  fe40dc5793084f7dbb685cffe6a5ad2a,
-
-  \"schedule\": {
-
-        \"name\": \"test schedule\",
-
-        \"type\": \"daily\",
-
-        \"time\": \"11:55\",
-
-        \"startDate\": \"2020-07-03\",
-
-        \"endDate\": \"2020-12-01\",
-
-        \"timezone\": \"Europe/Paris\"
-
-      }
-
-}
-
-+---------+------------------------------------------------------------+
-| *       | **Details**                                                |
-| *JSON** |                                                            |
-+---------+------------------------------------------------------------+
-| name    | -   Required                                               |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: Name of schedule                          |
-|         |                                                            |
-|         | -   Example: \'test-schedule\'                             |
-+---------+------------------------------------------------------------+
-| type    | -   Required                                               |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: Type of schedule. Valid entries are:      |
-|         |                                                            |
-|         |     -   monthly_specific_day                               |
-|         |                                                            |
-|         |     -   monthly_relative_weekday                           |
-|         |                                                            |
-|         |     -   hourly                                             |
-|         |                                                            |
-|         |     -   weekly                                             |
-|         |                                                            |
-|         |     -   daily                                              |
-|         |                                                            |
-|         | -   Example: monthly_specific_day                          |
-+---------+------------------------------------------------------------+
-| day     | -   Required in monthly_specific_day schedule              |
-| OfMonth |                                                            |
-|         | -   Type: Integer                                          |
-|         |                                                            |
-|         | -   Description: Day of the month.  Valid entries are 1 to |
-|         |     31.                                                    |
-|         |                                                            |
-|         | -   Example: 12                                            |
-+---------+------------------------------------------------------------+
-| day     | -   Required in weekly, hourly,                            |
-| sOfWeek |     and monthly_relative_weekday schedule                  |
-|         |                                                            |
-|         | -   Type: List                                             |
-|         |                                                            |
-|         | -   Description: Days of the week. Sunday is 0             |
-|         |                                                            |
-|         | -   Example: \[0,6\]                                       |
-+---------+------------------------------------------------------------+
-| repe    | -   Required                                               |
-| atEvery |     in monthly_relative_weekday and hourly schedules       |
-|         |                                                            |
-|         | -   Type: Integer                                          |
-|         |                                                            |
-|         | -   Description: Repeat the schedule                       |
-|         |                                                            |
-|         | -   Example: 2. It means repeat every second Wednesday of  |
-|         |     the month, if the schedule type is                     |
-|         |     monthly_relative_weekday.                              |
-+---------+------------------------------------------------------------+
-| time    | -   Required                                               |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: The schedule time                         |
-|         |                                                            |
-|         | -   Example: 22:00                                         |
-+---------+------------------------------------------------------------+
-| f       | -   Required in hourly schedule                            |
-| romTime |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: The schedule time                         |
-|         |                                                            |
-|         | -   Example: 20:00                                         |
-+---------+------------------------------------------------------------+
-| toTime  | -   Required in hourly schedule                            |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: The schedule time                         |
-|         |                                                            |
-|         | -   Example: 23:20                                         |
-+---------+------------------------------------------------------------+
-| st      | -   Required                                               |
-| artDate |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: Start date of the schedule.  The format   |
-|         |     for the date is: YYYY-MM-DD                            |
-|         |                                                            |
-|         | -   Example: 2020-09-03                                    |
-+---------+------------------------------------------------------------+
-| endDate | -   Optional                                               |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: End date of the schedule.  The format for |
-|         |     the date is: YYYY-MM-DD                                |
-|         |                                                            |
-|         | -   Example: 2020-12-01                                    |
-+---------+------------------------------------------------------------+
-| t       | -   Required                                               |
-| imezone |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: The time zone for the schedule.           |
-|         |                                                            |
-|         | -   Example: Europe/Paris                                  |
-+---------+------------------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-\"status\": {
-
-       \"code\": 200,
-
-       \"message\": \"Success\"
-
-   },
-
-   \"scheduledIntegration\": {
-
-       \"id\": \"0995f32adf2443a9b2420739cedc17f9\"
-
-   }
-
-    }
-
-Update the schedule of an integration
-
-/integrations/{integrationId}/schedule
-
-Use this call to update the schedule of an integration for Anaplan
-CloudWorks.
-
-Request
-
-curl -X PUT
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/schedule\'
-\\ 
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
-
-Request parameters
-
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: the integration ID               |
-|                   |                                                   |
-|                   | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a     |
-+-------------------+---------------------------------------------------+
-
-Request body based on schedule type
-
-Schedule Type: weekly. It runs on specific days of the week.
-
-{
-
-      \"integrationId\":  fe40dc5793084f7dbb685cffe6a5ad2a,
-
-      \"schedule\": {
-
-            \"name\": \"test schedule\",
-
-            \"type\": \"weekly\",
-
-            \"time\": \"12:45\",
-
-            \"daysOfWeek\": \[0, 6\]
-
-            \"startDate\": \"2020-07-03\",
-
-            \"endDate\": \"2020-12-01\",
-
-            \"timezone\": \"Europe/Paris\"
-
-          }
-
-}
-
-Schedule Type: monthly_specific_day . It runs on a specific day of the
-month.
-
-{
-
-     \"integrationId\":  fe40dc5793084f7dbb685cffe6a5ad2a,
-
-      \"schedule\": {
-
-                \"name\": \"test schedule\",
-
-                \"type\": \"monthly_specific_day\",
-
-                \"dayOfMonth\": 12,
-
-                \"time\": \"22:00\",
-
-                \"startDate\": \"2020-09-03\",
-
-                \"endDate\": \"2020-12-01\",
-
-                \"timezone\": \"Europe/Paris\"
-
-            }
-
-}
-
-Schedule Type: monthly_relative_weekday. It runs on a day of the week
-relative to the start of the month.
-
-{
-
-     \"integrationId\":  fe40dc5793084f7dbb685cffe6a5ad2a,
-
-      \"schedule\": {
-
-                \"name\": \"test schedule\",
-
-                \"type\": \"monthly_relative_weekday\",
-
-                \"time\": \"12:45\",
-
-                \"dayOfWeek\": 3,
-
-                \"repeatEvery\": 2
-
-                \"startDate\": \"2020-07-03\",
-
-                \"endDate\": \"2020-12-01\",
-
-                \"timezone\": \"Europe/Paris\"
-
-            }
-
-}
-
-Schedule Type: hourly. It runs on specific days of the week, each hour,
-between a start and end hour.
-
-{
-
-     \"integrationId\":  fe40dc5793084f7dbb685cffe6a5ad2a,
-
-      \"schedule\": {
-
-                \"name\": \"test schedule\",
-
-                \"type\": \"hourly\",
-
-                \"repeatEvery\": 2,
-
-                \"fromTime\": \"20:00\",
-
-                \"toTime\": \"23:20\",
-
-                \"daysOfWeek\": \[0, 6\],
-
-                \"startDate\": \"2020-07-03\",
-
-                \"endDate\": \"2020-12-01\",
-
-                \"timezone\": \"Europe/Paris\"
-
-            }
-
-}
-
-Schedule Type: daily. It runs each day, at a specified time.
-
-{
-
-  \"integrationId\":  fe40dc5793084f7dbb685cffe6a5ad2a,
-
-  \"schedule\": {
-
-        \"name\": \"test schedule\",
-
-        \"type\": \"daily\",
-
-        \"time\": \"11:55\",
-
-        \"startDate\": \"2020-07-03\",
-
-        \"endDate\": \"2020-12-01\",
-
-        \"timezone\": \"Europe/Paris\"
-
-      }
-
-}
-
-+---------+------------------------------------------------------------+
-| *       | **Details**                                                |
-| *JSON** |                                                            |
-+---------+------------------------------------------------------------+
-| name    | -   Required                                               |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: Name of schedule                          |
-|         |                                                            |
-|         | -   Example: \'test-schedule\'                             |
-+---------+------------------------------------------------------------+
-| type    | -   Required                                               |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: Type of schedule.  Valid entries are:     |
-|         |                                                            |
-|         |     -   monthly_specific_day                               |
-|         |                                                            |
-|         |     -   monthly_relative_weekday                           |
-|         |                                                            |
-|         |     -   hourly                                             |
-|         |                                                            |
-|         |     -   weekly                                             |
-|         |                                                            |
-|         |     -   daily                                              |
-|         |                                                            |
-|         | -   Example: monthly_specific_day                          |
-+---------+------------------------------------------------------------+
-| day     | -   Required in monthly_specific_day schedule              |
-| OfMonth |                                                            |
-|         | -   Type: Integer                                          |
-|         |                                                            |
-|         | -   Description: Day of the month.  Valid entries are 1 to |
-|         |     31.                                                    |
-|         |                                                            |
-|         | -   Example: 12                                            |
-+---------+------------------------------------------------------------+
-| day     | -   Required in weekly, hourly,                            |
-| sOfWeek |     and monthly_relative_weekday schedules                 |
-|         |                                                            |
-|         | -   Type: List                                             |
-|         |                                                            |
-|         | -   Description: Days of the week. Sunday is 0             |
-|         |                                                            |
-|         | -   Example: \[0,6\]                                       |
-+---------+------------------------------------------------------------+
-| repe    | -   Required                                               |
-| atEvery |     in monthly_relative_weekday and hourly schedules       |
-|         |                                                            |
-|         | -   Type: Integer                                          |
-|         |                                                            |
-|         | -   Description: Repeat the schedule                       |
-|         |                                                            |
-|         | -   Example: 2. It means repeat every second Wednesday of  |
-|         |     the month, if the schedule type is                     |
-|         |     monthly_relative_weekday.                              |
-+---------+------------------------------------------------------------+
-| time    | -   Required                                               |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: The schedule time                         |
-|         |                                                            |
-|         | -   Example: 22:00                                         |
-+---------+------------------------------------------------------------+
-| f       | -   Required in hourly schedule                            |
-| romTime |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: The schedule time                         |
-|         |                                                            |
-|         | -   Example: 20:00                                         |
-+---------+------------------------------------------------------------+
-| toTime  | -   Required in hourly schedule                            |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: The schedule time                         |
-|         |                                                            |
-|         | -   Example: 23:20                                         |
-+---------+------------------------------------------------------------+
-| st      | -   Required                                               |
-| artDate |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: Start date of the schedule.  The format   |
-|         |     for the date is: YYYY-MM-DD                            |
-|         |                                                            |
-|         | -   Example: 2020-09-03                                    |
-+---------+------------------------------------------------------------+
-| endDate | -   Optional                                               |
-|         |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: End date of the schedule.  The format for |
-|         |     the date is: YYYY-MM-DD                                |
-|         |                                                            |
-|         | -   Example: 2020-12-01                                    |
-+---------+------------------------------------------------------------+
-| t       | -   Required                                               |
-| imezone |                                                            |
-|         | -   Type: String                                           |
-|         |                                                            |
-|         | -   Description: The time zone for the schedule.           |
-|         |                                                            |
-|         | -   Example: Europe/Paris                                  |
-+---------+------------------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-\"status\": {
-
-       \"code\": 200,
-
-       \"message\": \"Success\"
-
-   
-
-   }
-
-}
-
-Delete an integration schedule
-
-/integrations/{integrationId}/schedule
-
-Use this call to delete an integration schedule.
-
-Request
-
-curl -X DELETE
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/{integrationId}/schedule[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
-
-Request parameters
-
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: the integration ID               |
-|                   |                                                   |
-|                   | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a     |
-+-------------------+---------------------------------------------------+
-
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
-
-\"status\": {
-
-       \"code\": 200,
-
-       \"message\": \"Success\"
-
-   }
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "history_of_runs": {
+    "integrationId": "fe40dc57-9308-4f7d-bb68-5cffe6a5ad2a",
+    "name": "sample import integration",
+    "schedule": null,
+    "workspaceId": "8a80db657068fjef01718955f3b3390b",
+    "modelId": "E559BFF3B1GD4RKE874P745BEL259711",
+    "creationDate": "2020-09-28T23:08:24.000Z",
+    "modificationDate": "2020-09-28T23:08:26.000Z",
+    "createdBy": "John Smith",
+    "modifiedBy": "None",
+    "status": 1,
+    "notificationId": "a72d86ac0a9c454aa8baf67c1db67486",
+    "runs": [
+      {
+        "id": "hy40d89893084f0dkb985cmme9i5io2a",
+        "triggeredBy": "John Smith",
+        "lastRun": "2020-09-28T23:09:31.000Z",
+        "startDate": "2020-09-28T23:09:31.000Z",
+        "endDate": "2020-09-28T23:13:07.000Z",
+        "success": true,
+        "message": "Success",
+        "executionErrorCode": null
+      }
+    ],
+    "totalRuns": 1
+  },
+  "meta": {
+    "schema": "https://api.cloudworks.anaplan.com/2/0/integrations/objects/runs"
+  }
 }
+```
 
-History
+---
 
-Get history of integration runs
+### Get Integration Run Errors
 
-/integrations/runs/{integrationId}
+`GET /integrations/runerror/{runId}`
 
-Use this call to see the integration history.
+Review error messages from an integration run.
 
-Request
+#### Request
 
-curl -X GET
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/runs/{integrationId}[']{dir="rtl"}
-\\
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrations/runerror/{runId}' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
+#### Request Headers
 
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-Request headers
+#### Request Parameters
 
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
+| Parameter | Details |
+|-----------|---------|
+| `runId` | Required. String. The run ID. Example: `hy40d89893084f0dkb98-5cmme9i5io2a` |
 
-Request parameters
-
-+------------+---------------------------------------------------------+
-| **P        | **Details**                                             |
-| arameter** |                                                         |
-+------------+---------------------------------------------------------+
-| {offset}   | -   Required                                            |
-|            |                                                         |
-|            | -   Type: Number                                        |
-|            |                                                         |
-|            | -   Description: The number of items to skip before     |
-|            |     starting to collect the result set. The first       |
-|            |     element starts at 0.                                |
-|            |                                                         |
-|            | -   Example: 0                                          |
-+------------+---------------------------------------------------------+
-| {limit}    | -   Required                                            |
-|            |                                                         |
-|            | -   Type: Number                                        |
-|            |                                                         |
-|            | -   Description: The number of elements to be returned. |
-|            |                                                         |
-|            | -   Example: 2                                          |
-+------------+---------------------------------------------------------+
-| {inte      | -   Required                                            |
-| grationId} |                                                         |
-|            | -   Type: String                                        |
-|            |                                                         |
-|            | -   Description: the Integration ID.                    |
-|            |                                                         |
-|            | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a           |
-+------------+---------------------------------------------------------+
-
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
-
-    \"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    },
-
-    \"history_of_runs\":
-
-        {
-
-            \"integrationId\": \"fe40dc57-9308-4f7d-bb68-5cffe6a5ad2a\",
-
-            \"name\": \"sample import integration\",
-
-            \"schedule\": null,
-
-\"workspaceId\": \"8a80db657068fjef01718955f3b3390b\", 
-
-\"modelId\": \"E559BFF3B1GD4RKE874P745BEL259711\",
-
-            \"creationDate\": \"2020-09-28T23:08:24.000Z\",
-
-            \"modificationDate\": \"2020-09-28T23:08:26.000Z\",
-
-            \"createdBy\": \"John Smith\",
-
-            \"modifiedBy\": \"None\",
-
-            \"status\": 1,
-
-            \"notificationId\": \"a72d86ac0a9c454aa8baf67c1db67486\",
-
-            \"runs\": \[
-
-                {
-
-                    \"id\": \"hy40d89893084f0dkb985cmme9i5io2a\",
-
-                    \"triggeredBy\": \"John Smith\",
-
-                    \"lastRun\": \"2020-09-28T23:09:31.000Z\",
-
-                    \"startDate\": \"2020-09-28T23:09:31.000Z\",
-
-                    \"endDate\": \"2020-09-28T23:13:07.000Z\",
-
-                    \"success\": true,
-
-                    \"message\": \"Success\",
-
-                    \"executionErrorCode\": null
-
-                }
-
-            \],
-
-            \"totalRuns\": 1
-
-        },
-
-    \"meta\": {
-
-        \"schema\":
-\"https://api.cloudworks.anaplan.com/2/0/integrations/objects/runs\"
-
-    }
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "runs": [
+    {
+      "id": "hy40d89893084f0dkb985cmme9i5io2a",
+      "errorMessages": [
+        {
+          "errorMessage": [
+            {
+              "localMessageText": "test e2e: 13 (0/13) rows successful, 0 (0/0) rows has warnings, 2 failed, 0 ignored",
+              "occurrences": 0,
+              "type": "hierarchyRowsProcessedWithFailures",
+              "values": []
+            }
+          ],
+          "actionId": "112000000011",
+          "actionName": "sample import action",
+          "failureDumpGenerated": true
+        }
+      ],
+      "taskId": "F4AF7C7C03C145D6A2CDC6E194EFB392",
+      "creationDate": "2020-09-29T04:05:12.000Z",
+      "modificationDate": "2020-09-29T04:05:12.000Z",
+      "createdBy": "John Smith",
+      "modifiedBy": "None"
+    }
+  ],
+  "meta": {
+    "schema": "https://api.cloudworks.anaplan.com/2/0/integrations/objects/runerror"
+  }
 }
+```
 
-Get integration run errors
+**Note:** The `taskId` is the identifier for a specific import or export task.
 
-/integrations/runerror/{runId}
+---
 
-Use this call to review error messages from the integration run.
+### Get Run Status
 
-Request
+`GET /integrations/run/{runId}`
 
-curl -X GET
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/runerror/{runId}
-\\
+Get the status of a specific integration run.
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
+#### Request
 
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrations/run/{runId}' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
 
-Request headers
+#### Request Headers
 
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-Request parameters
+#### Request Parameters
 
-+-----------+----------------------------------------------------------+
-| **Pa      | **Details**                                              |
-| rameter** |                                                          |
-+-----------+----------------------------------------------------------+
-| {runId}   | -   Required                                             |
-|           |                                                          |
-|           | -   Type: String                                         |
-|           |                                                          |
-|           | -   Description: the run ID.                             |
-|           |                                                          |
-|           | -   Example: hy40d89893084f0dkb98-5cmme9i5io2a           |
-+-----------+----------------------------------------------------------+
+| Parameter | Details |
+|-----------|---------|
+| `runId` | Required. String. The run ID. Example: `hy40d89893084f0dkb985cmme9i5io2a` |
 
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
-
-\"status\":{
-
-     \"code\":200,
-
-     \"message\":\"Success\"
-
-  },
-
-  \"runs\":\[
-
-     {
-
-        \"id\":\"hy40d89893084f0dkb985cmme9i5io2a\",
-
-        \"errorMessages\":\[
-
-           {
-
-              \"errorMessage\":\[
-
-                 {
-
-                    \"localMessageText\":\"test e2e: 13 (0/13) rows
-successful, 0 (0/0) rows has warnings, 2 failed, 0 ignored\",
-
-                    \"occurrences\":0,
-
-                    \"type\":\"hierarchyRowsProcessedWithFailures\",
-
-                    \"values\":\[\]
-
-                 }
-
-              \],
-
- \"actionId\": \"112000000011\",
-
-\"actionName\": \"sample import action\",
-
-\"failureDumpGenerated\": true,
-
-           }
-
-        \],
-
-        \"taskId\":\"F4AF7C7C03C145D6A2CDC6E194EFB392\",
-
-        \"creationDate\":\"2020-09-29T04:05:12.000Z\",
-
-        \"modificationDate\":\"2020-09-29T04:05:12.000Z\",
-
-        \"createdBy\":\"John Smith\",
-
-        \"modifiedBy\":\"None\"
-
-     }
-
-  \],
-
-  \"meta\":{
-
-    
-\"schema\":\"https://api.cloudworks.anaplan.com/2/0/integrations/objects/runerror\"
-
-  }
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "run": {
+    "id": "hy40d89893084f0dkb98-5cmme9i5io2a",
+    "integrationId": "fe40dc5793084f7dbb68-5cffe6a5ad2a",
+    "startDate": "2020-09-29T04:05:20.000Z",
+    "endDate": "2020-09-29T04:05:25.000Z",
+    "success": true,
+    "message": "Success",
+    "creationDate": "2020-09-29T04:05:12.000Z",
+    "modificationDate": "2020-09-29T04:05:15.000Z",
+    "createdBy": "John Smith",
+    "modifiedBy": "John Smith",
+    "executionErrorCode": null
+  },
+  "meta": {
+    "schema": "https://api.cloudworks.anaplan.com/2/0/integrations/objects/run"
+  }
 }
+```
 
-**Note**: The taskId is the identifier for a specific import or export
-task.
+**Note:** If the `success` parameter is `false`, contact Anaplan support with the `executionErrorCode` value to diagnose the root cause.
 
-Get run status
+---
 
-/integrations/run/{runId}
+## Notification Configurations
 
-Use this call to get the status of a specific integration run.
+### Get a Notification Configuration
 
-Request
+`GET /integrations/notification/{notificationId}`
 
-curl -X GET
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/run/{runId}[']{dir="rtl"}
-\\
+Get notification configuration details.
 
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
+#### Request
 
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrations/notification/{notificationId}' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
 
-Request headers
+#### Request Headers
 
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-Request parameters
-
-+------------+---------------------------------------------------------+
-| **P        | **Details**                                             |
-| arameter** |                                                         |
-+------------+---------------------------------------------------------+
-| {runId}    | -   Required                                            |
-|            |                                                         |
-|            | -   Type: String                                        |
-|            |                                                         |
-|            | -   Description: the run ID.                            |
-|            |                                                         |
-|            | -   Example: hy40d89893084f0dkb985cmme9i5io2a           |
-+------------+---------------------------------------------------------+
-
-Request body
+#### Request Parameters
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
-
-   \"status\":{
-
-      \"code\":200,
-
-      \"message\":\"Success\"
-
-   },
-
-   \"run\":{
-
-        \"id\": \"hy40d89893084f0dkb98-5cmme9i5io2a\",
-
-        \"integrationId\": \"fe40dc5793084f7dbb68-5cffe6a5ad2a\",
-
-        \"startDate\": \"2020-09-29T04:05:20.000Z\",
-
-        \"endDate\": \"2020-09-29T04:05:25.000Z\",
-
-        \"success\": true,
-
-        \"message\": \"Success\",
-
-        \"creationDate\": \"2020-09-29T04:05:12.000Z\",
-
-        \"modificationDate\": \"2020-09-29T04:05:15.000Z\",
-
-        \"createdBy\": \"John Smith\",
-
-        \"modifiedBy\": \"John Smith\",
-
-        \"executionErrorCode\": null
-
-      },
-
-   \"meta\":{
-
-     
-\"schema\":\"https://api.cloudworks.anaplan.com/2/0/integrations/objects/run\"
-
-   }
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "notifications": {
+    "notificationId": "067d1426ac964a7cac871c87790c4555",
+    "integrationIds": [
+      "214a2ac51e5a479aafd49e9228334515"
+    ],
+    "channels": [
+      "email",
+      "in_app"
+    ],
+    "notifications": {
+      "config": [
+        {
+          "type": "success",
+          "users": [
+            {
+              "userGuid": "2c9ba1b6729b7fd80172c3f635db40f7",
+              "firstName": "John",
+              "lastName": "Smith"
+            }
+          ]
+        },
+        {
+          "type": "partial_failure",
+          "users": [
+            {
+              "userGuid": "2c9ba1b6729b7fd80172c3f635db40f7",
+              "firstName": "John",
+              "lastName": "Smith"
+            }
+          ]
+        },
+        {
+          "type": "full_failure",
+          "users": [
+            {
+              "userGuid": "2c9ba1b6729b7fd80172c3f635db40f7",
+              "firstName": "John",
+              "lastName": "Smith"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "meta": {
+    "schema": "https://api.cloudworks.anaplan.com/2/0/integrations/objects/notification"
+  }
 }
+```
 
-**Note**: If the [']{dir="rtl"}success[']{dir="rtl"} parameter is false,
-contact to Anaplan support with the value of executionErrorCode , to
-diagnose the root cause of failure.
+---
 
-Notification configurations
+### Create a Notification Configuration
 
-Get a notification configuration
+`POST /integrations/notification`
 
-/integrations/notification/{notificationId}
+Configure a new integration notification.
 
-Use this to get your notification configuration details.
+#### Request
 
-Request
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/2/0/integrations/notification' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-curl -X **GET**
-\'https://api.cloudworks.anaplan.com/2/0/integrations/notification/{notificationId}\'
-\\
+#### Request Headers
 
--H [']{dir="rtl"}**Authorization**: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
--H [']{dir="rtl"}Content-**Type**: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
+#### Request Parameters
 
 None
 
-Response headers
+#### Request Body
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
+  "integrationIds": [
+    "214a2ac51e5a479aafd49e9228334515"
+  ],
+  "channels": [
+    "email",
+    "in_app"
+  ],
+  "notifications": {
+    "config": [
+      {
+        "type": "success",
+        "users": [
+          "2c9ba1b6729b7fd80172c3f635db40f7"
+        ]
+      },
+      {
+        "type": "full_failure",
+        "users": [
+          "2c9ba1b6729b7fd80172c3f635db40f7"
+        ]
+      },
+      {
+        "type": "partial_failure",
+        "users": [
+          "2c9ba1b6729b7fd80172c3f635db40f7"
+        ]
+      }
+    ]
+  }
+}
+```
 
-\"status\": {
+#### Request Body Fields
 
-\"code\": 200,
+| Key | Details |
+|-----|---------|
+| `integrationIds` | Required. Array. Integration ID(s) for the notification. Currently supports a single ID. Example: `["214a2ac51e5a479aafd49e9228334515"]` |
+| `channels` | Required. Array. Notification channels. Example: `["email", "in_app"]` |
+| `config` | Required. Array. Consists of `type` and `users`. Example: `[{"type": "success", "users": ["2c9ba1b6729b7fd80172c3f635db40f7"]}]` |
+| `type` (in config) | Required. String. Integration completion status to notify on. Values: `success`, `full_failure`, `partial_failure` |
+| `users` (in config) | Required. Array. User GUIDs (limit 5 per type). Example: `2c9ba1b6729b7fd80172c3f635db40f7` |
 
-\"message\": \"Success\"
+#### Response
 
-},
-
-\"notifications\": {
-
-\"notificationId\": \"067d1426ac964a7cac871c87790c4555\",
-
-\"integrationIds\": \[
-
-\"214a2ac51e5a479aafd49e9228334515\"
-
-\],
-
-\"channels\": \[
-
-\"email\",
-
-\"in_app\"
-
-\],
-
-\"notifications\": {
-
-\"config\": \[
-
+```json
 {
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "notification": {
+    "notificationId": "37945d3f7543463a859949e690dc4b60"
+  }
+}
+```
 
-\"type\": \"success\",
+---
 
-\"users\": \[
+### Edit a Notification Configuration
 
+`PUT /integrations/notification/{notificationId}`
+
+Edit the configuration of an integration notification.
+
+#### Request
+
+```bash
+curl -X PUT 'https://api.cloudworks.anaplan.com/2/0/integrations/notification/{notificationId}' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json' \
+  -d '{request body}'
+```
+
+#### Request Headers
+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
+
+#### Request Parameters
+
+| Parameter | Details |
+|-----------|---------|
+| `notificationId` | Required. String. The notification ID. Example: `067d1426ac964a7cac871c87790c4555` |
+
+#### Request Body
+
+```json
 {
-
-\"userGuid\": \"2c9ba1b6729b7fd80172c3f635db40f7\",
-
-\"firstName\": \"John\",
-
-\"lastName\": \"Smith\"
-
+  "integrationIds": [
+    "214a2ac51e5a479aafd49e9228334515"
+  ],
+  "channels": [
+    "email",
+    "in_app"
+  ],
+  "notifications": {
+    "config": [
+      {
+        "type": "success",
+        "users": [
+          "2c9ba1b6729b7fd80172c3f635db40f7"
+        ]
+      },
+      {
+        "type": "full_failure",
+        "users": [
+          "2c9ba1b6729b7fd80172c3f635db40f7"
+        ]
+      },
+      {
+        "type": "partial_failure",
+        "users": [
+          "2c9ba1b6729b7fd80172c3f635db40f7"
+        ]
+      }
+    ]
+  }
 }
+```
 
-\]
+#### Request Body Fields
 
-},
+| Key | Details |
+|-----|---------|
+| `integrationIds` | Required. Array. Integration ID(s). Example: `["214a2ac51e5a479aafd49e9228334515"]` |
+| `channels` | Required. Array. Notification channels. Example: `["email", "in_app"]` |
+| `config` | Required. Array. Consists of `type` and `users`. |
+| `type` (in config) | Required. String. Values: `success`, `full_failure`, `partial_failure` |
+| `users` (in config) | Required. Array. User GUIDs (limit 5 per type). Example: `2c9ba1b6729b7fd80172c3f635db40f7` |
 
+#### Response
+
+```json
 {
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
+}
+```
 
-\"type\": \"partial_failure\",
+---
 
-\"users\": \[
+### Delete a Notification Configuration
 
+`DELETE /integrations/notification/{notificationId}`
+
+Delete an integration notification.
+
+#### Request
+
+```bash
+curl -X DELETE 'https://api.cloudworks.anaplan.com/2/0/integrations/notification/{notificationId}' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
+
+#### Request Headers
+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
+
+#### Request Parameters
+
+| Parameter | Details |
+|-----------|---------|
+| `notificationId` | Required. String. The notification ID. Example: `067d1426ac964a7cac871c87790c4555` |
+
+#### Response
+
+```json
 {
-
-\"userGuid\": \"2c9ba1b6729b7fd80172c3f635db40f7\",
-
-\"firstName\": \"John\",
-
-\"lastName\": \"Smith\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
+```
 
-\]
+---
 
-},
+## Error Logs
 
+### Get an Import Error Log
+
+`GET /integrations/run/{runId}/dumps`
+
+Get an import error log.
+
+#### Request
+
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrations/run/{runId}/dumps' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
+
+#### Response
+
+```json
 {
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
+}
+```
 
-\"type\": \"full_failure\",
+Example dump file (error log):
 
-\"users\": \[
+```csv
+"Demo List","name","email","planet","_Line_","_Error_1_"
+"a","","junk","","2","Invalid number: junk"
+"b","","twelve","","3","Invalid number: twelve"
+"c","eight","","","4","Invalid number: eight"
+"d","night","","","5","Invalid number: night"
+```
 
+---
+
+### Get a Process Error Log
+
+`GET /integrations/run/{runId}/process/import/{actionId}/dumps`
+
+Get a process error log.
+
+#### Request
+
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrations/run/{runId}/process/import/{actionId}/dumps' \
+  -H 'Authorization: AnaplanAuthToken {token_value}' \
+  -H 'Content-Type: application/json'
+```
+
+#### Response
+
+```json
 {
-
-\"userGuid\": \"2c9ba1b6729b7fd80172c3f635db40f7\",
-
-\"firstName\": \"John\",
-
-\"lastName\": \"Smith\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
+```
 
-\]
+Example dump file (error log):
 
-}
+```csv
+"Demo List","name","email","planet","_Line_","_Error_1_"
+"a","","junk","","2","Invalid number: junk"
+"b","","twelve","","3","Invalid number: twelve"
+"c","eight","","","4","Invalid number: eight"
+"d","night","","","5","Invalid number: night"
+```
 
-\]
+---
 
-}
+## Integration Flows
 
-},
+### Create a New Integration Flow
 
-\"meta\": {
+`POST /integrationflows`
 
-\"schema\":
-\"https://api.cloudworks.anaplan.com/2/0/integrations/objects/notification\"
+Create a new integration flow for Anaplan CloudWorks.
 
-}
+#### Request
 
-}
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/2/0/integrationflows' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-Create a notification configuration
+#### Request Headers
 
-/integrations/notification
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-Use this call to cofigure a new integration notification.
-
-Request
-
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/notification[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
+#### Request Parameters
 
 None
 
-Request body
+#### Request Body
 
+```json
 {
+  "name": "test-integration-flow-name",
+  "version": "2.0",
+  "type": "IntegrationFlow",
+  "steps": [
+    {
+      "type": "Integration",
+      "referrer": "step_integration_id_1",
+      "isSkipped": false,
+      "exceptionBehavior": [
+        {
+          "type": "failure",
+          "strategy": "stop"
+        }
+      ]
+    },
+    {
+      "type": "Integration",
+      "referrer": "step_integration_id_2",
+      "dependsOn": [
+        "step_integration_id_1"
+      ],
+      "isSkipped": false,
+      "exceptionBehavior": [
+        {
+          "type": "failure",
+          "strategy": "stop"
+        }
+      ]
+    }
+  ]
+}
+```
 
-\"integrationIds\": \[
+#### Request Body Fields
 
-\"214a2ac51e5a479aafd49e9228334515\"
+| Key | Details |
+|-----|---------|
+| `name` | Required. String. Name of the integration flow. |
+| `version` | Required. String. Resource schema version. Example: `2.0` |
+| `type` | Required. String. Type of resource. Value: `IntegrationFlow` |
+| `steps` | Required. Array. Step details. Minimum 2 items. |
+| `referrer` (in steps) | Required. String. The step integration ID. |
+| `dependsOn` (in steps) | Required. Array. Step IDs this step depends on. E.g., step 2 depends on step 1: `["step_integration_1_id"]` |
+| `type` (in steps) | Required. String. Step resource type. Value: `Integration` |
+| `isSkipped` (in steps) | Required. Boolean. Skip the step. Default: `false`. |
+| `exceptionBehavior` (in steps) | Required. Array. Defines flow behavior on step failure. Expected: `[{ "type": "failure", "strategy": "stop" | "continue" }, { "type": "partial_success", "strategy": "continue" | "stop" }]` |
 
-\],
+#### Response
 
-\"channels\": \[
-
-\"email\",
-
-\"in_app\"
-
-\],
-
-\"notifications\": {
-
-\"config\": \[
-
+```json
 {
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "integrationFlow": {
+    "integrationFlowId": "fe40dc5793084f7dbb685cffe6a5ad2a"
+  }
+}
+```
 
-\"type\": \"success\",
+---
 
-\"users\": \[
+### Run an Integration Flow
 
-\"2c9ba1b6729b7fd80172c3f635db40f7\"
+`POST /integrationflows/{integrationFlowId}/run`
 
-\]
+Run an integration flow.
 
-},
+#### Request
 
+```bash
+curl -X POST 'https://api.cloudworks.anaplan.com/2/0/integrationflows/{integrationFlowId}/run' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
+
+#### Request Headers
+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
+
+#### Request Parameters
+
+| Parameter | Details |
+|-----------|---------|
+| `integrationFlowId` | Required. String. The integration flow ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
+
+#### Request Body
+
+```json
 {
+  "stepsToRun": ["step_ids..."]
+}
+```
 
-\"type\": \"full_failure\",
+| Key | Details |
+|-----|---------|
+| `stepsToRun` | Optional. Array of step IDs to run (can be a subset of all steps). Example: `["fe40dc5793084f7dbb685cffe6a5ad2a"]` |
 
-\"users\": \[
+#### Response
 
-\"2c9ba1b6729b7fd80172c3f635db40f7\"
-
-\]
-
-},
-
+```json
 {
-
-\"type\": \"partial_failure\",
-
-\"users\": \[
-
-\"2c9ba1b6729b7fd80172c3f635db40f7\"
-
-\]
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "run": {
+    "id": "hy40d89893084f0dkb985cmme9i5io2a"
+  }
 }
+```
 
-\]
+---
 
-}
+### Get All Integration Flows
 
-}
+`GET /integrationflows`
 
-+-----------+----------------------------------------------------------+
-| **JSON**  | **Details**                                              |
-+-----------+----------------------------------------------------------+
-| integ     | -   Required                                             |
-| rationIds |                                                          |
-|           | -   Array                                                |
-|           |                                                          |
-|           | -   Description: integrationId for which the             |
-|           |     notification configuration needs to be created.      |
-|           |     Currently supports only a single integrationId.      |
-|           |                                                          |
-|           | -   Example: \[\"214a2ac51e5a479aafd49e9228334515\"\]    |
-+-----------+----------------------------------------------------------+
-| channels  | -   Required                                             |
-|           |                                                          |
-|           | -   Array                                                |
-|           |                                                          |
-|           | -   Description: The channel via which you want to       |
-|           |     receive a notification.                              |
-|           |                                                          |
-|           | Example: \[\"email\",\"in_app\"\]                        |
-+-----------+----------------------------------------------------------+
-| config    | -   Required                                             |
-|           |                                                          |
-|           | -   Array                                                |
-|           |                                                          |
-|           | -   Description: Consists of type and users.             |
-|           |                                                          |
-|           | Example: \[{\"type\": \"success\",\"users\":             |
-|           | \[\"2c9ba1b6729b7fd80172c3f635db40f7\"\]                 |
-+-----------+----------------------------------------------------------+
-| type      | -   Required                                             |
-|           |                                                          |
-|           | -   String as part of config                             |
-|           |                                                          |
-|           | -   Description: Integration completion status that      |
-|           |     needs to be notified.                                |
-|           |                                                          |
-|           | -   Example: success, full_failure, partial_failure      |
-+-----------+----------------------------------------------------------+
-| users     | -   Required                                             |
-|           |                                                          |
-|           | -   Array as part of config                              |
-|           |                                                          |
-|           | -   Description: array of userGuids(limit 5 per type) of |
-|           |     the user who receives the notification               |
-|           |                                                          |
-|           | -   Examples: 2c9ba1b6729b7fd80172c3f635db40f7           |
-+-----------+----------------------------------------------------------+
+Retrieve all your integration flows.
 
-Response headers
+#### Request
 
-Content-Type: application/json
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrationflows' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-Response 200 Body
+#### Request Headers
 
-{
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-\"status\": {
+#### Request Parameters
 
-\"code\": 200,
+| Parameter | Details |
+|-----------|---------|
+| `offset` | Optional. Number. Items to skip. First element is 0. Example: `0` |
+| `limit` | Optional. Number. Number of elements to return. Example: `10` |
+| `myIntegrations` | Optional. Number. If `1`, returns only current user's integration flows. |
 
-\"message\": \"Success\"
+**Note:** If `offset` and `limit` are not provided, defaults to 25 integration flows.
 
-},
-
-\"notification\": {
-
-\"notificationId\": \"37945d3f7543463a859949e690dc4b60\"
-
-}
-
-}
-
-Edit a notification configuration
-
-integrations/notifications/{notificationId}
-
-Use this call to edit the configuration of an integration notification.
-
-Request
-
-curl -X PUT
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrations/notification/{notificationId}[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"} \\
-
--d [']{dir="rtl"}{request body}\'
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
-
-+-------------------+--------------------------------------------------+
-| **Parameter**     | **Details**                                      |
-+-------------------+--------------------------------------------------+
-| {notificationId}  | -   Required                                     |
-|                   |                                                  |
-|                   | -   Type: String                                 |
-|                   |                                                  |
-|                   | -   Description: The notification ID             |
-|                   |                                                  |
-|                   | -   Example: 067d1426ac964a7cac871c87790c4555    |
-+-------------------+--------------------------------------------------+
-
-Request body
-
-{
-
-\"integrationIds\": \[
-
-\"214a2ac51e5a479aafd49e9228334515\"
-
-\],
-
-\"channels\": \[
-
-\"email\",
-
-\"in_app\"
-
-\],
-
-\"notifications\": {
-
-\"config\": \[
-
-{
-
-\"type\": \"success\",
-
-\"users\": \[
-
-\"2c9ba1b6729b7fd80172c3f635db40f7\"
-
-\]
-
-},
-
-{
-
-\"type\": \"full_failure\",
-
-\"users\": \[
-
-\"2c9ba1b6729b7fd80172c3f635db40f7\"
-
-\]
-
-},
-
-{
-
-\"type\": \"partial_failure\",
-
-\"users\": \[
-
-\"2c9ba1b6729b7fd80172c3f635db40f7\"
-
-\]
-
-}
-
-\]
-
-}
-
-}
-
-+-----------+----------------------------------------------------------+
-| **JSON**  | **Details**                                              |
-+-----------+----------------------------------------------------------+
-| integ     | -   Required                                             |
-| rationIds |                                                          |
-|           | -   Array                                                |
-|           |                                                          |
-|           | -   Description: integrationId for which the             |
-|           |     notification configuration needs to be created.      |
-|           |                                                          |
-|           | -                                                        |
-|           |   Example: \[\"214a2ac51e5a479aafd49e9228334515\"\]\</li |
-+-----------+----------------------------------------------------------+
-| channels  | -   Required                                             |
-|           |                                                          |
-|           | -   Array                                                |
-|           |                                                          |
-|           | -   Description: The channel via which you want to       |
-|           |     receive a notification.                              |
-|           |                                                          |
-|           | Example: \[\"email\",\"in_app\"\]                        |
-+-----------+----------------------------------------------------------+
-| config    | -   Required                                             |
-|           |                                                          |
-|           | -   Array                                                |
-|           |                                                          |
-|           | -   Description: Consists of type and users.             |
-|           |                                                          |
-|           | Example: \[{\"type\": \"success\",\"users\":             |
-|           | \[\"2c9ba1b6729b7fd80172c3f635db40f7\"\]                 |
-+-----------+----------------------------------------------------------+
-| type      | -   Required                                             |
-|           |                                                          |
-|           | -   String as part of config                             |
-|           |                                                          |
-|           | -   Description: Integration completion status that      |
-|           |     needs to be notified.                                |
-|           |                                                          |
-|           | -   Example: success, full_failure, partial_failure      |
-+-----------+----------------------------------------------------------+
-| users     | -   Required                                             |
-|           |                                                          |
-|           | -   Array as part of config                              |
-|           |                                                          |
-|           | -   Description: array of userGuids(limit 5 per type) of |
-|           |     the user who receives the notification               |
-|           |                                                          |
-|           | -   Examples: 2c9ba1b6729b7fd80172c3f635db40f7           |
-+-----------+----------------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-\"status\": {
-
-\"code\": 200,
-
-\"message\": \"Success\"
-
-}
-
-}
-
-Delete a notification configuration
-
-/integrations/notification/{notificationId}
-
-Use this call to delete an integration notification.
-
-Request
-
-curl -X DELETE
-https://api.cloudworks.anaplan.com/2/0/integrations/notification/{notificationId}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
-
-+------------------+---------------------------------------------------+
-| **Parameter**    | **Details**                                       |
-+------------------+---------------------------------------------------+
-| {runId}/dumps}   | -   Required                                      |
-|                  |                                                   |
-|                  | -   Type: String                                  |
-|                  |                                                   |
-|                  | -   Description: The notification ID              |
-|                  |                                                   |
-|                  | -   Example: 067d1426ac964a7cac871c87790c4555     |
-+------------------+---------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-\"status\": {
-
-\"code\": 200,
-
-\"message\": \"Success\"
-
-}
-
-}
-
-Error logs
-
-Get an import error log
-
-/integrations/run/{runId}/dumps
-
-Use this call to get an import error log.
-
-Request
-
-curl -X GET
-https://api.cloudworks.anaplan.com/2/0/integrations/run/{runId}/dumps \\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Response 200 Body
-
-{
-
-    \"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    }
-
-}
-
-Example dumpfile (error log):
-
-\"Demo List\",\"name\",\"email\",\"planet\",\"\_Line\_\",\"\_Error_1\_\"
-
-\"a\",\"\",\"junk\",\"\",\"2\",\"Invalid number: junk\"
-
-\"b\",\"\",\"twelve\",\"\",\"3\",\"Invalid number: twelve\"
-
-\"c\",\"eight\",\"\",\"\",\"4\",\"Invalid number: eight\"
-
-\"d\",\"night\",\"\",\"\",\"5\",\"Invalid number: night\"
-
-Get a process error log
-
-/integrations/run/{runId}/process/import/{actionId}/dumps
-
-Use this call to get a process error log.
-
-Request
-
-curl -X GET
-https://api.cloudworks.anaplan.com/2/0/integrations/run/{runId}/process/import/{actionId}/dumps
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{token_value}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Response 200 Body
-
-{
-
-    \"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    }
-
-}
-
-Example dumpfile (error log):
-
-\"Demo List\",\"name\",\"email\",\"planet\",\"\_Line\_\",\"\_Error_1\_\"
-
-\"a\",\"\",\"junk\",\"\",\"2\",\"Invalid number: junk\"
-
-\"b\",\"\",\"twelve\",\"\",\"3\",\"Invalid number: twelve\"
-
-\"c\",\"eight\",\"\",\"\",\"4\",\"Invalid number: eight\"
-
-\"d\",\"night\",\"\",\"\",\"5\",\"Invalid number: night\"
-
-Integration Flows
-
-Create a new integration flow
-
-/integrationflows
-
-Use this call to create a new integration flow for Anaplan CloudWorks.
-
-Request
-
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrationflows[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
+#### Request Body
 
 None
 
-Request body
+#### Response
 
+```json
 {
-
-\"name\": \"test-integration-flow-name\",
-
-\"version\": \"2.0\",
-
-\"type\": \"IntegrationFlow\",
-
-\"steps\": \[
-
-{
-
-\"type\": \"Integration\",
-
-\"referrer\": \"step_integration_id_1\",
-
-\"isSkipped\": false,
-
-\"exceptionBehavior\": \[
-
-{
-
-\"type\": \"failure\",
-
-\"strategy\": \"stop\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "integrationFlows": [
+    {
+      "id": "fe40dc5793084f7dbb685cffe6a5ad2a",
+      "name": "Sample Integration flow",
+      "createdBy": "user",
+      "creationDate": "2023-02-09T07:42:11.091Z",
+      "modificationDate": "2023-02-09T07:42:11.091Z",
+      "modifiedBy": "user",
+      "notificationId": "3fa85f6457174562b3fc2c963f66afa6",
+      "stepsCount": 10,
+      "latestRun": {
+        "id": "hy40d89893084f0dkb985cmme9i5io2a",
+        "triggeredBy": "John Smith",
+        "lastRun": "2020-09-28T23:09:31.000Z",
+        "startDate": "2020-09-28T23:09:31.000Z",
+        "endDate": "2020-09-28T23:13:07.000Z",
+        "success": true,
+        "message": "Success",
+        "executionErrorCode": null
+      }
+    }
+  ],
+  "meta": {
+    "paging": {
+      "currentPageSize": 1,
+      "totalSize": 1,
+      "offset": 0
+    },
+    "schema": "https://api.anaplan.com/cloudworks/2/0/integrations/objects/integrationflows"
+  }
 }
+```
 
-\]
+---
 
-},
+### Get Integration Flow by ID
 
-{
+`GET /integrationflows/{integrationFlowId}`
 
-\"type\": \"Integration\",
+Get details for a specific integration flow.
 
-\"referrer\": \"step_integration_id_2\",
+#### Request
 
-\"dependsOn\": \[
+```bash
+curl -X GET 'https://api.cloudworks.anaplan.com/2/0/integrationflows/{integrationFlowId}' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-\"step_integration_id_1\"
+#### Request Headers
 
-\],
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-\"isSkipped\": false,
+#### Request Parameters
 
-\"exceptionBehavior\": \[
+| Parameter | Details |
+|-----------|---------|
+| `integrationFlowId` | Required. String. The integration flow ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
 
-{
-
-\"type\": \"failure\",
-
-\"strategy\": \"stop\"
-
-}
-
-\]
-
-}
-
-\]
-
-}
-
-+--------------+-------------------------------------------------------+
-| **JSON**     | **Details**                                           |
-+--------------+-------------------------------------------------------+
-| name         | -   Required                                          |
-|              |                                                       |
-|              | -   String as part of the request body                |
-|              |                                                       |
-|              | -   Description: The name of Integration Flow         |
-+--------------+-------------------------------------------------------+
-| version      | -   Required                                          |
-|              |                                                       |
-|              | -   String as part of the the request body            |
-|              |                                                       |
-|              | -   Description: Resource schema version              |
-|              |                                                       |
-|              | -   Examples: 2.0                                     |
-+--------------+-------------------------------------------------------+
-| steps        | -   Required                                          |
-|              |                                                       |
-|              | -   Array                                             |
-|              |                                                       |
-|              | -   Description: Consists of step details. Min. items |
-|              |     2.                                                |
-+--------------+-------------------------------------------------------+
-| type         | -   Required                                          |
-|              |                                                       |
-|              | -   Description: Type of Resource.                    |
-|              |                                                       |
-|              | -   Examples: IntegrationFlow                         |
-+--------------+-------------------------------------------------------+
-| referrer     | -   Required                                          |
-|              |                                                       |
-|              | -   String as part of the steps array                 |
-|              |                                                       |
-|              | -   Description: The step integration id              |
-+--------------+-------------------------------------------------------+
-| dependsOn    | -   Required                                          |
-|              |                                                       |
-|              | -   Array                                             |
-|              |                                                       |
-|              | -   Description: Step ID or previous step e.g. step 2 |
-|              |     depends on step 1 so step2.dependsOn =            |
-|              |     \[step_integration_1_id\]                         |
-+--------------+-------------------------------------------------------+
-| type         | -   Required                                          |
-|              |                                                       |
-|              | -   String as part of the steps array                 |
-|              |                                                       |
-|              | -   Description: The step resrouce type               |
-|              |                                                       |
-|              | -   Examples: Integration                             |
-+--------------+-------------------------------------------------------+
-| isSkipped    | -   Required                                          |
-|              |                                                       |
-|              | -   String as part of the steps array                 |
-|              |                                                       |
-|              | -   Description: Skip the step.                       |
-|              |                                                       |
-|              | -   Expected value: true \| false (default)           |
-+--------------+-------------------------------------------------------+
-| excep        | -   Required                                          |
-| tionBehavior |                                                       |
-|              | -   Array as part of the steps array                  |
-|              |                                                       |
-|              | -   Description: If flow step is not successful, this |
-|              |     parameter defines the flow behavior               |
-|              |                                                       |
-|              | -   Expected: \[{ type: failure, strategy: stop       |
-|              |     (default) \| continue }, { type: partial_succes,  |
-|              |     strategy: continue (default) \| stop }\]          |
-+--------------+-------------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-    \"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    },
-
-    \"integrationFlow\": {
-
-        \"integrationFlowId\": \"fe40dc5793084f7dbb685cffe6a5ad2a\"
-
-    }
-
-}
-
-Run an integration flow
-
-/integrationflows[']{dir="rtl"}/{integrationFlowId}/run
-
-Use this call to run an integration flow.
-
-Request
-
-curl -X POST
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrationflows/{integrationFlowId}/run[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
-
-Request parameters
-
-+---------------------+------------------------------------------------+
-| **Parameter**       | **Details**                                    |
-+---------------------+------------------------------------------------+
-| {integrationFlowId} | -   Required                                   |
-|                     |                                                |
-|                     | -   Type: String                               |
-|                     |                                                |
-|                     | -   Description: the integration flow ID       |
-|                     |                                                |
-|                     | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a  |
-+---------------------+------------------------------------------------+
-
-Request body:
-
-{
-
-\"stepsToRun\": \[\"step_ids\...\"\]
-
-}
-
-+---------+------------------------------------------------------------+
-| *       | **Details**                                                |
-| *JSON** |                                                            |
-+---------+------------------------------------------------------------+
-| ste     | -   Optional                                               |
-| psToRun |                                                            |
-|         | -   Array of IDs of Steps to Run as part of Integration    |
-|         |     Flow Run                                               |
-|         |                                                            |
-|         | -   Description: Array of IDs of Steps (Can be subset of   |
-|         |     All steps) to Run as part of Integration Flow Run.     |
-|         |                                                            |
-|         | -   Example: \[fe40dc5793084f7dbb685cffe6a5ad2a\]          |
-+---------+------------------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-\"status\": {
-
-        \"code\": 200,
-
-        \"message\": \"Success\"
-
-    },
-
-    \"run\": {
-
-        \"id\": \"hy40d89893084f0dkb985cmme9i5io2a\"
-
-    }
-
-   
-
-}
-
-Get all integration flows
-
-/integrationflows
-
-Use this call to retrieve all your integration flows.
-
-Request
-
-curl -X GET
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrationflows \\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
-
-+-------------+--------------------------------------------------------+
-| **          | **Details**                                            |
-| Parameter** |                                                        |
-+-------------+--------------------------------------------------------+
-| {offset}    | -   Optional                                           |
-|             |                                                        |
-|             | -   Type: Number                                       |
-|             |                                                        |
-|             | -   Description: The number of items to skip before    |
-|             |     starting to collect the result set. The first      |
-|             |     element starts at 0.                               |
-|             |                                                        |
-|             | -   Example: 0                                         |
-+-------------+--------------------------------------------------------+
-| {limit}     | -   Optional                                           |
-|             |                                                        |
-|             | -   Type: Number                                       |
-|             |                                                        |
-|             | -   Description: The number of elements to return.     |
-|             |                                                        |
-|             | -   Example: 10                                        |
-+-------------+--------------------------------------------------------+
-| {myIn       | -   Optional                                           |
-| tegrations} |                                                        |
-|             | -   Type: Number                                       |
-|             |                                                        |
-|             | -   Description: Returns the list of current users\'s  |
-|             |     integrations if its value is 1.                    |
-|             |                                                        |
-|             | -   Example: 1                                         |
-+-------------+--------------------------------------------------------+
-
-**Note**: if this call does not provide {offset} or {limit}, it
-retrieves 25 integrations.
-
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
+  "status": {
+    "code": 200,
+    "message": "Success"
+  },
+  "integrationFlow": {
+    "id": "fe40dc5793084f7dbb685cffe6a5ad2a",
+    "name": "Sample Integration Flow",
+    "createdBy": "user",
+    "creationDate": "2023-02-09T07:47:13.165Z",
+    "modificationDate": "2023-02-09T07:47:13.165Z",
+    "modifiedBy": "user",
+    "stepsCount": 2,
+    "notificationId": "3fa85f6457174562b3fc2c963f66afa6",
+    "steps": [
+      {
+        "referrer": "step_integration_1_id",
+        "name": "sample Integration",
+        "createdBy": "user",
+        "createdDate": "2023-02-09T07:47:13.165Z",
+        "modifiedDate": "2023-02-09T07:47:13.165Z",
+        "modifiedBy": "user",
+        "dependsOn": ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
+        "type": "Process",
+        "exceptionBehavior": [
+          {
+            "type": "failure",
+            "strategy": "stop"
+          }
+        ],
+        "isSkipped": false,
+        "workspaceId": "8a8196a36f9ff1cb017018c7b3f24756",
+        "modelId": "5BED7528B6884794AEEE705BC3E77EA3",
+        "accessible": false,
+        "latestRun": {
+          "triggeredBy": "user",
+          "success": true,
+          "message": "Success",
+          "lastRun": "2020-09-28T23:09:31.000Z",
+          "startDate": "2020-09-28T23:09:31.000Z",
+          "endDate": "2020-09-28T23:13:07.000Z",
+          "executionErrorCode": null
+        }
+      },
+      {
+        "referrer": "step_integration_2_id",
+        "name": "sample Integration",
+        "createdBy": "user",
+        "createdDate": "2023-02-09T07:47:13.165Z",
+        "modifiedDate": "2023-02-09T07:47:13.165Z",
+        "modifiedBy": "user",
+        "dependsOn": ["step_integration_1_id"],
+        "type": "Process",
+        "exceptionBehavior": [
+          {
+            "type": "failure",
+            "strategy": "stop"
+          }
+        ],
+        "isSkipped": false,
+        "workspaceId": "8a8196a36f9ff1cb017018c7b3f24756",
+        "modelId": "5BED7528B6884794AEEE705BC3E77EA3",
+        "accessible": false,
+        "latestRun": {
+          "triggeredBy": "user",
+          "success": true,
+          "message": "Success",
+          "lastRun": "2020-09-28T23:09:31.000Z",
+          "startDate": "2020-09-28T23:09:31.000Z",
+          "endDate": "2020-09-28T23:13:07.000Z",
+          "executionErrorCode": null
+        }
+      }
+    ],
+    "latestRun": {
+      "triggeredBy": "user",
+      "success": true,
+      "message": "Success",
+      "lastRun": "2020-09-28T23:09:31.000Z",
+      "startDate": "2020-09-28T23:09:31.000Z",
+      "endDate": "2020-09-28T23:13:07.000Z",
+      "executionErrorCode": null
+    }
+  },
+  "meta": {
+    "schema": "https://api.cloudworks.anaplan.com/2/0/integrations/objects/integrationflows"
+  }
+}
+```
 
-\"status\": {
+---
 
-\"code\": 200,
+### Edit an Integration Flow
 
-\"message\": \"Success\"
+`PUT /integrationflows/{integrationFlowId}`
 
-},
+Edit an integration flow.
 
-\"integrationFlows\": \[
+#### Request
 
+```bash
+curl -X PUT 'https://api.cloudworks.anaplan.com/2/0/integrationflows/{integrationFlowId}' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
+
+#### Request Headers
+
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
+
+#### Request Parameters
+
+| Parameter | Details |
+|-----------|---------|
+| `integrationFlowId` | Required. String. The integration flow ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
+
+#### Request Body
+
+**Note:** For restricted integration users, the workspace ID of the integration must match the workspace ID of the associated connection.
+
+```json
 {
-
-\"id\": \"fe40dc5793084f7dbb685cffe6a5ad2a\",
-
-\"name\": \"Sample Integration flow\",
-
-\"createdBy\": \"user\",
-
-\"creationDate\": \"2023-02-09T07:42:11.091Z\",
-
-\"modificationDate\": \"2023-02-09T07:42:11.091Z\",
-
-\"modifiedBy\": \"user\",
-
-\"notificationId\": \"3fa85f6457174562b3fc2c963f66afa6\",
-
-\"stepsCount\": 10,
-
-\"latestRun\": {
-
-\"id\": \"hy40d89893084f0dkb985cmme9i5io2a\",
-
-                \"triggeredBy\": \"John Smith\",
-
-                \"lastRun\": \"2020-09-28T23:09:31.000Z\",
-
-                \"startDate\": \"2020-09-28T23:09:31.000Z\",
-
-                \"endDate\": \"2020-09-28T23:13:07.000Z\",
-
-                \"success\": true,
-
-                \"message\": \"Success\",
-
-                \"executionErrorCode\": null
-
+  "name": "Updated INF Name",
+  "version": "2.0",
+  "type": "IntegrationFlow",
+  "steps": [
+    {
+      "type": "Integration",
+      "referrer": "updated_step_integration_id_1",
+      "isSkipped": false,
+      "exceptionBehavior": [
+        {
+          "type": "failure",
+          "strategy": "stop"
+        }
+      ]
+    },
+    {
+      "type": "Integration",
+      "referrer": "step_integration_id_2",
+      "dependsOn": [
+        "updated_step_integration_id_1"
+      ],
+      "isSkipped": false,
+      "exceptionBehavior": [
+        {
+          "type": "failure",
+          "strategy": "stop"
+        }
+      ]
+    }
+  ]
 }
+```
 
+#### Request Body Fields
+
+| Key | Details |
+|-----|---------|
+| `name` | Required. String. Name of the integration flow. |
+| `version` | Required. String. Resource schema version. Example: `2.0` |
+| `type` | Required. String. Type of resource. Value: `IntegrationFlow` |
+| `steps` | Required. Array. Step details. Minimum 2 items. |
+| `referrer` (in steps) | Required. String. The step integration ID. |
+| `dependsOn` (in steps) | Required. Array. Step IDs this step depends on. |
+| `type` (in steps) | Required. String. Step resource type. Value: `Integration` |
+| `isSkipped` (in steps) | Required. Boolean. Skip the step. Default: `false`. |
+| `exceptionBehavior` (in steps) | Required. Array. Defines flow behavior on step failure. Expected: `[{ "type": "failure", "strategy": "stop" | "continue" }, { "type": "partial_success", "strategy": "continue" | "stop" }]` |
+
+#### Response
+
+```json
+{
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
+```
 
-\],
+---
 
-\"meta\": {
+### Delete an Integration Flow
 
-\"paging\": {
+`DELETE /integrationflows/{integrationFlowId}`
 
-\"currentPageSize\": 1,
+Delete an integration flow.
 
-\"totalSize\": 1,
+#### Request
 
-\"offset\": 0
+```bash
+curl -X DELETE 'https://api.cloudworks.anaplan.com/2/0/integrationflows/{integrationFlowId}' \
+  -H 'Authorization: AnaplanAuthToken {anaplan_auth_token}' \
+  -H 'Content-Type: application/json'
+```
 
-},
+#### Request Headers
 
-\"schema\":
-\"https://api.anaplan.com/cloudworks/2/0/integrations/objects/integrationflows\"
+| Header | Details |
+|--------|---------|
+| `Authorization: AnaplanAuthToken {anaplan_auth_token}` | Required. The Anaplan authentication token. |
+| `Content-Type` | Required. `application/json` |
 
-}
+#### Request Parameters
 
-Get integration flows by integration ID
+| Parameter | Details |
+|-----------|---------|
+| `integrationFlowId` | Required. String. The integration flow ID. Example: `fe40dc5793084f7dbb685cffe6a5ad2a` |
 
-/integrationflows/{integrationFlowId}
-
-Use this call to get details for a specific integration flow.
-
-Request
-
-curl -X GET
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrationflows/{integrationFlowId}[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"} \\
-
-Request headers
-
-+--------------------------------+-------------------------------------+
-| **Header**                     | **Details**                         |
-+--------------------------------+-------------------------------------+
-| Authorization:                 | -   Required                        |
-| AnaplanAuthToken               |                                     |
-| {anaplan_auth_token}           | -   Description: the Anaplan        |
-|                                |     authentication token            |
-+--------------------------------+-------------------------------------+
-| Content-Type                   | -   Required                        |
-|                                |                                     |
-|                                | -   Description: This call uses a   |
-|                                |     content type of                 |
-|                                |     application/json.               |
-+--------------------------------+-------------------------------------+
-
-Request parameters
-
-+-------------------+---------------------------------------------------+
-| **Parameter**     | **Details**                                       |
-+-------------------+---------------------------------------------------+
-| {integrationId}   | -   Required                                      |
-|                   |                                                   |
-|                   | -   Type: String                                  |
-|                   |                                                   |
-|                   | -   Description: the Integration ID.              |
-|                   |                                                   |
-|                   | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a     |
-+-------------------+---------------------------------------------------+
-
-Request body
+#### Request Body
 
 None
 
-Response headers
+#### Response
 
-Content-Type: application/json
-
-Response 200 Body
-
+```json
 {
-
-\"status\": {
-
-\"code\": 200,
-
-\"message\": \"Success\"
-
-},
-
-\"integrationFlow\": {
-
-\"id\": \"fe40dc5793084f7dbb685cffe6a5ad2a\",
-
-\"name\": \"Sample Integration Flow\",
-
-\"createdBy\": \"user\",
-
-\"creationDate\": \"2023-02-09T07:47:13.165Z\",
-
-\"modificationDate\": \"2023-02-09T07:47:13.165Z\",
-
-\"modifiedBy\": \"user\",
-
-\"stepsCount\": 2,
-
-\"notificationId\": \"3fa85f6457174562b3fc2c963f66afa6\",
-
-\"steps\": \[
-
-{
-
-\"referrer\": \"step_integration_1_id\",
-
-\"name\": \"sample Integration\",
-
-\"createdBy\": \"user\",
-
-\"createdDate\": \"2023-02-09T07:47:13.165Z\",
-
-\"modifiedDate\": \"2023-02-09T07:47:13.165Z\",
-
-\"modifiedBy\": \"user\",
-
-\"dependsOn\": \[\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"\],
-
-\"type\": \"Process\",
-
-\"exceptionBehavior\": \[
-
-{
-
-\"type\": \"failure\",
-
-\"strategy\": \"stop\"
-
+  "status": {
+    "code": 200,
+    "message": "Success"
+  }
 }
-
-\],
-
-\"isSkipped\": false,
-
-\"workspaceId\": \"8a8196a36f9ff1cb017018c7b3f24756\",
-
-\"modelId\": \"5BED7528B6884794AEEE705BC3E77EA3\",
-
-\"accessible\": false,
-
-\"latestRun\": {
-
-\"triggeredBy\": \"user\",
-
-\"success\": true,
-
-\"message\": \"Success\",
-
-\"lastRun\": \"2020-09-28T23:09:31.000Z\",
-
-    \"startDate\": \"2020-09-28T23:09:31.000Z\",
-
-            \"endDate\": \"2020-09-28T23:13:07.000Z\",
-
-\"executionErrorCode\": null
-
-}
-
-},
-
-{
-
-\"referrer\": \"step_integration_2_id\",
-
-\"name\": \"sample Integration\",
-
-\"createdBy\": \"user\",
-
-\"createdDate\": \"2023-02-09T07:47:13.165Z\",
-
-\"modifiedDate\": \"2023-02-09T07:47:13.165Z\",
-
-\"modifiedBy\": \"user\",
-
-\"dependsOn\": \[\"step_integration_1_id\"\],
-
-\"type\": \"Process\",
-
-\"exceptionBehavior\": \[
-
-{
-
-\"type\": \"failure\",
-
-\"strategy\": \"stop\"
-
-}
-
-\],
-
-\"isSkipped\": false,
-
-\"workspaceId\": \"8a8196a36f9ff1cb017018c7b3f24756\",
-
-\"modelId\": \"5BED7528B6884794AEEE705BC3E77EA3\",
-
-\"accessible\": false,
-
-\"latestRun\": {
-
-\"triggeredBy\": \"user\",
-
-\"success\": true,
-
-\"message\": \"Success\",
-
-\"lastRun\": \"2020-09-28T23:09:31.000Z\",
-
-    \"startDate\": \"2020-09-28T23:09:31.000Z\",
-
-            \"endDate\": \"2020-09-28T23:13:07.000Z\",
-
-\"executionErrorCode\": null
-
-}
-
-}
-
-\],
-
-\"latestRun\": {
-
-\"triggeredBy\": \"user\",
-
-\"success\": true,
-
-\"message\": \"Success\",
-
-\"lastRun\": \"2020-09-28T23:09:31.000Z\",
-
-\"startDate\": \"2020-09-28T23:09:31.000Z\",
-
-\"endDate\": \"2020-09-28T23:13:07.000Z\",
-
-\"executionErrorCode\": null
-
-}
-
-},
-
-\"meta\": {
-
-\"schema\":
-\"https://api.cloudworks.anaplan.com/2/0/integrations/objects/integrationflows\"
-
-}
-
-}
-
-Edit an integration flow
-
-/integrationflows/{integrationFlowId}
-
-Use this call to edit an integration flow.
-
-Request
-
- curl -X PUT
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrationflows/{integrationFlowId}[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
-
-+---------------------+------------------------------------------------+
-| **Parameter**       | **Details**                                    |
-+---------------------+------------------------------------------------+
-| {integrationFlowId} | -   Required                                   |
-|                     |                                                |
-|                     | -   Type: String                               |
-|                     |                                                |
-|                     | -   Description: The integration flow ID       |
-|                     |                                                |
-|                     | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a  |
-+---------------------+------------------------------------------------+
-
-Request body (import)
-
-Note: For restricted integration users, the workspace ID of the
-integration needs match with the workspace ID of the associated
-connection.
-
-{
-
-\"name\": \"Updated INF Name\",
-
-\"version\": \"2.0\",
-
-\"type\": \"IntegrationFlow\",
-
-\"steps\": \[
-
-{
-
-\"type\": \"Integration\",
-
-\"referrer\": \"updated_step_integration_id_1\",
-
-\"isSkipped\": false,
-
-\"exceptionBehavior\": \[
-
-{
-
-\"type\": \"failure\",
-
-\"strategy\": \"stop\"
-
-}
-
-\]
-
-},
-
-{
-
-\"type\": \"Integration\",
-
-\"referrer\": \"step_integration_id_2\",
-
-\"dependsOn\": \[
-
-\"updated_step_integration_id_1\"
-
-\],
-
-\"isSkipped\": false,
-
-\"exceptionBehavior\": \[
-
-{
-
-\"type\": \"failure\",
-
-\"strategy\": \"stop\"
-
-}
-
-\]
-
-}
-
-\]
-
-}
-
-+--------------+-------------------------------------------------------+
-| **JSON**     | **Details**                                           |
-+--------------+-------------------------------------------------------+
-| name         | -   Required                                          |
-|              |                                                       |
-|              | -   String as part of the request body                |
-|              |                                                       |
-|              | -   Description: The name of Integration Flow         |
-+--------------+-------------------------------------------------------+
-| version      | -   Required                                          |
-|              |                                                       |
-|              | -   String as part of the the request body            |
-|              |                                                       |
-|              | -   Description: Resource schema version              |
-|              |                                                       |
-|              | -   Examples: 2.0                                     |
-+--------------+-------------------------------------------------------+
-| steps        | -   Required                                          |
-|              |                                                       |
-|              | -   Array                                             |
-|              |                                                       |
-|              | -   Description: Consists of step details. Min. items |
-|              |     2.                                                |
-+--------------+-------------------------------------------------------+
-| type         | -   Required                                          |
-|              |                                                       |
-|              | -   Description: Type of Resource.                    |
-|              |                                                       |
-|              | -   Examples: IntegrationFlow                         |
-+--------------+-------------------------------------------------------+
-| referrer     | -   Required                                          |
-|              |                                                       |
-|              | -   String as part of the steps array                 |
-|              |                                                       |
-|              | -   Description: The step integration id              |
-+--------------+-------------------------------------------------------+
-| dependsOn    | -   Required                                          |
-|              |                                                       |
-|              | -   Array                                             |
-|              |                                                       |
-|              | -   Description: Step ID or previous step e.g. step 2 |
-|              |     depends on step 1 so step2.dependsOn =            |
-|              |     \[step_integration_1_id\]                         |
-+--------------+-------------------------------------------------------+
-| type         | -   Required                                          |
-|              |                                                       |
-|              | -   String as part of the steps array                 |
-|              |                                                       |
-|              | -   Description: The step resrouce type               |
-|              |                                                       |
-|              | -   Examples: Integration                             |
-+--------------+-------------------------------------------------------+
-| isSkipped    | -   Required                                          |
-|              |                                                       |
-|              | -   String as part of the steps array                 |
-|              |                                                       |
-|              | -   Description: Skip the step.                       |
-|              |                                                       |
-|              | -   Expected value: true \| false (default)           |
-+--------------+-------------------------------------------------------+
-| excep        | -   Required                                          |
-| tionBehavior |                                                       |
-|              | -   Array as part of the steps array                  |
-|              |                                                       |
-|              | -   Description: If flow step is not successful, this |
-|              |     parameter defines the flow behavior               |
-|              |                                                       |
-|              | -   Expected: \[{ type: failure, strategy: stop       |
-|              |     (default) \| continue }, { type: partial_succes,  |
-|              |     strategy: continue (default) \| stop }\]          |
-+--------------+-------------------------------------------------------+
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
- {
-
-     \"status\": {
-
-         \"code\": 200,
-
-         \"message\": \"Success\"
-
-     }
-
- }
-
-Delete an integration flow
-
-/integrationflows/{integrationFlowId}
-
-Use this call to delete an integration flow.
-
-Request
-
-curl -X DELETE
-[']{dir="rtl"}https://api.cloudworks.anaplan.com/2/0/integrationflows/{integrationFlowId}[']{dir="rtl"}
-\\
-
--H [']{dir="rtl"}Authorization: AnaplanAuthToken
-{anaplan_auth_token}[']{dir="rtl"} \\
-
--H [']{dir="rtl"}Content-Type: application/json[']{dir="rtl"}
-
-Request headers
-
-+----------------------------+-----------------------------------------+
-| **Header**                 | **Details**                             |
-+----------------------------+-----------------------------------------+
-| Authorization:             | -   Required                            |
-| AnaplanAuthToken           |                                         |
-| {anaplan_auth_token}       | -   Description: the Anaplan            |
-|                            |     authentication token                |
-+----------------------------+-----------------------------------------+
-| Content-Type               | -   Required                            |
-|                            |                                         |
-|                            | -   Description: This indicates the     |
-|                            |     preferred response                  |
-|                            |     is application/json format.         |
-+----------------------------+-----------------------------------------+
-
-Request parameters
-
-+---------------------+------------------------------------------------+
-| **Parameter**       | **Details**                                    |
-+---------------------+------------------------------------------------+
-| {integrationFlowId} | -   Required                                   |
-|                     |                                                |
-|                     | -   Type: String                               |
-|                     |                                                |
-|                     | -   Description: The integration flow ID       |
-|                     |                                                |
-|                     | -   Example: fe40dc5793084f7dbb685cffe6a5ad2a  |
-+---------------------+------------------------------------------------+
-
-Request body
-
-None
-
-Response headers
-
-Content-Type: application/json
-
-Response 200 Body
-
-{
-
-   \"status\": {
-
-       \"code\": 200,
-
-       \"message\": \"Success\"
-
-    }
-
-}
+```

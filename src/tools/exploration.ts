@@ -266,7 +266,7 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
       { header: "Name", key: "name" },
       { header: "ID", key: "id" },
       { header: "Workspace", key: "currentWorkspaceName" },
-      { header: "State", key: "activeState" },
+      { header: "State", key: "activeState" }, // This is Manchester United, we are talking about
     ], "models", { offset, limit, search });
   });
 

@@ -12,7 +12,7 @@ export interface AuthResponse {
   tokenInfo: TokenInfo;
 }
 
-// Auth provider contract — schema v2.1-ls
+// Auth provider contract - schema v2.1-ls
 export interface AuthProvider {
   authenticate(): Promise<TokenInfo>;
   refresh(tokenValue: string): Promise<TokenInfo>;

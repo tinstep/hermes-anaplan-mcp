@@ -6,7 +6,7 @@
 
 # Anaplan MCP
 
-A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that connects AI assistants to Anaplan's Integration API v2. Gives LLMs like Claude direct access to browse Anaplan workspaces, read and write model data, run imports/exports, manage list items, and administer models — all through 67 structured tools.
+A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that connects AI assistants to Anaplan's Integration API v2. Gives LLMs like Claude direct access to browse Anaplan workspaces, read and write model data, run imports/exports, manage list items, and administer models - all through 67 structured tools.
 
 Built in TypeScript. Runs over stdio. Works with Claude Desktop, Claude Code, and any MCP-compatible client.
 
@@ -14,12 +14,12 @@ Built in TypeScript. Runs over stdio. Works with Claude Desktop, Claude Code, an
 
 Anaplan MCP bridges the gap between conversational AI and Anaplan's planning platform. Instead of manually navigating the Anaplan UI or writing API scripts, you can ask your AI assistant to:
 
-- **Explore model structure** — browse workspaces, models, modules, line items, views, and lists to understand how a model is built
-- **Read and write cell data** — pull data from module views or push values to specific cells through the transactional API
-- **Run bulk operations** — trigger imports, exports, processes, and delete actions, with automatic task polling until completion
-- **Manage files** — upload CSV/text data to Anaplan files or download file contents
-- **Manage lists** — add, update, or delete list items programmatically
-- **Administer models** — close/open models, set calendar periods, manage versions, view users, and handle large volume reads
+- **Explore model structure** - browse workspaces, models, modules, line items, views, and lists to understand how a model is built
+- **Read and write cell data** - pull data from module views or push values to specific cells through the transactional API
+- **Run bulk operations** - trigger imports, exports, processes, and delete actions, with automatic task polling until completion
+- **Manage files** - upload CSV/text data to Anaplan files or download file contents
+- **Manage lists** - add, update, or delete list items programmatically
+- **Administer models** - close/open models, set calendar periods, manage versions, view users, and handle large volume reads
 
 All operations go through Anaplan's official Integration API v2 with proper authentication, automatic token refresh, and retry logic for rate limits and transient failures.
 
@@ -66,7 +66,7 @@ Restart Claude Desktop or Claude Code to pick up the new server. The 67 Anaplan 
 
 ### Browser-based AI (claude.ai, gemini.google.com, chatgpt.com)
 
-MCP servers run as local processes on your machine — the AI client spawns the server over stdio. Browser-based AI products like claude.ai, Gemini, and ChatGPT web cannot launch local processes, so they cannot connect to this server. You need a desktop application (Claude Desktop, Claude Code) that runs on your machine.
+MCP servers run as local processes on your machine - the AI client spawns the server over stdio. Browser-based AI products like claude.ai, Gemini, and ChatGPT web cannot launch local processes, so they cannot connect to this server. You need a desktop application (Claude Desktop, Claude Code) that runs on your machine.
 
 ## Authentication
 
@@ -80,9 +80,9 @@ Three methods supported, auto-detected from environment variables. If multiple a
 
 ### How Auth Works
 
-- **Basic** — sends base64 credentials to Anaplan's auth endpoint, receives a session token
-- **Certificate** — reads your PEM certificate and private key, signs a random challenge with SHA512, authenticates via the CACertificate flow
-- **OAuth2 Device Grant** — initiates a device code flow, prints a URL and code to stderr for the user to authorize, then polls for an access token
+- **Basic** - sends base64 credentials to Anaplan's auth endpoint, receives a session token
+- **Certificate** - reads your PEM certificate and private key, signs a random challenge with SHA512, authenticates via the CACertificate flow
+- **OAuth2 Device Grant** - initiates a device code flow, prints a URL and code to stderr for the user to authorize, then polls for an access token
 
 All methods produce a token that is cached in memory and automatically refreshed 5 minutes before the 35-minute expiry. You never need to manage tokens yourself.
 
@@ -138,7 +138,7 @@ All list tools support **pagination** and **search**:
 |-----------|-------------|---------|
 | `offset` | Number of items to skip | 0 |
 | `limit` | Max items to return | 10 (max 50) |
-| `search` | Filter by name or ID (case-insensitive substring match) | — |
+| `search` | Filter by name or ID (case-insensitive substring match) | - |
 
 Results are returned as numbered markdown tables with a pagination footer. Example:
 
@@ -154,7 +154,7 @@ The footer shows page numbers (e.g., "Page 2 of 15") and navigation hints for ne
 
 ### Bulk Data Operations (25 tools)
 
-Execute Anaplan actions that move data in and out of models. Import and export actions are polled automatically — the tool waits for the action to complete and returns the result.
+Execute Anaplan actions that move data in and out of models. Import and export actions are polled automatically - the tool waits for the action to complete and returns the result.
 
 | Tool | Description |
 |------|-------------|
@@ -203,15 +203,15 @@ src/
   auth/       # Authentication providers (basic, certificate, oauth) + token manager
   api/        # HTTP client with retry logic + domain-specific API wrappers
   tools/      # MCP tool registrations (exploration, bulk, transactional)
-  server.ts   # Wires auth → client → APIs → MCP server
+  server.ts   # Wires auth > client > APIs > MCP server
   index.ts    # Entry point (stdio transport)
 ```
 
 Three layers:
 
-1. **Auth layer** — pluggable providers behind a common `AuthProvider` interface. The `AuthManager` selects the right provider from env vars and handles token lifecycle.
-2. **API layer** — `AnaplanClient` handles all HTTP communication with the Anaplan API (`https://api.anaplan.com/2/0/`). Retries 429s (respects `Retry-After` header) and 5xx errors up to 3 times with exponential backoff. Auto-paginates list endpoints via `getAll()` using Anaplan's `meta.paging` metadata. 16 domain wrappers (`WorkspacesApi`, `ModelsApi`, `ModulesApi`, `ListsApi`, `ImportsApi`, `ExportsApi`, `ProcessesApi`, `FilesApi`, `ActionsApi`, `TransactionalApi`, `DimensionsApi`, `ModelManagementApi`, `CalendarApi`, `VersionsApi`, `UsersApi`, `LargeReadsApi`) provide typed methods for each endpoint.
-3. **Tools layer** — registers MCP tools on the server with zod schemas for input validation. Each tool delegates to the appropriate API wrapper and returns JSON results.
+1. **Auth layer** - pluggable providers behind a common `AuthProvider` interface. The `AuthManager` selects the right provider from env vars and handles token lifecycle.
+2. **API layer** - `AnaplanClient` handles all HTTP communication with the Anaplan API (`https://api.anaplan.com/2/0/`). Retries 429s (respects `Retry-After` header) and 5xx errors up to 3 times with exponential backoff. Auto-paginates list endpoints via `getAll()` using Anaplan's `meta.paging` metadata. 16 domain wrappers (`WorkspacesApi`, `ModelsApi`, `ModulesApi`, `ListsApi`, `ImportsApi`, `ExportsApi`, `ProcessesApi`, `FilesApi`, `ActionsApi`, `TransactionalApi`, `DimensionsApi`, `ModelManagementApi`, `CalendarApi`, `VersionsApi`, `UsersApi`, `LargeReadsApi`) provide typed methods for each endpoint.
+3. **Tools layer** - registers MCP tools on the server with zod schemas for input validation. Each tool delegates to the appropriate API wrapper and returns JSON results.
 
 
 ## Disclaimers
@@ -220,11 +220,11 @@ Three layers:
 - This is a personal project, not affiliated with or endorsed by Anaplan
 - Users are responsible for compliance with Anaplan's Terms of Service
 - Always test in non-production environments first
-- Write operations (imports, cell writes, list mutations, delete actions) can cause irreversible data loss — review AI-generated actions before confirming
-- API credentials are passed via environment variables — keep them out of version control
+- Write operations (imports, cell writes, list mutations, delete actions) can cause irreversible data loss - review AI-generated actions before confirming
+- API credentials are passed via environment variables - keep them out of version control
 - No support or warranties provided
 - Use at your own risk
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT - see [LICENSE](LICENSE) for details.
