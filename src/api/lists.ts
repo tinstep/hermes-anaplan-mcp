@@ -21,4 +21,8 @@ export class ListsApi {
     );
     return res.metadata ?? res;
   }
+
+  async resetIndex(modelId: string, listId: string) {
+    return this.client.post<any>(`/models/${modelId}/lists/${listId}/resetIndex`);
+  }
 }

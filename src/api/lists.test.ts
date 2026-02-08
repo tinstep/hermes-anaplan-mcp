@@ -51,4 +51,11 @@ describe("ListsApi", () => {
 
     expect(result.name).toBe("Products");
   });
+
+  it("resetIndex() calls POST /models/{mId}/lists/{lId}/resetIndex", async () => {
+    mockClient.post.mockResolvedValue({});
+    const api = new ListsApi(mockClient as any);
+    await api.resetIndex("m1", "l1");
+    expect(mockClient.post).toHaveBeenCalledWith("/models/m1/lists/l1/resetIndex");
+  });
 });
