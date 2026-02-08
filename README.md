@@ -10,19 +10,6 @@ A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that c
 
 Built in TypeScript. Runs over stdio. Works with Claude Desktop, Claude Code, and any MCP-compatible client.
 
-## What It Does
-
-Anaplan MCP bridges the gap between conversational AI and Anaplan's planning platform. Instead of manually navigating the Anaplan UI or writing API scripts, you can ask your AI assistant to:
-
-- **Explore model structure** - browse workspaces, models, modules, line items, views, and lists to understand how a model is built
-- **Read and write cell data** - pull data from module views or push values to specific cells through the transactional API
-- **Run bulk operations** - trigger imports, exports, processes, and delete actions, with automatic task polling until completion
-- **Manage files** - upload CSV/text data to Anaplan files or download file contents
-- **Manage lists** - add, update, or delete list items programmatically
-- **Administer models** - close/open models, set calendar periods, manage versions, view users, and handle large volume reads
-
-All operations go through Anaplan's official Integration API v2 with proper authentication, automatic token refresh, and retry logic for rate limits and transient failures.
-
 ## Setup
 
 ### 1. Clone and build
@@ -41,7 +28,6 @@ Add the following to your MCP client config. The file location depends on your c
 - **Claude Desktop (macOS):** `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Claude Desktop (Windows):** `%APPDATA%\Claude\claude_desktop_config.json`
 - **Claude Code:** `~/.claude/mcp_settings.json` or run `claude mcp add`
-
 
 ```json
 {
@@ -78,19 +64,15 @@ Three methods supported, auto-detected from environment variables. If multiple a
 | OAuth2 (Device Grant) | `ANAPLAN_CLIENT_ID`, `ANAPLAN_CLIENT_SECRET` (optional) | Medium |
 | Basic | `ANAPLAN_USERNAME`, `ANAPLAN_PASSWORD` | Lowest |
 
-### How Auth Works
-
 - **Basic** - sends base64 credentials to Anaplan's auth endpoint, receives a session token
 - **Certificate** - reads your PEM certificate and private key, signs a random challenge with SHA512, authenticates via the CACertificate flow
 - **OAuth2 Device Grant** - initiates a device code flow, prints a URL and code to stderr for the user to authorize, then polls for an access token
 
 All methods produce a token that is cached in memory and automatically refreshed 5 minutes before the 35-minute expiry. You never need to manage tokens yourself.
 
-## Available Tools
+## Tools
 
 ### Model Exploration (37 tools)
-
-Navigate the Anaplan model hierarchy to understand structure before working with data.
 
 | Tool | Description |
 |------|-------------|
@@ -132,29 +114,7 @@ Navigate the Anaplan model hierarchy to understand structure before working with
 | `show_userdetails` | Get user details by ID |
 | `show_tasks` | List task history for an import, export, process, or action |
 
-All list tools support **pagination** and **search**:
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `offset` | Number of items to skip | 0 |
-| `limit` | Max items to return | 10 (max 50) |
-| `search` | Filter by name or ID (case-insensitive substring match) | - |
-
-Results are returned as numbered markdown tables with a pagination footer. Example:
-
-| # | Name | ID |
-|---|------|-----|
-| 1 | Revenue Model | ABC123 |
-| 2 | Cost Model | DEF456 |
-
-Page 1 of 5 (1-10 of 47 models).
-Ask for "next page" for page 2, "search \<term\>" to filter.
-
-The footer shows page numbers (e.g., "Page 2 of 15") and navigation hints for next/previous page and search filtering. Row numbers are sequential across pages (page 2 starts at 11).
-
 ### Bulk Data Operations (25 tools)
-
-Execute Anaplan actions that move data in and out of models. Import and export actions are polled automatically - the tool waits for the action to complete and returns the result.
 
 | Tool | Description |
 |------|-------------|
@@ -186,8 +146,6 @@ Execute Anaplan actions that move data in and out of models. Import and export a
 
 ### Transactional Operations (5 tools)
 
-Read and write individual cells or manage list membership through Anaplan's transactional API. Responses larger than 50,000 characters are automatically flagged with a truncation notice.
-
 | Tool | Description |
 |------|-------------|
 | `read_cells` | Read cell data from a module view |
@@ -196,12 +154,48 @@ Read and write individual cells or manage list membership through Anaplan's tran
 | `update_list_items` | Update properties of existing list items |
 | `delete_list_items` | Remove items from a list |
 
+## Features
+
+### Name Resolution
+
+All tools accept human-readable names alongside raw Anaplan IDs. Instead of passing a 32-character hex ID like `8a81b09e5f5501a1015f663e30230707`, you can just say "Revenue Model". Name matching is case-insensitive. Resolved names are cached in memory with a 5-minute TTL.
+
+### Pagination and Search
+
+All list tools support pagination and search filtering:
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `offset` | Number of items to skip | 0 |
+| `limit` | Max items to return | 10 (max 50) |
+| `search` | Filter by name or ID (case-insensitive substring match) | - |
+
+Results come back as numbered tables with a pagination footer showing page numbers and navigation hints. Row numbers are sequential across pages (page 2 starts at 11).
+
+### Automatic Task Polling
+
+Import, export, process, and delete actions are asynchronous in Anaplan. The bulk tools handle this automatically - they start the action, poll every 2 seconds until it completes (up to 5 minutes), and return the final result. No need to manually check task status.
+
+### Retry Logic
+
+All API calls automatically retry on transient failures:
+- **429 (Rate Limited)** - waits for the `Retry-After` duration, then retries
+- **5xx (Server Error)** - retries up to 3 times with exponential backoff (1s, 2s, 4s)
+
+### Large Response Handling
+
+Transactional API responses over 50,000 characters are automatically truncated with a notice rather than failing. For truly large datasets, use the large volume read tools (`create_view_readrequest`, `get_view_readrequest_page`) which stream data as paginated CSV.
+
+### Chunked File Upload
+
+File uploads are automatically chunked for large files (50MB per chunk). The 3-step upload flow (initialize, upload chunks, complete) is handled transparently by the `upload_file` and `run_import` tools.
+
 ## Architecture
 
 ```
 src/
   auth/       # Authentication providers (basic, certificate, oauth) + token manager
-  api/        # HTTP client with retry logic + domain-specific API wrappers
+  api/        # HTTP client with retry logic + 16 domain-specific API wrappers
   tools/      # MCP tool registrations (exploration, bulk, transactional)
   server.ts   # Wires auth > client > APIs > MCP server
   index.ts    # Entry point (stdio transport)
@@ -210,9 +204,8 @@ src/
 Three layers:
 
 1. **Auth layer** - pluggable providers behind a common `AuthProvider` interface. The `AuthManager` selects the right provider from env vars and handles token lifecycle.
-2. **API layer** - `AnaplanClient` handles all HTTP communication with the Anaplan API (`https://api.anaplan.com/2/0/`). Retries 429s (respects `Retry-After` header) and 5xx errors up to 3 times with exponential backoff. Auto-paginates list endpoints via `getAll()` using Anaplan's `meta.paging` metadata. 16 domain wrappers (`WorkspacesApi`, `ModelsApi`, `ModulesApi`, `ListsApi`, `ImportsApi`, `ExportsApi`, `ProcessesApi`, `FilesApi`, `ActionsApi`, `TransactionalApi`, `DimensionsApi`, `ModelManagementApi`, `CalendarApi`, `VersionsApi`, `UsersApi`, `LargeReadsApi`) provide typed methods for each endpoint.
-3. **Tools layer** - registers MCP tools on the server with zod schemas for input validation. Each tool delegates to the appropriate API wrapper and returns JSON results.
-
+2. **API layer** - `AnaplanClient` handles all HTTP communication with the Anaplan API. 16 domain wrappers provide typed methods for each endpoint. Auto-paginates list endpoints using Anaplan's `meta.paging` metadata.
+3. **Tools layer** - registers MCP tools on the server with zod schemas for input validation. Each tool delegates to the appropriate API wrapper and formats results.
 
 ## Disclaimers
 
