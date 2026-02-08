@@ -50,4 +50,19 @@ describe("ExportsApi", () => {
     const result = await api.get("ws1", "m1", "e1");
     expect(result.name).toBe("Direct");
   });
+
+  it("listTasks() calls GET tasks path", async () => {
+    mockClient.get.mockResolvedValue({ tasks: [{ taskId: "t1" }] });
+    const api = new ExportsApi(mockClient as any);
+    const result = await api.listTasks("ws1", "m1", "e1");
+    expect(mockClient.get).toHaveBeenCalledWith("/workspaces/ws1/models/m1/exports/e1/tasks");
+    expect(result[0].taskId).toBe("t1");
+  });
+
+  it("cancelTask() calls DELETE on task", async () => {
+    mockClient.delete.mockResolvedValue({});
+    const api = new ExportsApi(mockClient as any);
+    await api.cancelTask("ws1", "m1", "e1", "t1");
+    expect(mockClient.delete).toHaveBeenCalledWith("/workspaces/ws1/models/m1/exports/e1/tasks/t1");
+  });
 });
