@@ -2,8 +2,6 @@ node_modules/
 dist/
 *.tgz
 .env
-
-# OS
 .DS_Store
 
 # Claude Code
@@ -11,7 +9,3 @@ CLAUDE.md
 .claude/
 .mcp.json
 .worktrees/
-
-# Internal docs (plans, roadmaps)
-docs/plans/
-docs/FUTURE_SCOPE.md
