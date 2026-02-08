@@ -164,22 +164,6 @@ Claude Desktop prompts you before each tool call. You'll see the tool name and p
 - **Review before confirming write operations.** When Claude proposes to run an import, write cells, or delete items, read the parameters carefully before approving.
 - **Exports and imports are asynchronous.** The server polls until they complete (up to 5 minutes). You can cancel a running task with `cancel_task` if needed.
 
-## Authentication
-
-Three methods supported, auto-detected from environment variables. If multiple are configured, the highest priority method wins.
-
-| Method | Env Vars | Priority |
-|--------|----------|----------|
-| Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH` | Highest |
-| OAuth2 (Device Grant) | `ANAPLAN_CLIENT_ID`, `ANAPLAN_CLIENT_SECRET` (optional) | Medium |
-| Basic | `ANAPLAN_USERNAME`, `ANAPLAN_PASSWORD` | Lowest |
-
-- **Basic** - sends base64 credentials to Anaplan's auth endpoint, receives a session token
-- **Certificate** - reads your PEM certificate and private key, signs a random challenge with SHA512, authenticates via the CACertificate flow
-- **OAuth2 Device Grant** - initiates a device code flow, prints a URL and code to stderr for the user to authorize, then polls for an access token
-
-All methods produce a token that is cached in memory and automatically refreshed 5 minutes before the 35-minute expiry. You never need to manage tokens yourself.
-
 ## Tools
 
 ### Model Exploration (37 tools)
@@ -266,16 +250,6 @@ All methods produce a token that is cached in memory and automatically refreshed
 | `delete_list_items` | Delete list items<br>`POST .../lists/{listId}/items?action=delete` |
 
 ## Features
-
-### Recent Additions
-
-- Formula metadata support for line items: `show_lineitems` and `show_alllineitems` now support `includeAll=true` and display formula, format, applies-to, and version fields.
-- Consistent single-record rendering: table output now renders one-record results as key-value rows (no header), while multi-record results use standard column headers.
-- Expanded large-list read support: `get_list_readrequest` added to check list read request status directly.
-- Broader task status coverage: `get_action_status` now supports `actions` in addition to `imports`, `exports`, and `processes`.
-- Improved API robustness: HTTP `204/205` success responses are handled without JSON parse failures.
-- Optional export file save: `run_export` can now write the downloaded content to `~/Downloads` when `saveToDownloads=true`.
-- Improved user-list compatibility: `show_users` now handles both `/users` response shapes (`users` and `user` arrays).
 
 ### Name Resolution
 
