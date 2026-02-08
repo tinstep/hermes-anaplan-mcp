@@ -129,11 +129,12 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   server.tool("run_delete", "Execute a delete action on a model", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    deleteActionId: z.string().describe("Delete action ID"),
+    deleteActionId: z.string().describe("Delete action ID or name"),
   }, async ({ workspaceId, modelId, deleteActionId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
-    const base = `/workspaces/${wId}/models/${mId}/actions/${deleteActionId}`;
+    const aId = await resolver.resolveAction(wId, mId, deleteActionId);
+    const base = `/workspaces/${wId}/models/${mId}/actions/${aId}`;
     const res = await apis.client.post<{ task: any }>(`${base}/tasks`, { localeName: "en_US" });
     return { content: [{ type: "text", text: JSON.stringify(res, null, 2) }] };
   });

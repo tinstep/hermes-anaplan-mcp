@@ -123,6 +123,21 @@ describe("NameResolver", () => {
     });
   });
 
+  describe("resolveModule", () => {
+    it("resolves non-hex module IDs by matching ID from fetched modules", async () => {
+      const apis = makeMockApis();
+      apis.modules.list.mockResolvedValue([
+        { id: "102000000003", name: "Sales Forecast" },
+      ]);
+      const resolver = new NameResolver(apis);
+
+      const result = await resolver.resolveModule("ws1", "m1", "102000000003");
+
+      expect(result).toBe("102000000003");
+      expect(apis.modules.list).toHaveBeenCalledWith("ws1", "m1");
+    });
+  });
+
   describe("resolveView", () => {
     it("resolves view name using workspace, model, and module IDs", async () => {
       const apis = makeMockApis();

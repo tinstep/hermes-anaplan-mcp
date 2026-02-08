@@ -44,6 +44,7 @@ export class NameResolver {
       const map = new Map<string, string>();
       for (const item of items) {
         map.set(item.name.toLowerCase(), item.id);
+        map.set(item.id.toLowerCase(), item.id);
       }
       entry = { items: map, expiry: Date.now() + NameResolver.TTL_MS };
       this.cache.set(cacheKey, entry);

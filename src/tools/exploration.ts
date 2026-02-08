@@ -129,7 +129,37 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     const mId = await resolver.resolveModel(wId, modelId);
     const modId = await resolver.resolveModule(wId, mId, moduleId);
     const mod = await apis.modules.get(wId, mId, modId);
-    return { content: [{ type: "text", text: JSON.stringify(mod, null, 2) }] };
+
+    let defaultView: {
+      viewId: string;
+      viewName: string;
+      rows: Array<{ id: string; name: string }>;
+      columns: Array<{ id: string; name: string }>;
+      pages: Array<{ id: string; name: string }>;
+    } | null = null;
+    let dimensionWarning: string | undefined;
+
+    try {
+      // Default module view ID matches module ID in Anaplan.
+      const view = await apis.transactional.getViewMetadata(mId, modId);
+      defaultView = {
+        viewId: view.viewId ?? modId,
+        viewName: view.viewName ?? mod.name ?? modId,
+        rows: view.rows ?? [],
+        columns: view.columns ?? [],
+        pages: view.pages ?? [],
+      };
+    } catch (error) {
+      dimensionWarning = `Unable to load default view metadata: ${error instanceof Error ? error.message : String(error)}`;
+    }
+
+    const response: any = {
+      ...mod,
+      defaultView,
+    };
+    if (dimensionWarning) response.dimensionWarning = dimensionWarning;
+
+    return { content: [{ type: "text", text: JSON.stringify(response, null, 2) }] };
   });
 
   server.tool("show_lineitems", "List line items in a module", {
