@@ -10,6 +10,12 @@ A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that c
 
 Built in TypeScript. Runs over stdio. Works with Claude Desktop, Claude Code, and any MCP-compatible client.
 
+## Prerequisites
+
+- **Node.js 18+** - [download here](https://nodejs.org/)
+- **An Anaplan account** with API access (any auth method - basic, certificate, or OAuth)
+- **An MCP-compatible client** - Claude Desktop (recommended), Claude Code, or any other MCP client
+
 ## Setup
 
 ### 1. Clone and build
@@ -21,13 +27,22 @@ npm install
 npm run build
 ```
 
-### 2. Configure your MCP client
+### 2. Connect to Claude Desktop
 
-Add the following to your MCP client config. The file location depends on your client:
+Claude Desktop is the easiest way to use this server. Here's how to set it up:
 
-- **Claude Desktop (macOS):** `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Claude Desktop (Windows):** `%APPDATA%\Claude\claude_desktop_config.json`
-- **Claude Code:** `~/.claude/mcp_settings.json` or run `claude mcp add`
+**Step 1: Find the config file**
+
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+If the file doesn't exist yet, create it.
+
+**Step 2: Add the Anaplan server**
+
+Open the config file and add the `anaplan` entry under `mcpServers`. Choose the auth method that matches your Anaplan setup:
+
+**Basic auth (username/password):**
 
 ```json
 {
@@ -44,15 +59,113 @@ Add the following to your MCP client config. The file location depends on your c
 }
 ```
 
-**Important:** Replace `/absolute/path/to/anaplan-mcp` with the *actual absolute path* where you cloned the repo (e.g., `/Users/you/anaplan-mcp`).
+**Certificate auth:**
 
-### 3. Restart your MCP client
+```json
+{
+  "mcpServers": {
+    "anaplan": {
+      "command": "node",
+      "args": ["/absolute/path/to/anaplan-mcp/dist/index.js"],
+      "env": {
+        "ANAPLAN_CERTIFICATE_PATH": "/path/to/your/cert.pem",
+        "ANAPLAN_PRIVATE_KEY_PATH": "/path/to/your/key.pem"
+      }
+    }
+  }
+}
+```
 
-Restart Claude Desktop or Claude Code to pick up the new server. The 68 Anaplan tools should now be available.
+**OAuth2 (device grant):**
 
-### Browser-based AI (claude.ai, gemini.google.com, chatgpt.com)
+```json
+{
+  "mcpServers": {
+    "anaplan": {
+      "command": "node",
+      "args": ["/absolute/path/to/anaplan-mcp/dist/index.js"],
+      "env": {
+        "ANAPLAN_CLIENT_ID": "your-client-id"
+      }
+    }
+  }
+}
+```
 
-MCP servers run as local processes on your machine - the AI client spawns the server over stdio. Browser-based AI products like claude.ai, Gemini, and ChatGPT web cannot launch local processes, so they cannot connect to this server. You need a desktop application (Claude Desktop, Claude Code) that runs on your machine.
+> **Important:** Replace `/absolute/path/to/anaplan-mcp` with the actual absolute path where you cloned the repo (e.g., `/Users/you/anaplan-mcp` on macOS or `C:\\Users\\you\\anaplan-mcp` on Windows).
+
+**Step 3: Restart Claude Desktop**
+
+Quit Claude Desktop completely and reopen it. You should see the Anaplan tools available (look for the hammer icon in the chat input area). If the tools don't appear, check the Claude Desktop logs for connection errors.
+
+### Connect to Claude Code
+
+You can either edit the config file directly or use the CLI:
+
+```bash
+# Option A: CLI command
+claude mcp add anaplan -- node /absolute/path/to/anaplan-mcp/dist/index.js
+
+# Option B: Edit ~/.claude/mcp_settings.json manually (same JSON format as above)
+```
+
+Set your Anaplan credentials as environment variables in your shell profile (`.bashrc`, `.zshrc`, etc.) or pass them in the config's `env` block.
+
+### Other MCP clients
+
+Any MCP-compatible client that supports stdio transport can connect. The server expects to be launched as a subprocess with stdin/stdout for communication. Pass Anaplan credentials via environment variables.
+
+### Browser-based AI (claude.ai, ChatGPT, Gemini)
+
+MCP servers run as local processes on your machine. Browser-based AI products cannot launch local processes, so they **cannot** connect to this server. You need a desktop application like Claude Desktop or Claude Code.
+
+## Configuration
+
+### Environment variables
+
+All configuration is done through environment variables. There are no config files, CLI flags, or settings menus.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `ANAPLAN_USERNAME` | For basic auth | Your Anaplan email address |
+| `ANAPLAN_PASSWORD` | For basic auth | Your Anaplan password |
+| `ANAPLAN_CERTIFICATE_PATH` | For cert auth | Absolute path to your PEM certificate |
+| `ANAPLAN_PRIVATE_KEY_PATH` | For cert auth | Absolute path to your PEM private key |
+| `ANAPLAN_CLIENT_ID` | For OAuth | Your Anaplan OAuth client ID |
+| `ANAPLAN_CLIENT_SECRET` | For OAuth | Optional; enables client_credentials grant instead of device flow |
+
+You only need one set of credentials. If multiple are configured, the server picks the highest-priority method automatically (certificate > OAuth > basic).
+
+### Where to set environment variables
+
+- **Claude Desktop / Claude Code config:** Use the `"env"` block in the JSON config (recommended - keeps credentials scoped to the server)
+- **Shell profile:** Export in `.bashrc` / `.zshrc` for Claude Code CLI usage
+- **System environment:** Set at the OS level if you prefer
+
+> **Security note:** Never commit credentials to version control. The `"env"` block in your MCP client config is local to your machine and is not part of this repository.
+
+## Permissions and Safety
+
+### What the server can do
+
+This server has **full access** to whatever your Anaplan credentials allow. The 68 tools cover both read and write operations:
+
+- **Read-only tools** (safe to use freely): `show_*` tools, `read_cells`, `get_list_items`, `download_file`, `get_action_status`
+- **Write tools** (modify data): `write_cells`, `add_list_items`, `update_list_items`, `delete_list_items`
+- **Action tools** (trigger Anaplan processes): `run_import`, `run_export`, `run_process`, `run_delete`
+- **Admin tools** (model management): `close_model`, `open_model`, `bulk_delete_models`, `set_currentperiod`, `set_fiscalyear`
+
+### Tool approval in Claude Desktop
+
+Claude Desktop prompts you before each tool call. You'll see the tool name and parameters, and can approve or deny. This gives you a chance to review before any action runs. You can also use the "Allow for this chat" option for tools you trust.
+
+### Recommendations
+
+- **Start with read-only.** Ask Claude to explore your workspaces and models before running any write operations. Get comfortable with the tool output first.
+- **Test in a dev workspace.** If you have a non-production Anaplan workspace, use that while getting familiar with the tools.
+- **Use least-privilege credentials.** If your Anaplan admin can create a service account with limited workspace access, use that instead of your personal admin account.
+- **Review before confirming write operations.** When Claude proposes to run an import, write cells, or delete items, read the parameters carefully before approving.
+- **Exports and imports are asynchronous.** The server polls until they complete (up to 5 minutes). You can cancel a running task with `cancel_task` if needed.
 
 ## Authentication
 
