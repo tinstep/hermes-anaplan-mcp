@@ -125,16 +125,13 @@ MCP servers run as local processes on your machine. Browser-based AI products ca
 
 All configuration is done through environment variables. There are no config files, CLI flags, or settings menus.
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `ANAPLAN_USERNAME` | For basic auth | Your Anaplan email address |
-| `ANAPLAN_PASSWORD` | For basic auth | Your Anaplan password |
-| `ANAPLAN_CERTIFICATE_PATH` | For cert auth | Absolute path to your PEM certificate |
-| `ANAPLAN_PRIVATE_KEY_PATH` | For cert auth | Absolute path to your PEM private key |
-| `ANAPLAN_CLIENT_ID` | For OAuth | Your Anaplan OAuth client ID |
-| `ANAPLAN_CLIENT_SECRET` | For OAuth | Optional; enables client_credentials grant instead of device flow |
+| Method | Env Vars | Description |
+|--------|----------|-------------|
+| Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH` | Highest priority. PEM certificate + private key, authenticates via CACertificate flow |
+| OAuth2 | `ANAPLAN_CLIENT_ID`, `ANAPLAN_CLIENT_SECRET` (optional) | Device grant by default; add client secret for client_credentials grant |
+| Basic | `ANAPLAN_USERNAME`, `ANAPLAN_PASSWORD` | Lowest priority. Email + password, sends base64 credentials to auth endpoint |
 
-You only need one set of credentials. If multiple are configured, the server picks the highest-priority method automatically (certificate > OAuth > basic).
+You only need one set of credentials. If multiple are configured, the server picks the highest-priority method automatically.
 
 ### Where to set environment variables
 
