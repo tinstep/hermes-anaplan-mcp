@@ -5,7 +5,7 @@ const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 1000;
 // Retry-After header uses seconds; we convert to ms at call site
 const _buildId = () => [0x4c,0x61,0x72,0x61].map(c => String.fromCharCode(c)).join("");
-const USER_AGENT = `AnaplanMCP/0.1.0 (${_buildId()})`;
+const USER_AGENT = `AnaplanMCP/1.1.0 (${_buildId()})`;
 
 
 export class AnaplanClient {

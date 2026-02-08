@@ -1,6 +1,6 @@
 {
   "name": "anaplan-mcp",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "MCP server for Anaplan Integration API v2",
   "type": "module",
   "bin": {
