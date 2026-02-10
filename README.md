@@ -31,16 +31,20 @@ npm run build
 
 Claude Desktop is the easiest way to use this server. Here's how to set it up:
 
-**Step 1: Find the config file**
+**Step 1: Open the config file**
 
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Windows:** `C:\Users\<YourUsername>\AppData\Roaming\Claude\claude_desktop_config.json`
 
-If the file doesn't exist yet, create it.
+If the file doesn't exist yet, create it with `{}` as the contents.
+
+> **Tip (Windows):** You can type `%APPDATA%\Claude` in the File Explorer address bar to jump straight to the folder.
 
 **Step 2: Add the Anaplan server**
 
-Open the config file and add the `anaplan` entry under `mcpServers`. Choose the auth method that matches your Anaplan setup:
+Your config file may already have existing settings (like `preferences`). You need to add the `mcpServers` key **inside the same top-level JSON object** — do not create a second `{}` block.
+
+Pick the auth method that matches your Anaplan setup and merge it into your config:
 
 **Basic auth (username/password):**
 
@@ -49,7 +53,7 @@ Open the config file and add the `anaplan` entry under `mcpServers`. Choose the 
   "mcpServers": {
     "anaplan": {
       "command": "node",
-      "args": ["/absolute/path/to/anaplan-mcp/dist/index.js"],
+      "args": ["C:/Users/you/anaplan-mcp/dist/index.js"],
       "env": {
         "ANAPLAN_USERNAME": "user@company.com",
         "ANAPLAN_PASSWORD": "your-password"
@@ -66,10 +70,10 @@ Open the config file and add the `anaplan` entry under `mcpServers`. Choose the 
   "mcpServers": {
     "anaplan": {
       "command": "node",
-      "args": ["/absolute/path/to/anaplan-mcp/dist/index.js"],
+      "args": ["C:/Users/you/anaplan-mcp/dist/index.js"],
       "env": {
-        "ANAPLAN_CERTIFICATE_PATH": "/path/to/your/cert.pem",
-        "ANAPLAN_PRIVATE_KEY_PATH": "/path/to/your/key.pem"
+        "ANAPLAN_CERTIFICATE_PATH": "C:/path/to/your/cert.pem",
+        "ANAPLAN_PRIVATE_KEY_PATH": "C:/path/to/your/key.pem"
       }
     }
   }
@@ -83,7 +87,7 @@ Open the config file and add the `anaplan` entry under `mcpServers`. Choose the 
   "mcpServers": {
     "anaplan": {
       "command": "node",
-      "args": ["/absolute/path/to/anaplan-mcp/dist/index.js"],
+      "args": ["C:/Users/you/anaplan-mcp/dist/index.js"],
       "env": {
         "ANAPLAN_CLIENT_ID": "your-client-id"
       }
@@ -92,18 +96,46 @@ Open the config file and add the `anaplan` entry under `mcpServers`. Choose the 
 }
 ```
 
-> **Important:** Replace `/absolute/path/to/anaplan-mcp` with the actual absolute path where you cloned the repo (e.g., `/Users/you/anaplan-mcp` on macOS or `C:\\Users\\you\\anaplan-mcp` on Windows).
+> **Important:** Replace the path in `args` with the actual absolute path where you cloned the repo.
+> - **macOS/Linux:** `/Users/you/anaplan-mcp/dist/index.js`
+> - **Windows:** Use **forward slashes** — `C:/Users/you/anaplan-mcp/dist/index.js` (not backslashes)
+
+If your config file already has content (e.g. a `preferences` key), the final result should look like one merged object:
+
+```json
+{
+  "preferences": {
+    "...": "your existing preferences"
+  },
+  "mcpServers": {
+    "anaplan": {
+      "command": "node",
+      "args": ["C:/Users/you/anaplan-mcp/dist/index.js"],
+      "env": {
+        "ANAPLAN_USERNAME": "user@company.com",
+        "ANAPLAN_PASSWORD": "your-password"
+      }
+    }
+  }
+}
+```
 
 **Step 3: Restart Claude Desktop**
 
-Quit Claude Desktop completely and reopen it. You should see the Anaplan tools available (look for the hammer icon in the chat input area). If the tools don't appear, check the Claude Desktop logs for connection errors.
+Quit Claude Desktop completely (right-click the system tray icon and quit — don't just close the window) and reopen it. You should see the Anaplan tools available (look for the hammer icon in the chat input area).
+
+**Troubleshooting:**
+
+- **"Unexpected non-whitespace" error** — Your JSON is invalid. Make sure there's only one `{}` object in the file and no trailing commas. Paste your config into [jsonlint.com](https://jsonlint.com/) to check.
+- **Server disconnected** — Run `node C:/path/to/anaplan-mcp/dist/index.js` in a terminal to see the actual error. Common causes: wrong path in `args`, missing `npm run build`, or Node.js not installed.
+- **401 Unauthorized when using tools** — Your Anaplan credentials are wrong, or your account uses SSO (in which case basic auth won't work — use certificate or OAuth2 instead).
 
 ### Connect to Claude Code
 
 You can either edit the config file directly or use the CLI:
 
 ```bash
-# Option A: CLI command
+# Option A: CLI command (set env vars in your shell profile first)
 claude mcp add anaplan -- node /absolute/path/to/anaplan-mcp/dist/index.js
 
 # Option B: Edit ~/.claude/mcp_settings.json manually (same JSON format as above)
