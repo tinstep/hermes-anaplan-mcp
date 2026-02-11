@@ -10,6 +10,14 @@ A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that c
 
 Built in TypeScript. Runs over stdio. Works with Claude Desktop, Claude Code, and any MCP-compatible client.
 
+## Why This Exists
+
+**Anaplan is powerful but complex.** Teams rely on model builders and platform experts to navigate models, extract data, run imports, and onboard new users. Getting anything done often means waiting for someone who knows the model.
+
+**This creates bottlenecks.** Need a quick data pull? Wait for the person who knows where the numbers live. New team member? Weeks of training before they're productive. Recurring import? Write custom API scripts or do it manually every time. Anaplan's Integration API exists, but using it directly requires technical expertise most business users don't have.
+
+**This server bridges that gap.** It lets AI assistants like Claude talk to Anaplan's API on your behalf. Ask questions in plain English, and the AI navigates models, reads data, and runs actions - all through Anaplan's official endpoints, respecting your existing permissions and governance policies.
+
 ## Common Use Cases
 
 **Model Documentation:**
