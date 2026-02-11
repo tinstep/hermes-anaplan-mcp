@@ -308,42 +308,6 @@ Claude Desktop prompts you before each tool call. You'll see the tool name and p
 | `update_list_items` | Update existing list items<br>`PUT .../lists/{listId}/items` |
 | `delete_list_items` | Delete list items<br>`POST .../lists/{listId}/items?action=delete` |
 
-## Features
-
-### Name Resolution
-
-All tools accept human-readable names alongside raw Anaplan IDs. Instead of passing a 32-character hex ID like `8a81b09e5f5501a1015f663e30230707`, you can just say "Revenue Model". Name matching is case-insensitive. Resolved names are cached in memory with a 5-minute TTL.
-
-### Pagination and Search
-
-All list tools support pagination and search filtering:
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `offset` | Number of items to skip | 0 |
-| `limit` | Max items to return | 10 (max 50) |
-| `search` | Filter by name or ID (case-insensitive substring match) | - |
-
-Results come back as numbered tables with a pagination footer showing page numbers and navigation hints. Row numbers are sequential across pages (page 2 starts at 11).
-
-### Automatic Task Polling
-
-Import, export, process, and delete actions are asynchronous in Anaplan. The bulk tools handle this automatically - they start the action, poll every 2 seconds until it completes (up to 5 minutes), and return the final result. No need to manually check task status.
-
-### Retry Logic
-
-All API calls automatically retry on transient failures:
-- **429 (Rate Limited)** - waits for the `Retry-After` duration, then retries
-- **5xx (Server Error)** - retries up to 3 times with exponential backoff (1s, 2s, 4s)
-
-### Large Response Handling
-
-Transactional API responses over 50,000 characters are automatically truncated with a notice rather than failing. For truly large datasets, use the large volume read tools (`create_view_readrequest`, `get_view_readrequest_page`) which stream data as paginated CSV.
-
-### Chunked File Upload
-
-File uploads are automatically chunked for large files (50MB per chunk). The 3-step upload flow (initialize, upload chunks, complete) is handled transparently by the `upload_file` and `run_import` tools.
-
 ## Architecture
 
 ```
@@ -369,7 +333,7 @@ Three layers:
 - No reverse engineering or undocumented APIs
 
 ### Not Affiliated with Anaplan
-- This is an **unofficial, community-maintained project**
+- This is an **unofficial, personal project**
 - Not affiliated with, endorsed by, or supported by Anaplan
 - For official Anaplan AI capabilities, see [CoModeler](https://www.anaplan.com/platform/anaplan-comodeler/) and [Agent Studio](https://www.anaplan.com/platform/intelligence/)
 
