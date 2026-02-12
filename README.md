@@ -194,7 +194,7 @@ Pick the auth method that matches your Anaplan setup and merge it into your conf
 
 `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` is optional and defaults to `v2` (recommended). Set `v1` only if your tenant still requires legacy certificate payload format.
 
-**OAuth2 (device grant):**
+**OAuth2 (device grant) - interactive, prompts user to authorize in browser:**
 
 ```json
 {
@@ -204,6 +204,25 @@ Pick the auth method that matches your Anaplan setup and merge it into your conf
       "args": ["C:/Users/you/anaplan-mcp/dist/index.js"],
       "env": {
         "ANAPLAN_CLIENT_ID": "your-client-id"
+      }
+    }
+  }
+}
+```
+
+**OAuth2 (authorization code grant) - non-interactive, uses pre-obtained code:**
+
+```json
+{
+  "mcpServers": {
+    "anaplan": {
+      "command": "node",
+      "args": ["C:/Users/you/anaplan-mcp/dist/index.js"],
+      "env": {
+        "ANAPLAN_CLIENT_ID": "your-client-id",
+        "ANAPLAN_CLIENT_SECRET": "your-client-secret",
+        "ANAPLAN_OAUTH_AUTHORIZATION_CODE": "code-from-redirect",
+        "ANAPLAN_OAUTH_REDIRECT_URI": "https://your-app.com/callback"
       }
     }
   }
@@ -295,7 +314,8 @@ All configuration is done through environment variables. There are no config fil
 | Method | Env Vars | Description |
 |--------|----------|-------------|
 | Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH`, `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` (optional) | Highest priority. PEM certificate + private key, authenticates via CACertificate flow. Data format defaults to `v2` |
-| OAuth2 | `ANAPLAN_CLIENT_ID`, `ANAPLAN_CLIENT_SECRET` (optional) | Device grant by default; add client secret for client_credentials grant |
+| OAuth2 (device grant) | `ANAPLAN_CLIENT_ID` | Interactive device authorization flow. Set only `ANAPLAN_CLIENT_ID` |
+| OAuth2 (authorization code) | `ANAPLAN_CLIENT_ID`, `ANAPLAN_CLIENT_SECRET`, `ANAPLAN_OAUTH_AUTHORIZATION_CODE`, `ANAPLAN_OAUTH_REDIRECT_URI` | Non-interactive. Requires all four env vars. Code is single-use |
 | Basic | `ANAPLAN_USERNAME`, `ANAPLAN_PASSWORD` | Lowest priority. Email + password, sends base64 credentials to auth endpoint |
 
 You only need one set of credentials. If multiple are configured, the server picks the highest-priority method automatically.

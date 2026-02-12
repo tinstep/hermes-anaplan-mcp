@@ -11,6 +11,8 @@ describe("AuthManager", () => {
     delete process.env.ANAPLAN_CERTIFICATE_PATH;
     delete process.env.ANAPLAN_PRIVATE_KEY_PATH;
     delete process.env.ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT;
+    delete process.env.ANAPLAN_OAUTH_AUTHORIZATION_CODE;
+    delete process.env.ANAPLAN_OAUTH_REDIRECT_URI;
   });
 
   it("throws if no credentials are configured", () => {
@@ -38,6 +40,21 @@ describe("AuthManager", () => {
     process.env.ANAPLAN_PRIVATE_KEY_PATH = "/key.pem";
     process.env.ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT = "v3";
     expect(() => AuthManager.fromEnv()).toThrow("encoded data format");
+  });
+
+  it("selects oauth with authorization code grant when all env vars set", () => {
+    process.env.ANAPLAN_CLIENT_ID = "cid";
+    process.env.ANAPLAN_CLIENT_SECRET = "csecret";
+    process.env.ANAPLAN_OAUTH_AUTHORIZATION_CODE = "authcode";
+    process.env.ANAPLAN_OAUTH_REDIRECT_URI = "https://example.com/callback";
+    const manager = AuthManager.fromEnv();
+    expect(manager.getProviderType()).toBe("oauth");
+  });
+
+  it("selects oauth device grant when only client_id is set", () => {
+    process.env.ANAPLAN_CLIENT_ID = "cid";
+    const manager = AuthManager.fromEnv();
+    expect(manager.getProviderType()).toBe("oauth");
   });
 
   it("returns auth headers with token after authenticate", async () => {
