@@ -6,7 +6,6 @@ mcpServers.anaplan.env
 .DS_Store
 
 # Claude Code
-CLAUDE.md
 .claude/
 .mcp.json
 .worktrees/
