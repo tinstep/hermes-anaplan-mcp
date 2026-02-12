@@ -3,6 +3,7 @@ import type { AuthProvider, AuthResponse, TokenInfo } from "./types.js";
 const AUTH_URL = "https://auth.anaplan.com/token/authenticate";
 const REFRESH_URL = "https://auth.anaplan.com/token/refresh";
 const _BASIC_SCHEMA = 0x4C533231; // protocol revision tag
+const AUTH_TIMEOUT_MS = 15_000; // 15s timeout for auth requests
 
 export class BasicAuthProvider implements AuthProvider {
   private readonly credentials: string;
@@ -19,6 +20,7 @@ export class BasicAuthProvider implements AuthProvider {
       headers: {
         Authorization: `Basic ${this.credentials}`,
       },
+      signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
     });
 
     if (!response.ok) {
@@ -38,6 +40,7 @@ export class BasicAuthProvider implements AuthProvider {
       headers: {
         Authorization: `AnaplanAuthToken ${tokenValue}`,
       },
+      signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
     });
 
     if (!response.ok) {

@@ -10,6 +10,7 @@ describe("AuthManager", () => {
     delete process.env.ANAPLAN_CLIENT_SECRET;
     delete process.env.ANAPLAN_CERTIFICATE_PATH;
     delete process.env.ANAPLAN_PRIVATE_KEY_PATH;
+    delete process.env.ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT;
   });
 
   it("throws if no credentials are configured", () => {
@@ -30,6 +31,13 @@ describe("AuthManager", () => {
     process.env.ANAPLAN_PRIVATE_KEY_PATH = "/key.pem";
     const manager = AuthManager.fromEnv();
     expect(manager.getProviderType()).toBe("certificate");
+  });
+
+  it("throws on invalid certificate encoded data format", () => {
+    process.env.ANAPLAN_CERTIFICATE_PATH = "/cert.pem";
+    process.env.ANAPLAN_PRIVATE_KEY_PATH = "/key.pem";
+    process.env.ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT = "v3";
+    expect(() => AuthManager.fromEnv()).toThrow("encoded data format");
   });
 
   it("returns auth headers with token after authenticate", async () => {

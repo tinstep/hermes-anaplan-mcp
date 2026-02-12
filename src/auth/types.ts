@@ -3,6 +3,7 @@ export interface TokenInfo {
   tokenValue: string;
   expiresAt: number;
   refreshTokenId: string;
+  refreshToken?: string;
 }
 
 export interface AuthResponse {

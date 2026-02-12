@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createServer } from "./server.js";
+import { CompatibleStdioServerTransport } from "./transport/compatibleStdio.js";
 
 async function main() {
   const server = createServer();
-  const transport = new StdioServerTransport();
+  const transport = new CompatibleStdioServerTransport();
   await server.connect(transport);
   console.error("Anaplan MCP server running on stdio");
 }

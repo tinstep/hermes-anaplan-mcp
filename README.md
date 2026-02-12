@@ -184,12 +184,15 @@ Pick the auth method that matches your Anaplan setup and merge it into your conf
       "args": ["C:/Users/you/anaplan-mcp/dist/index.js"],
       "env": {
         "ANAPLAN_CERTIFICATE_PATH": "C:/path/to/your/cert.pem",
-        "ANAPLAN_PRIVATE_KEY_PATH": "C:/path/to/your/key.pem"
+        "ANAPLAN_PRIVATE_KEY_PATH": "C:/path/to/your/key.pem",
+        "ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT": "v2"
       }
     }
   }
 }
 ```
+
+`ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` is optional and defaults to `v2` (recommended). Set `v1` only if your tenant still requires legacy certificate payload format.
 
 **OAuth2 (device grant):**
 
@@ -243,16 +246,37 @@ Quit Claude Desktop completely (right-click the system tray icon and quit — do
 
 ### Connect to Claude Code
 
-You can either edit the config file directly or use the CLI:
+The easiest approach is to add a `.mcp.json` file in the project root:
 
-```bash
-# Option A: CLI command (set env vars in your shell profile first)
-claude mcp add anaplan -- node /absolute/path/to/anaplan-mcp/dist/index.js
-
-# Option B: Edit ~/.claude/mcp_settings.json manually (same JSON format as above)
+```json
+{
+  "mcpServers": {
+    "anaplan": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["dist/index.js"],
+      "envFile": "mcpServers.anaplan.env"
+    }
+  }
+}
 ```
 
-Set your Anaplan credentials as environment variables in your shell profile (`.bashrc`, `.zshrc`, etc.) or pass them in the config's `env` block.
+Then create `mcpServers.anaplan.env` with your credentials:
+
+```
+ANAPLAN_USERNAME=user@company.com
+ANAPLAN_PASSWORD=your-password
+```
+
+> **Security note:** Both `.mcp.json` and `mcpServers.anaplan.env` are gitignored by default. Never commit credentials to version control.
+
+Alternatively, use the CLI or edit `~/.claude/mcp_settings.json` directly:
+
+```bash
+claude mcp add anaplan -- node /absolute/path/to/anaplan-mcp/dist/index.js
+```
+
+With the CLI approach, set your Anaplan credentials as environment variables in your shell profile (`.bashrc`, `.zshrc`, etc.) or pass them in the config's `env` block.
 
 ### Other MCP clients
 
@@ -270,7 +294,7 @@ All configuration is done through environment variables. There are no config fil
 
 | Method | Env Vars | Description |
 |--------|----------|-------------|
-| Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH` | Highest priority. PEM certificate + private key, authenticates via CACertificate flow |
+| Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH`, `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` (optional) | Highest priority. PEM certificate + private key, authenticates via CACertificate flow. Data format defaults to `v2` |
 | OAuth2 | `ANAPLAN_CLIENT_ID`, `ANAPLAN_CLIENT_SECRET` (optional) | Device grant by default; add client secret for client_credentials grant |
 | Basic | `ANAPLAN_USERNAME`, `ANAPLAN_PASSWORD` | Lowest priority. Email + password, sends base64 credentials to auth endpoint |
 
@@ -278,11 +302,12 @@ You only need one set of credentials. If multiple are configured, the server pic
 
 ### Where to set environment variables
 
-- **Claude Desktop / Claude Code config:** Use the `"env"` block in the JSON config (recommended - keeps credentials scoped to the server)
+- **Env file (Claude Code):** Use `"envFile"` in `.mcp.json` pointing to a local env file (recommended - keeps credentials out of JSON config)
+- **Claude Desktop config:** Use the `"env"` block in the JSON config (keeps credentials scoped to the server)
 - **Shell profile:** Export in `.bashrc` / `.zshrc` for Claude Code CLI usage
 - **System environment:** Set at the OS level if you prefer
 
-> **Security note:** Never commit credentials to version control. The `"env"` block in your MCP client config is local to your machine and is not part of this repository.
+> **Security note:** Never commit credentials to version control. Env files and MCP config files are gitignored by default in this repo.
 
 ## Tools
 

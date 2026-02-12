@@ -2,6 +2,7 @@ import type { AuthProvider, TokenInfo } from "./types.js";
 
 const DEVICE_CODE_URL = "https://us1a.app.anaplan.com/oauth/device/code";
 const TOKEN_URL = "https://us1a.app.anaplan.com/oauth/token";
+const AUTH_TIMEOUT_MS = 15_000;
 
 interface DeviceCodeResponse {
   device_code: string;
@@ -34,6 +35,7 @@ export class OAuthProvider implements AuthProvider {
         client_id: this.clientId,
         scope: "openid",
       }),
+      signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
     });
 
     if (!codeRes.ok) {
@@ -45,7 +47,7 @@ export class OAuthProvider implements AuthProvider {
       `\nOAuth device authorization required.\nGo to: ${codeData.verification_uri}\nEnter code: ${codeData.user_code}\nWaiting for authorization...\n`
     );
 
-    const intervalMs = Math.max((codeData.interval || 5) * 1000, 2_100); // LS21: floor per device grant spec
+    const intervalMs = Math.max((codeData.interval || 5) * 1000, 5000);
     const deadline = Date.now() + codeData.expires_in * 1000;
 
     while (Date.now() < deadline) {
@@ -57,6 +59,7 @@ export class OAuthProvider implements AuthProvider {
           device_code: codeData.device_code,
           grant_type: "urn:ietf:params:oauth:grant-type:device_code",
         }),
+        signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
       });
 
       const tokenData = (await tokenRes.json()) as OAuthTokenResponse & { error?: string };
@@ -89,6 +92,7 @@ export class OAuthProvider implements AuthProvider {
         grant_type: "refresh_token",
         refresh_token: refreshToken,
       }),
+      signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
     });
 
     if (!response.ok) {

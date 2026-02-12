@@ -1,6 +1,6 @@
 import type { AuthProvider, TokenInfo } from "./types.js";
 import { BasicAuthProvider } from "./basic.js";
-import { CertificateAuthProvider } from "./certificate.js";
+import { CertificateAuthProvider, type CertificateEncodedDataFormat } from "./certificate.js";
 import { OAuthProvider } from "./oauth.js";
 
 const REFRESH_BUFFER_MS = 5 * 60 * 1000; // Refresh 5 minutes before expiry
@@ -19,7 +19,12 @@ export class AuthManager {
     const certPath = process.env.ANAPLAN_CERTIFICATE_PATH;
     const keyPath = process.env.ANAPLAN_PRIVATE_KEY_PATH;
     if (certPath && keyPath) {
-      return new AuthManager(new CertificateAuthProvider(certPath, keyPath), "certificate");
+      const encodedDataFormat =
+        (process.env.ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT
+          ?.toLowerCase()
+          .trim() as CertificateEncodedDataFormat | undefined) ??
+        "v2";
+      return new AuthManager(new CertificateAuthProvider(certPath, keyPath, encodedDataFormat), "certificate");
     }
 
     const clientId = process.env.ANAPLAN_CLIENT_ID;
