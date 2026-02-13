@@ -1,8 +1,9 @@
+# Build artifacts
 node_modules/
 dist/
 *.tgz
-.env
-mcpServers.anaplan.env
+
+# OS
 .DS_Store
 
 # Claude Code
@@ -10,11 +11,6 @@ mcpServers.anaplan.env
 .mcp.json
 .worktrees/
 
-# Skills (keep folder, ignore contents)
-src/skills/*
-!src/skills/.gitkeep
-
-# Internal docs
-docs/plans/
-docs/FUTURE_SCOPE.md
-docs/anaplan_documentation/
+# Credentials
+.env
+mcpServers.anaplan.env
