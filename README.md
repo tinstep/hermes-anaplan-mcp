@@ -460,3 +460,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - Anaplan's trademarks or intellectual property
 
 **Use of Anaplan name:** This project uses "Anaplan" under nominative fair use to accurately describe what it connects to. This does not imply endorsement or affiliation.
+
+---
+
+*This is an unofficial project. Not affiliated with, endorsed by, or supported by Anaplan.*
