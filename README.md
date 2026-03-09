@@ -7,6 +7,7 @@
 [![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-blueviolet?logo=anthropic)](https://claude.ai/code)
 
 # Anaplan MCP
+### Unofficial MCP server for Anaplan
 
 A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that connects AI assistants to Anaplan's Integration API v2 - following the same security principles Anaplan uses for their own AI capabilities. Gives LLMs like Claude direct access to browse workspaces, manage data, run imports/exports, and administer models through 68 structured tools, all while respecting your permissions and governance policies.
 
