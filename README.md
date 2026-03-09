@@ -102,7 +102,7 @@ If the file doesn't exist yet, create it with `{}` as the contents.
 
 **Step 2: Add the Anaplan server**
 
-Replace `<path>` with the absolute path to your cloned repo (e.g. `/Users/you/anaplan-mcp` on macOS/Linux or `C:/Users/you/anaplan-mcp` on Windows — always use forward slashes).
+Replace `<path>` with the absolute path to your cloned repo (e.g. `/Users/you/anaplan-mcp` on macOS/Linux or `C:/Users/you/anaplan-mcp` on Windows - always use forward slashes).
 
 **Basic auth:**
 
@@ -132,14 +132,14 @@ For other auth methods, use the same structure with a different `env` block:
 ```
 `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` can be added optionally; defaults to `v2`. Set `v1` only for legacy tenants.
 
-**OAuth2 (device grant) — interactive, opens browser to authorize:**
+**OAuth2 (device grant) - interactive, opens browser to authorize:**
 ```json
 "env": {
   "ANAPLAN_CLIENT_ID": "your-client-id"
 }
 ```
 
-**OAuth2 (authorization code) — non-interactive:**
+**OAuth2 (authorization code) - non-interactive:**
 ```json
 "env": {
   "ANAPLAN_CLIENT_ID": "your-client-id",
@@ -149,17 +149,17 @@ For other auth methods, use the same structure with a different `env` block:
 }
 ```
 
-If your config file already has content, add `mcpServers` inside the existing top-level object — don't create a second `{}` block.
+If your config file already has content, add `mcpServers` inside the existing top-level object - don't create a second `{}` block.
 
 **Step 3: Restart Claude Desktop**
 
-Quit Claude Desktop completely (right-click the system tray icon and quit — don't just close the window) and reopen it. You should see the Anaplan tools available (look for the hammer icon in the chat input area).
+Quit Claude Desktop completely (right-click the system tray icon and quit - don't just close the window) and reopen it. You should see the Anaplan tools available (look for the hammer icon in the chat input area).
 
 **Troubleshooting:**
 
-- **"Unexpected non-whitespace" error** — Your JSON is invalid. Make sure there's only one `{}` object in the file and no trailing commas. Paste your config into [jsonlint.com](https://jsonlint.com/) to check.
-- **Server disconnected** — Run `node C:/path/to/anaplan-mcp/dist/index.js` in a terminal to see the actual error. Common causes: wrong path in `args`, missing `npm run build`, or Node.js not installed.
-- **401 Unauthorized when using tools** — Your Anaplan credentials are wrong, or your account uses SSO (in which case basic auth won't work — use certificate or OAuth2 instead).
+- **"Unexpected non-whitespace" error** - Your JSON is invalid. Make sure there's only one `{}` object in the file and no trailing commas. Paste your config into [jsonlint.com](https://jsonlint.com/) to check.
+- **Server disconnected** - Run `node C:/path/to/anaplan-mcp/dist/index.js` in a terminal to see the actual error. Common causes: wrong path in `args`, missing `npm run build`, or Node.js not installed.
+- **401 Unauthorized when using tools** - Your Anaplan credentials are wrong, or your account uses SSO (in which case basic auth won't work - use certificate or OAuth2 instead).
 
 ### Connect to Claude Code
 
