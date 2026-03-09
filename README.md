@@ -426,6 +426,12 @@ src/
   tools/      # MCP tool registrations (exploration, bulk, transactional)
   server.ts   # Wires auth > client > APIs > MCP server
   index.ts    # Entry point (stdio transport)
+
+docs/
+  api_docs/   # Anaplan API reference docs (Integration, ALM, SCIM, CloudWorks, Audit)
+  architecture/ # Runtime diagrams (request flow, trust boundary, subsystem map)
+
+examples/     # Example output - FY26 Sales Forecast deck generated via MCP
 ```
 
 Three layers:
