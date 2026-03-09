@@ -214,39 +214,17 @@ Quit Claude Desktop completely (right-click the system tray icon and quit — do
 
 ### Connect to Claude Code
 
-The repo includes a `.mcp.json.example` file. Copy it and fill in your credentials:
+Copy `.mcp.json.example` to `.mcp.json` and fill in your credentials. The file is gitignored by default - never commit credentials to version control.
 
 ```bash
 cp .mcp.json.example .mcp.json
 ```
 
-Then edit `.mcp.json` with your credentials:
-
-```json
-{
-  "mcpServers": {
-    "anaplan": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["dist/index.js"],
-      "env": {
-        "ANAPLAN_USERNAME": "user@company.com",
-        "ANAPLAN_PASSWORD": "your-password"
-      }
-    }
-  }
-}
-```
-
-> **Security note:** `.mcp.json` is gitignored by default. Never commit credentials to version control.
-
-Alternatively, use the CLI or edit `~/.claude/mcp_settings.json` directly:
+Alternatively, use the CLI:
 
 ```bash
 claude mcp add anaplan -- node /absolute/path/to/anaplan-mcp/dist/index.js
 ```
-
-With the CLI approach, set your Anaplan credentials as environment variables in your shell profile (`.bashrc`, `.zshrc`, etc.) or pass them in the config's `env` block.
 
 ### Other MCP clients
 
