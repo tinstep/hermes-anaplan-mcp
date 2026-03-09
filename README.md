@@ -102,9 +102,7 @@ If the file doesn't exist yet, create it with `{}` as the contents.
 
 **Step 2: Add the Anaplan server**
 
-Your config file may already have existing settings (like `preferences`). You need to add the `mcpServers` key **inside the same top-level JSON object** — do not create a second `{}` block.
-
-Pick the auth method that matches your Anaplan setup and merge it into your config:
+Pick the auth method that matches your Anaplan setup:
 
 **Basic auth (username/password):**
 
