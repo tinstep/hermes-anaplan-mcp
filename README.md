@@ -308,7 +308,7 @@ Any MCP-compatible client that supports stdio transport can connect. The server 
 
 ### Browser-based AI (claude.ai, ChatGPT)
 
-Both [claude.ai](https://claude.ai) and [ChatGPT](https://chatgpt.com) now support remote MCP connectors. However, this server uses **stdio transport** (it runs as a local subprocess), so it cannot be connected directly from a browser. To use it from claude.ai or ChatGPT, you need to wrap it behind a remote MCP proxy. See [Remote MCP Setup Guide](docs/plans/remote-mcp-setup.md) for step-by-step instructions. For local use, Claude Desktop or Claude Code are the simplest options.
+Both [claude.ai](https://claude.ai) and [ChatGPT](https://chatgpt.com) now support remote MCP connectors. However, this server uses **stdio transport** (it runs as a local subprocess), so it cannot be connected directly from a browser. To use it from claude.ai or ChatGPT, you need to wrap it behind a remote MCP proxy. For local use, Claude Desktop or Claude Code are the simplest options.
 
 ## Configuration
 
