@@ -19,6 +19,8 @@ export class BasicAuthProvider implements AuthProvider {
       method: "POST",
       headers: {
         Authorization: `Basic ${this.credentials}`,
+        "User-Agent": "Mozilla/5.0",
+
       },
       signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
     });
@@ -39,6 +41,7 @@ export class BasicAuthProvider implements AuthProvider {
       method: "POST",
       headers: {
         Authorization: `AnaplanAuthToken ${tokenValue}`,
+        "User-Agent": "Mozilla/5.0",
       },
       signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
     });

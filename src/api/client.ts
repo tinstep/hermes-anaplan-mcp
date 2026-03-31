@@ -81,6 +81,8 @@ export class AnaplanClient {
       const headers: Record<string, string> = {
         ...authHeaders,
         "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0",
+
       };
 
       const options: RequestInit = { method, headers };
