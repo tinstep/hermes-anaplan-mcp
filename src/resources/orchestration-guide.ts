@@ -102,6 +102,43 @@ Read this guide before calling tools. Understanding Anaplan's data model is esse
 - List **properties** store additional metadata on items (e.g., a "Display Name" property on a numbered list, or "Region" property on a Customer list).
 - When updating numbered list items via API, always use code to identify items, not name.
 
+### Model Architecture Patterns (from Anaplan Community)
+
+**PLANS methodology** -- the standard for Anaplan model building:
+- **P**erformant: Optimize for speed. Avoid SUM+LOOKUP combinations, minimize text-formatted line items.
+- **L**ogical: Follow D.I.S.C.O. module structure (Data, Inputs, System, Calculations, Output).
+- **A**uditable: Break complex formulas into separate line items. Each line item should have a clear, single purpose.
+- **N**ecessary: Don't duplicate data. Store once, reference many times.
+- **S**ustainable: Build for change. Think about process cycles and future updates.
+
+**D.I.S.C.O. module naming** -- modules are typically prefixed by function:
+- **D**ata modules: Hold imported raw data (e.g., "DAT01 Sales Data")
+- **I**nput modules: User-entered assumptions (e.g., "INP01 Growth Rates")
+- **S**ystem modules: Settings and configuration (e.g., "SYS01 Time Settings")
+- **C**alculation modules: Business logic (e.g., "CALC01 Revenue Forecast")
+- **O**utput/Reporting modules: Views for end users (e.g., "REP01 P&L Summary")
+
+When exploring a model, use these prefixes to understand module purpose. REP/OUT modules are usually what end users want to read from. DAT modules are import targets.
+
+**Data Hub and Spoke pattern** -- common multi-model architecture:
+- A central **Data Hub** model stores master data (flat lists, transactional data).
+- **Spoke models** contain business logic and import data from the hub via saved views.
+- Data Hub lists are typically flat (no hierarchy). Hierarchies are built in spoke models.
+- When you see model-to-model imports (importType: "MODEL"), this is the hub-spoke pattern.
+
+**Line item dimensionality and "Applies To":**
+- Each line item in a module has an "Applies To" setting that controls which dimensions apply to it.
+- A line item can have fewer dimensions than its module (e.g., a "Total Revenue" line item with no product dimension in a product-dimensioned module).
+- **Subsidiary views** are line items with different dimensionality than their module. They appear as separate grids when viewed.
+- When reading data, a subsidiary view line item may return different dimension structure than other line items in the same module.
+
+**Common formula functions** (context for understanding show_lineitems output):
+- **SUM**: Aggregates across a dimension. Used in most financial models.
+- **LOOKUP**: Retrieves a value from another module using a mapping.
+- **SELECT**: Picks a specific item from a dimension (avoid hard-coding when possible).
+- **FINDITEM**: Finds a list item by name (performance-heavy, avoid in large lists).
+- **COLLECT**: Builds a list from filtered data.
+
 ### Key Implications for Tool Usage
 1. **To get totals, read the top-level hierarchy item** -- don't loop through children.
 2. **Time rollups are automatic** -- read FY24 directly, don't sum Jan through Dec.
