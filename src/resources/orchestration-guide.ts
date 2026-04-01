@@ -243,45 +243,46 @@ Shortcut: Use show_allmodels to list models across all workspaces (no workspaceI
    -> ALWAYS clean up to free server resources
 \`\`\`
 
-## Workflow 2b: Read Cross-Dimensional Reports (All Products, All Customers)
+## Workflow 2b: Reports Across "All [Dimension]" (Critical Pattern)
 
-When asked for a report "across all products" or "for all customers", follow this decision tree:
+When the user asks for a report "for all products", "across all customers", or "by region":
 
+**"All [dimension]" means:** Leave that dimension on rows/columns to show every item. Lock the OTHER page dimensions to their "All" (top-level aggregate) item. Do NOT loop through individual items. Do NOT use TABULAR_MULTI_COLUMN. Use two targeted read_cells calls maximum -- one per dimension breakdown needed.
+
+**Step-by-step:**
 \`\`\`
-Step 1: Check view structure
-  show_viewdetails -> identify which dims are on rows, columns, pages
+1. show_viewdetails -> identify which dimensions are on rows, columns, pages
 
-Step 2: Determine approach based on what's on pages
-  IF the dimension you want ALL items for is on ROWS:
-    -> Just read the view. All items are already on rows. One call.
-    -> Use pages param only to select top-level aggregates for OTHER dimensions.
+2. For "report for all products and all customers":
+   Call 1 - Product breakdown:
+     read_cells(pages: [{customersId, "All Customers" itemId}])
+     -> Products stays on its axis, customers locked to aggregate. One call.
 
-  IF the dimension you want ALL items for is on PAGES:
-    -> Select the top-level "All" item for that dimension on pages.
-    -> Example: pages=[{dimensionId: customersId, itemId: allCustomersId}]
-    -> This gives you the aggregate, not individual items. One call.
+   Call 2 - Customer breakdown:
+     read_cells(pages: [{productsId, "All Products" itemId}])
+     -> Customers stays on its axis, products locked to aggregate. One call.
 
-  IF you need EVERY individual item (not just the aggregate):
-    -> Read the view WITHOUT page filters to get everything. One call.
-    -> If response is truncated (>50K chars):
-       a. Use create_view_readrequest for large volume CSV download
-       b. Or use run_export if a matching export exists
+   That's it. Two calls. Not 40.
 
-Step 3: Handle truncation
-  -> NEVER loop read_cells per item. Not for 5 items, not for 50.
-  -> Large volume read (create_view_readrequest) returns CSV in pages.
-  -> run_export returns everything in one call.
+3. For "report for all products" (single dimension):
+   read_cells(pages: [{customersId, "All Customers" itemId}])
+   -> One call. All products visible, customers aggregated.
+
+4. For grand total only:
+   read_cells(pages: [{productsId, "All Products" itemId}, {customersId, "All Customers" itemId}])
+   -> One call. Both dimensions aggregated to top level.
 \`\`\`
 
-**Example: "Prepare report for all products and all customers"**
-\`\`\`
-1. show_viewdetails -> Products on pages, Customers on pages, Time on columns, Line Items on rows
-2. For summary: pages=[{productsId, "All Products" itemId}, {customersId, "All Customers" itemId}]
-   -> Returns aggregated totals. One call.
-3. For by-product breakdown: pages=[{customersId, "All Customers" itemId}]
-   -> Products will be on rows (or still on pages showing default). One call.
-4. If response truncated: create_view_readrequest -> download CSV pages -> delete request
-\`\`\`
+**If a call returns truncated data** (>50K chars), the view has too many time periods or line items. Solutions:
+- Use maxRows to limit rows
+- Use create_view_readrequest to download as CSV (handles any size)
+- Parse the annual totals (FY24, FY25, etc.) from the response and ignore monthly detail
+
+**Rules:**
+- NEVER call read_cells in a loop per list item. Not for 5 items, not for 50.
+- NEVER use exportType TABULAR_MULTI_COLUMN for reports -- it explodes the response size.
+- Two calls maximum for a two-dimension report. One call for single dimension.
+- Find "All" item IDs from show_viewdimensionitems or show_listmetadata (topLevelItem).
 
 ## Workflow 3: Write Cell Data
 
