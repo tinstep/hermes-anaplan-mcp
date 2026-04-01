@@ -1,8 +1,63 @@
 export const ORCHESTRATION_GUIDE = `# Anaplan MCP Orchestration Guide
 
-Read this guide before calling tools to understand the correct workflow sequences and prerequisites.
+Read this guide before calling tools. Understanding Anaplan's data model is essential for efficient tool use.
 
-## Core Concepts
+## Anaplan Domain Knowledge
+
+### Models, Modules, and Line Items
+- A **model** is a self-contained planning application (e.g., "FY26 Sales Forecast"). Models live in workspaces.
+- A **module** is a grid of data inside a model (like a spreadsheet tab). Each module has specific dimensions that define its structure.
+- **Line items** are the measures/metrics in a module (e.g., Revenue, Cost, Margin). They occupy columns or rows. Line items can have formulas (calculated) or be input cells (writable).
+- A **cell** is uniquely identified by its line item + one item from each of the line item's dimensions.
+
+### Lists and Hierarchies (Critical for Data Retrieval)
+- **Lists** are groups of items (Products, Customers, Regions). They define the dimensions of modules.
+- Lists are **hierarchical**. A list has a top-level item (e.g., "All Products") that is the aggregate of all children. Children can have their own children (e.g., Region > Country > City).
+- **The top-level item contains pre-computed rollup totals.** To get "total across all products", select the "All Products" item -- do NOT loop through each product and sum manually. Anaplan already computed it.
+- Use show_listmetadata to find the topLevelItem. Use show_viewdimensionitems to see available items for a view dimension.
+- **Subsets** are filtered views of a list (e.g., "Active Products" subset of the Products list).
+
+### Dimensions
+- Every module has dimensions that define its grid structure. Common dimensions: a list (Products), Time, and Versions.
+- Dimensions appear on **rows**, **columns**, or **pages** of a view.
+- A line item's dimensions determine what data it holds. Use show_lineitem_dimensions to see which dimensions apply.
+
+### Views and Pages (Critical for read_cells)
+- A **view** is a presentation of a module's data. The default view has the same ID as the module.
+- **Saved views** preserve dimension arrangement, filters, and formatting -- not the data itself.
+- Views organize dimensions onto three axes:
+  - **Rows**: items listed vertically (e.g., Products on rows = one row per product)
+  - **Columns**: items listed horizontally (e.g., Time on columns = one column per month)
+  - **Pages**: filter selectors. Only data for the selected page item is shown. When a dimension is on pages, you must select one item to view.
+- **Pages are NOT pagination.** They are dimension filters. If Products is on pages, you select ONE product (or "All Products" for the rollup). The API's pages parameter controls this: pages=[{dimensionId, itemId}].
+- Use show_viewdetails to see which dimensions are on rows, columns, and pages.
+
+### Time Dimension
+- Time is a built-in dimension present in every model. It has a hierarchy: Day > Week > Month > Quarter > Half-Year > Year.
+- The model calendar defines the fiscal year structure (Jan-Dec, Apr-Mar, etc.) and available time scales.
+- **Summary periods** (Q1, H1, FY24) are automatically computed rollups of their children, just like list hierarchies. To get annual totals, read the FY-level time period -- do not sum months manually.
+- **Current Period** marks where actuals end and forecast begins. It is used in formulas and version switchover.
+
+### Versions
+- **Versions** are a built-in dimension. Default versions: Actual and Forecast.
+- **Actual** stores historical data. **Forecast** stores projected data.
+- **Switchover date** controls the boundary: before the switchover, Forecast mirrors Actual (read-only). After the switchover, Forecast is editable with independent values.
+- Additional versions (Budget, Variance, etc.) can be created for scenario comparison.
+- When importing data, use mappingParameters to target a specific version (e.g., import into "Actual").
+
+### Summary Methods and Aggregation
+- Each line item has a **summary method** that controls how values roll up in hierarchies: Sum, Average, Min, Max, None, Formula, etc.
+- When you read a parent item (like "All Products"), the value you see is already computed by Anaplan using the summary method. You never need to aggregate manually.
+- Number line items default to Sum. Boolean line items default to Any. Text/Date/List default to FirstNonBlank.
+
+### Key Implications for Tool Usage
+1. **To get totals, read the top-level hierarchy item** -- don't loop through children.
+2. **Time rollups are automatic** -- read FY24 directly, don't sum Jan through Dec.
+3. **Pages are dimension filters, not pagination** -- select the right item on each page dimension.
+4. **Versions are a dimension** -- if you need Actual vs Forecast, it's a page/row/column selection, not a separate API call.
+5. **One read_cells call with the right page selections replaces dozens of per-item calls.**
+
+## MCP Server Concepts
 
 - **Name resolution**: Most tools accept human-readable names OR 32-character hex IDs for workspace, model, module, list, import, export, process, file, view, and action parameters. The server resolves names automatically.
 - **ID-only tools**: 9 tools use Anaplan's transactional API and only accept model IDs (not names): show_allviews, show_alllineitems, show_versions, show_lineitem_dimensions, show_lineitem_dimensions_items, show_dimensionitems, show_viewdimensionitems, set_versionswitchover, reset_list_index. Use show_models or show_allmodels first to get the model ID.
