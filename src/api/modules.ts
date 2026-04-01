@@ -23,9 +23,10 @@ export class ModulesApi {
   }
 
   // Max nested dimension depth per API: 21 levels
-  async listViews(workspaceId: string, modelId: string, moduleId: string) {
+  async listViews(workspaceId: string, modelId: string, moduleId: string, includeSubsidiaryViews = false) {
+    const suffix = includeSubsidiaryViews ? "?includesubsidiaryviews=true" : "";
     return this.client.getAll<any>(
-      `/workspaces/${workspaceId}/models/${modelId}/modules/${moduleId}/views`, "views"
+      `/workspaces/${workspaceId}/models/${modelId}/modules/${moduleId}/views${suffix}`, "views"
     );
   }
 }

@@ -9,9 +9,10 @@ export class ListsApi {
     );
   }
 
-  async getItems(workspaceId: string, modelId: string, listId: string) {
+  async getItems(workspaceId: string, modelId: string, listId: string, includeAll = false) {
+    const suffix = includeAll ? "?includeAll=true" : "";
     return this.client.getAll<any>(
-      `/workspaces/${workspaceId}/models/${modelId}/lists/${listId}/items`, "listItems"
+      `/workspaces/${workspaceId}/models/${modelId}/lists/${listId}/items${suffix}`, "listItems"
     );
   }
 

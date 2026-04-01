@@ -13,7 +13,8 @@ export class UsersApi {
     return res.user ?? res;
   }
 
-  async list() {
-    return this.client.getAll<any>("/users", ["users", "user"]);
+  async list(sort?: string) {
+    const suffix = sort ? `?sort=${sort}` : "";
+    return this.client.getAll<any>(`/users${suffix}`, ["users", "user"]);
   }
 }

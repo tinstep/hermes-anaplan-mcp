@@ -17,6 +17,7 @@ import { CalendarApi } from "./api/calendar.js";
 import { VersionsApi } from "./api/versions.js";
 import { UsersApi } from "./api/users.js";
 import { LargeReadsApi } from "./api/largeReads.js";
+import { OptimizerApi } from "./api/optimizer.js";
 import { NameResolver } from "./resolver.js";
 import { registerExplorationTools } from "./tools/exploration.js";
 import { registerBulkTools } from "./tools/bulk.js";
@@ -43,6 +44,7 @@ export function createServer(): McpServer {
   const versions = new VersionsApi(client);
   const users = new UsersApi(client);
   const largeReads = new LargeReadsApi(client);
+  const optimizer = new OptimizerApi(client);
 
   const resolver = new NameResolver({
     workspaces, models, modules, lists, imports, exports, processes, files, actions,
@@ -56,7 +58,7 @@ export function createServer(): McpServer {
   }, resolver);
 
   registerBulkTools(server, {
-    imports, exports, processes, files, client, modelManagement, calendar, versions, lists, largeReads, actions,
+    imports, exports, processes, files, client, modelManagement, calendar, versions, lists, largeReads, actions, optimizer,
   }, resolver);
 
   registerTransactionalTools(server, transactional, resolver);

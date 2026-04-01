@@ -10,10 +10,25 @@ export class TransactionalApi {
     modelId: string,
     moduleId: string,
     viewId: string,
+    options?: {
+      pages?: Array<{ dimensionId: string; itemId: string }>;
+      maxRows?: number;
+      exportType?: string;
+      moduleId?: string;
+    },
   ) {
-    const res = await this.client.get<any>(
-      `/models/${modelId}/views/${viewId}/data?format=v1`
-    );
+    let url = `/models/${modelId}/views/${viewId}/data?format=v1`;
+    if (options?.pages && options.pages.length > 0) {
+      const pagesParam = options.pages.map((p) => `${p.dimensionId}:${p.itemId}`).join(",");
+      url += `&pages=${pagesParam}`;
+    }
+    if (options?.maxRows !== undefined) {
+      url += `&maxRows=${options.maxRows}`;
+    }
+    if (options?.exportType && options?.moduleId) {
+      url += `&exportType=${options.exportType}&moduleId=${options.moduleId}`;
+    }
+    const res = await this.client.get<any>(url);
     return this.truncateResponse(res);
   }
 
@@ -30,8 +45,9 @@ export class TransactionalApi {
     return res.dimensions ?? [];
   }
 
-  async getAllViews(modelId: string) {
-    const res = await this.client.get<any>(`/models/${modelId}/views`);
+  async getAllViews(modelId: string, includeSubsidiaryViews = false) {
+    const suffix = includeSubsidiaryViews ? "?includesubsidiaryviews=true" : "";
+    const res = await this.client.get<any>(`/models/${modelId}/views${suffix}`);
     return res.views ?? [];
   }
 
@@ -60,33 +76,32 @@ export class TransactionalApi {
     modelId: string,
     moduleId: string,
     lineItemId: string,
-    data: Array<{ dimensions: Array<{ dimensionId: string; itemId: string }>; value: string }>
+    data: Array<Record<string, any>>
   ) {
     return this.client.post(
       `/models/${modelId}/modules/${moduleId}/data`,
       data.map((d) => ({
-        lineItemId,
-        dimensions: d.dimensions,
-        value: d.value,
+        ...(lineItemId ? { lineItemId } : {}),
+        ...d,
       }))
     );
   }
 
-  async addListItems(workspaceId: string, modelId: string, listId: string, items: Array<{ name: string; code?: string; properties?: Record<string, string> }>) {
+  async addListItems(workspaceId: string, modelId: string, listId: string, items: Array<{ name: string; code?: string; properties?: Record<string, string>; parent?: string; subsets?: Record<string, boolean> }>) {
     return this.client.post(
       `/workspaces/${workspaceId}/models/${modelId}/lists/${listId}/items?action=add`,
       { items }
     );
   }
 
-  async updateListItems(workspaceId: string, modelId: string, listId: string, items: Array<{ id: string; name?: string; code?: string; properties?: Record<string, string> }>) {
+  async updateListItems(workspaceId: string, modelId: string, listId: string, items: Array<{ id: string; name?: string; code?: string; properties?: Record<string, string>; parent?: string; subsets?: Record<string, boolean> }>) {
     return this.client.put(
       `/workspaces/${workspaceId}/models/${modelId}/lists/${listId}/items`,
       { items }
     );
   }
 
-  async deleteListItems(workspaceId: string, modelId: string, listId: string, items: Array<{ id: string }>) {
+  async deleteListItems(workspaceId: string, modelId: string, listId: string, items: Array<{ id?: string; code?: string }>) {
     return this.client.post(
       `/workspaces/${workspaceId}/models/${modelId}/lists/${listId}/items?action=delete`,
       { items }

@@ -1,3 +1,4 @@
+import { gzipSync } from "node:zlib";
 import type { AuthManager } from "../auth/manager.js";
 
 const BASE_URL = "https://api.anaplan.com/2/0";
@@ -53,24 +54,26 @@ export class AnaplanClient {
     return all;
   }
 
-  async uploadChunked(path: string, data: string): Promise<any> {
+  async uploadChunked(path: string, data: string, compress = false): Promise<any> {
     const CHUNK_SIZE = 50 * 1024 * 1024;
-    const buffer = Buffer.from(data);
+    const rawBuffer = Buffer.from(data);
+    const buffer = compress ? gzipSync(rawBuffer) : rawBuffer;
+    const contentType = compress ? "application/x-gzip" : "application/octet-stream";
 
     if (buffer.length <= CHUNK_SIZE) {
-      return this.requestRaw("PUT", path, buffer, "application/octet-stream");
+      return this.requestRaw("PUT", path, buffer, contentType);
     }
 
     for (let offset = 0; offset < buffer.length; offset += CHUNK_SIZE) {
       const chunk = buffer.subarray(offset, Math.min(offset + CHUNK_SIZE, buffer.length));
       const isLast = offset + CHUNK_SIZE >= buffer.length;
       const headers: Record<string, string> = {
-        "Content-Type": "application/octet-stream",
+        "Content-Type": contentType,
       };
       if (!isLast) {
         headers["Content-Range"] = `bytes ${offset}-${offset + chunk.length - 1}/${buffer.length}`;
       }
-      await this.requestRaw("PUT", path, chunk, "application/octet-stream", headers);
+      await this.requestRaw("PUT", path, chunk, contentType, headers);
     }
   }
 

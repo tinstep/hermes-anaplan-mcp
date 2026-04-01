@@ -77,10 +77,15 @@ function enrichLineItems(items: any[]) {
 export function registerExplorationTools(server: McpServer, apis: ExplorationApis, resolver: NameResolver) {
   server.tool("show_workspaces", "List all accessible Anaplan workspaces. Start here to find workspaceId, then use show_models to explore models.", {
     ...paginationParams,
-  }, async ({ limit, search }) => {
-    const workspaces = await apis.workspaces.list();
+    tenantDetails: z.boolean().optional().describe("Include workspace size and quota information"),
+  }, async ({ limit, search, tenantDetails }) => {
+    const workspaces = await apis.workspaces.list(tenantDetails);
+    const columns = [{ header: "Name", key: "name" }, { header: "ID", key: "id" }, { header: "Active", key: "active" }];
+    if (tenantDetails) {
+      columns.push({ header: "Size", key: "sizeAllowance" }, { header: "Quota", key: "currentSize" });
+    }
     return withNextSteps(
-      tableResult(workspaces, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }, { header: "Active", key: "active" }], "workspaces", { limit, search }),
+      tableResult(workspaces, columns, "workspaces", { limit, search }),
       ["Use show_models with a workspaceId to explore a workspace's models."],
     );
   });
@@ -88,10 +93,11 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
   server.tool("show_models", "List models in a workspace. Returns model IDs needed by most tools. Use show_modules next to explore a model's structure.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     state: z.enum(["UNLOCKED", "PRODUCTION", "ARCHIVED", "LOCKED", "MAINTENANCE", "PRODUCTION_MAINTENANCE"]).optional().describe("Filter by model state"),
+    modelDetails: z.boolean().optional().describe("Include memory usage, creation date, and last modified"),
     ...paginationParams,
-  }, async ({ workspaceId, state, limit, search }) => {
+  }, async ({ workspaceId, state, modelDetails, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
-    let models = await apis.models.list(wId);
+    let models = await apis.models.list(wId, modelDetails);
     if (state) models = models.filter((m: any) => m.activeState === state);
     return withNextSteps(
       tableResult(models, [{ header: "Name", key: "name" }, { header: "State", key: "activeState" }, { header: "ID", key: "id" }], "models", { limit, search }),
@@ -102,10 +108,11 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
   server.tool("show_modeldetails", "Get model details including status and workspace binding.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-  }, async ({ workspaceId, modelId }) => {
+    modelDetails: z.boolean().optional().describe("Include memory usage, creation date, and last modified"),
+  }, async ({ workspaceId, modelId, modelDetails }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
-    const model = await apis.models.get(wId, mId);
+    const model = await apis.models.get(wId, mId, modelDetails);
     return tableResult(
       [model],
       [
@@ -211,12 +218,13 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     moduleId: z.string().describe("Anaplan module ID or name"),
+    includeSubsidiaryViews: z.boolean().optional().describe("Include unsaved subsidiary views in results"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, moduleId, limit, search }) => {
+  }, async ({ workspaceId, modelId, moduleId, includeSubsidiaryViews, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const modId = await resolver.resolveModule(wId, mId, moduleId);
-    const views = await apis.modules.listViews(wId, mId, modId);
+    const views = await apis.modules.listViews(wId, mId, modId, includeSubsidiaryViews);
     return withNextSteps(
       tableResult(views, [{ header: "Name", key: "name" }, { header: "Module", key: "moduleId" }, { header: "ID", key: "id" }], "views", { limit, search }),
       ["Use a viewId with read_cells to read data. Tip: moduleId itself works as the default viewId."],
@@ -238,13 +246,18 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     listId: z.string().describe("Anaplan list ID or name"),
+    includeAll: z.boolean().optional().describe("Include subsets, properties, and selective access details"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, listId, limit, search }) => {
+  }, async ({ workspaceId, modelId, listId, includeAll, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const lId = await resolver.resolveList(wId, mId, listId);
-    const items = await apis.lists.getItems(wId, mId, lId);
-    return tableResult(items, [{ header: "Name", key: "name" }, { header: "Code", key: "code" }, { header: "ID", key: "id" }], "list items", { limit, search });
+    const items = await apis.lists.getItems(wId, mId, lId, includeAll);
+    const columns = [{ header: "Name", key: "name" }, { header: "Code", key: "code" }, { header: "ID", key: "id" }];
+    if (includeAll) {
+      columns.push({ header: "Parent", key: "parent" }, { header: "Subsets", key: "subsets" }, { header: "Properties", key: "properties" });
+    }
+    return tableResult(items, columns, "list items", { limit, search });
   });
 
   server.tool("show_imports", "List available import actions in a model. Use show_importdetails to see source file and mapping, then run_import to execute.", {
@@ -339,17 +352,19 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
 
   server.tool("show_workspacedetails", "Get workspace details including size and active status.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
-  }, async ({ workspaceId }) => {
+    tenantDetails: z.boolean().optional().describe("Include workspace size and quota information"),
+  }, async ({ workspaceId, tenantDetails }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
-    const workspace = await apis.workspaces.get(wId);
+    const workspace = await apis.workspaces.get(wId, tenantDetails);
     return { content: [{ type: "text", text: JSON.stringify(workspace, null, 2) }] };
   });
 
   server.tool("show_allmodels", "List all models across all workspaces. Returns model IDs needed by ID-only tools like show_allviews and show_alllineitems.", {
     state: z.enum(["UNLOCKED", "PRODUCTION", "ARCHIVED", "LOCKED", "MAINTENANCE", "PRODUCTION_MAINTENANCE"]).optional().describe("Filter by model state"),
+    modelDetails: z.boolean().optional().describe("Include memory usage, creation date, and last modified"),
     ...paginationParams,
-  }, async ({ state, limit, search }) => {
-    let models = await apis.models.listAll();
+  }, async ({ state, modelDetails, limit, search }) => {
+    let models = await apis.models.listAll(modelDetails);
     if (state) models = models.filter((m: any) => m.activeState === state);
     return tableResult(models, [
       { header: "Name", key: "name" },
@@ -432,9 +447,10 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
 
   server.tool("show_allviews", "List all views in a model (cross-module, includes default and saved). Note: requires model ID (name resolution not supported).", {
     modelId: z.string().describe("Anaplan model ID (name resolution not supported -- use show_models to find the ID)"),
+    includeSubsidiaryViews: z.boolean().optional().describe("Include unsaved subsidiary views in results"),
     ...paginationParams,
-  }, async ({ modelId, limit, search }) => {
-    const views = await apis.transactional.getAllViews(modelId);
+  }, async ({ modelId, includeSubsidiaryViews, limit, search }) => {
+    const views = await apis.transactional.getAllViews(modelId, includeSubsidiaryViews);
     return tableResult(views, [
       { header: "Name", key: "name" },
       { header: "Module", key: "moduleName" },
@@ -589,9 +605,10 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
   });
 
   server.tool("show_users", "List all users in the tenant", {
+    sort: z.string().optional().describe("Sort field (e.g., '%2BemailAddress' for ascending email)"),
     ...paginationParams,
-  }, async ({ limit, search }) => {
-    const users = await apis.users.list();
+  }, async ({ sort, limit, search }) => {
+    const users = await apis.users.list(sort);
     return tableResult(users, [
       { header: "Name", key: "firstName" },
       { header: "Email", key: "email" },

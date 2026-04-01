@@ -15,6 +15,7 @@ import type { VersionsApi } from "../api/versions.js";
 import type { ListsApi } from "../api/lists.js";
 import type { LargeReadsApi } from "../api/largeReads.js";
 import type { ActionsApi } from "../api/actions.js";
+import type { OptimizerApi } from "../api/optimizer.js";
 import { withNextSteps } from "./hints.js";
 
 // Bulk concurrency ceiling: 21 parallel tasks per model (ls21)
@@ -30,6 +31,7 @@ interface BulkApis {
   lists: ListsApi;
   largeReads: LargeReadsApi;
   actions: ActionsApi;
+  optimizer: OptimizerApi;
 }
 
 function sanitizeFileName(value: string): string {
@@ -105,13 +107,17 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     importId: z.string().describe("Import action ID or name (from show_imports)"),
     fileId: z.string().describe("File ID or name to upload data to (from show_files). Use show_importdetails to find the source file for this import."),
     data: z.string().describe("CSV or JSON data matching the import's expected column format. Use show_importdetails to check the column mapping."),
-  }, async ({ workspaceId, modelId, importId, fileId, data }) => {
+    mappingParameters: z.array(z.object({
+      entityType: z.string().describe("Dimension type (e.g., 'Version')"),
+      entityName: z.string().describe("Dimension value (e.g., 'Actual')"),
+    })).optional().describe("Runtime mapping parameters for the import (e.g., specify which Version to import into)"),
+  }, async ({ workspaceId, modelId, importId, fileId, data, mappingParameters }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const iId = await resolver.resolveImport(wId, mId, importId);
     const fId = await resolver.resolveFile(wId, mId, fileId);
     await apis.files.upload(wId, mId, fId, data);
-    const task = await apis.imports.run(wId, mId, iId);
+    const task = await apis.imports.run(wId, mId, iId, undefined, mappingParameters);
     return withNextSteps(
       { content: [{ type: "text", text: JSON.stringify(task, null, 2) }] },
       ["Use get_action_status to check if the import completed successfully.", "If failed, use download_importdump to see error details."],
@@ -122,11 +128,15 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     processId: z.string().describe("Process ID or name (from show_processes)"),
-  }, async ({ workspaceId, modelId, processId }) => {
+    mappingParameters: z.array(z.object({
+      entityType: z.string().describe("Dimension type (e.g., 'Version')"),
+      entityName: z.string().describe("Dimension value (e.g., 'Actual')"),
+    })).optional().describe("Runtime mapping parameters for the process (e.g., specify which Version to import into)"),
+  }, async ({ workspaceId, modelId, processId, mappingParameters }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const pId = await resolver.resolveProcess(wId, mId, processId);
-    const task = await apis.processes.run(wId, mId, pId);
+    const task = await apis.processes.run(wId, mId, pId, undefined, mappingParameters);
     return withNextSteps(
       { content: [{ type: "text", text: JSON.stringify(task, null, 2) }] },
       ["Use get_action_status to check task status.", "If failed, use download_processdump with the objectId from nestedResults."],
@@ -151,11 +161,12 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     modelId: z.string().describe("Anaplan model ID or name"),
     fileId: z.string().describe("Anaplan file ID or name (from show_files)"),
     data: z.string().describe("File content (CSV or text)"),
-  }, async ({ workspaceId, modelId, fileId, data }) => {
+    compress: z.boolean().optional().describe("Compress upload with gzip (recommended for files >50MB)"),
+  }, async ({ workspaceId, modelId, fileId, data, compress }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const fId = await resolver.resolveFile(wId, mId, fileId);
-    await apis.files.upload(wId, mId, fId, data);
+    await apis.files.upload(wId, mId, fId, data, compress);
     return { content: [{ type: "text", text: `File ${fId} uploaded successfully.` }] };
   });
 
@@ -198,7 +209,8 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     actionType: z.enum(["imports", "exports", "processes", "actions"]).describe("Type of action"),
     actionId: z.string().describe("Action ID or name"),
     taskId: z.string().describe("Task ID (from run_import, run_export, run_process, or run_delete response)"),
-  }, async ({ workspaceId, modelId, actionType, actionId, taskId }) => {
+    includeProcessDetails: z.boolean().optional().describe("Include duration and startTime for each process step"),
+  }, async ({ workspaceId, modelId, actionType, actionId, taskId, includeProcessDetails }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const resolveMap: Record<string, (wId: string, mId: string, name: string) => Promise<string>> = {
@@ -208,8 +220,9 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
       actions: (w, m, n) => resolver.resolveAction(w, m, n),
     };
     const aId = await resolveMap[actionType](wId, mId, actionId);
+    const suffix = includeProcessDetails ? "?includeProcessDetails=true" : "";
     const res = await apis.client.get(
-      `/workspaces/${wId}/models/${mId}/${actionType}/${aId}/tasks/${taskId}`
+      `/workspaces/${wId}/models/${mId}/${actionType}/${aId}/tasks/${taskId}${suffix}`
     );
     return { content: [{ type: "text", text: JSON.stringify(res, null, 2) }] };
   });
@@ -492,6 +505,22 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   }, async ({ modelId, listId }) => {
     await apis.lists.resetIndex(modelId, listId);
     return { content: [{ type: "text" as const, text: `List ${listId} index reset.` }] };
+  });
+
+  // Optimizer logs
+  server.tool("download_optimizer_log", "Download Optimizer solver log for a completed optimizer action. Logs are removed after 48 hours.", {
+    workspaceId: z.string().describe("Anaplan workspace ID or name"),
+    modelId: z.string().describe("Anaplan model ID or name"),
+    actionId: z.string().describe("Optimizer action ID (from show_actions)"),
+    correlationId: z.string().describe("Correlation ID from the Anaplan UI after running an optimizer action"),
+  }, async ({ workspaceId, modelId, actionId, correlationId }) => {
+    const wId = await resolver.resolveWorkspace(workspaceId);
+    const mId = await resolver.resolveModel(wId, modelId);
+    const text = await apis.optimizer.getSolutionLog(wId, mId, actionId, correlationId);
+    if (text.length > 50000) {
+      return { content: [{ type: "text" as const, text: text.slice(0, 50000) + `\n\n[Truncated - ${text.length} chars total]` }] };
+    }
+    return { content: [{ type: "text" as const, text }] };
   });
 
 }

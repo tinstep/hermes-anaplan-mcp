@@ -19,9 +19,13 @@ export class ImportsApi {
     return res.import ?? res;
   }
 
-  async run(workspaceId: string, modelId: string, importId: string, timeoutMs = DEFAULT_TIMEOUT_MS) {
+  async run(workspaceId: string, modelId: string, importId: string, timeoutMs = DEFAULT_TIMEOUT_MS, mappingParameters?: Array<{ entityType: string; entityName: string }>) {
     const base = `/workspaces/${workspaceId}/models/${modelId}/imports/${importId}`;
-    const res = await this.client.post<{ task: any }>(`${base}/tasks`, { localeName: "en_US" });
+    const body: Record<string, any> = { localeName: "en_US" };
+    if (mappingParameters && mappingParameters.length > 0) {
+      body.mappingParameters = mappingParameters;
+    }
+    const res = await this.client.post<{ task: any }>(`${base}/tasks`, body);
     const taskId = res.task.taskId;
     return this.pollTask(base, taskId, timeoutMs);
   }

@@ -4,12 +4,14 @@ import type { AnaplanClient } from "./client.js";
 export class WorkspacesApi {
   constructor(private client: AnaplanClient) {}
 
-  async list() {
-    return this.client.getAll<any>("/workspaces", "workspaces");
+  async list(tenantDetails = false) {
+    const suffix = tenantDetails ? "?tenantDetails=true" : "";
+    return this.client.getAll<any>(`/workspaces${suffix}`, "workspaces");
   }
 
-  async get(workspaceId: string) {
-    const res = await this.client.get<any>(`/workspaces/${workspaceId}`);
+  async get(workspaceId: string, tenantDetails = false) {
+    const suffix = tenantDetails ? "?tenantDetails=true" : "";
+    const res = await this.client.get<any>(`/workspaces/${workspaceId}${suffix}`);
     return res.workspace ?? res;
   }
 }

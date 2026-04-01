@@ -259,55 +259,55 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide s1 active" data-index="0">
   <div class="s1-noise"></div><div class="s1-grid"></div><div class="s1-blob"></div>
   <div class="s1-ring"></div><div class="s1-ring2"></div>
-  <div class="s1-badge"><span class="bn">MCP</span><span class="bs">Protocol</span></div>
+  <div class="s1-badge"><span class="bn">69</span><span class="bs">MCP Tools</span></div>
   <div class="s1-content">
     <p class="s1-eyebrow">Platform Engineering &nbsp;/&nbsp; AI Integration</p>
     <h1 class="s1-title">Anaplan<em>MCP</em></h1>
-    <p class="s1-sub">The bridge that didn't exist — connecting AI assistants to Anaplan so anyone can explore data, run processes, and manage models in plain English.</p>
+    <p class="s1-sub" style="font-size:1.3vw;max-width:46vw;">The bridge that didn't exist -- connecting AI assistants to Anaplan so anyone can explore data, run processes, and manage models in plain English.</p>
     <div class="s1-tags">
       <span class="tag">Why it was built</span>
       <span class="tag">For end users</span>
       <span class="tag">For admins</span>
       <span class="tag">How it works</span>
+      <span class="tag">69 Tools</span>
     </div>
   </div>
-  <p class="s1-presenter"><strong>Lara Srinath</strong> &nbsp;·&nbsp; Platform Engineering &nbsp;·&nbsp; 2026</p>
+  <p class="s1-presenter"><strong>Lara Srinath</strong> &nbsp;&middot;&nbsp; Platform Engineering &nbsp;&middot;&nbsp; 2026</p>
 </div>
 
 <!-- 02 THE GAP -->
 <div class="slide bg-dark" data-index="1">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">01 — Why This Exists</p>
+    <p class="lbl">01 -- Why This Exists</p>
     <h2>The Gap: No Official Anaplan MCP Server</h2>
   </div>
-  <div class="body">
-    <div class="gap-headline">Anaplan has no official MCP server. <em>Nobody does.</em><br>Every interaction with Anaplan data requires manual work or custom code — from scratch, every time.</div>
-    <div class="gap-cols">
-      <div class="gap-left">
-        <div class="gap-void">
-          <div class="gv-title">What doesn't exist (until now)</div>
-          <div class="gv-list">
-            <div class="gv-item">No official Anaplan MCP server — from Anaplan or any vendor</div>
-            <div class="gv-item">No standard way for AI assistants to query or act on Anaplan data</div>
-            <div class="gv-item">No shared layer for auth, pagination, retry across integrations</div>
-            <div class="gv-item">LLMs can reason over planning data but have zero native access</div>
-            <div class="gv-item">Every team rewriting the same API glue code independently</div>
+  <div class="body" style="padding-bottom:1.5vh;">
+    <div class="gap-headline" style="font-size:1.5vw;max-width:80%;padding-bottom:1vh;">Anaplan has no official MCP server. <em>Nobody does.</em><br>Every interaction requires manual work or custom code -- from scratch, every time.</div>
+    <div class="gap-cols" style="gap:20px;">
+      <div class="gap-left" style="gap:14px;">
+        <div class="gap-void" style="padding:22px 22px;gap:14px;">
+          <div class="gv-title" style="font-size:.88vw;">What doesn't exist (until now)</div>
+          <div class="gv-list" style="gap:10px;">
+            <div class="gv-item" style="font-size:.82vw;">No official Anaplan MCP server -- from Anaplan or any vendor</div>
+            <div class="gv-item" style="font-size:.82vw;">No standard way for AI assistants to query or act on Anaplan data</div>
+            <div class="gv-item" style="font-size:.82vw;">No shared layer for auth, pagination, retry across integrations</div>
+            <div class="gv-item" style="font-size:.82vw;">LLMs can reason over planning data but have zero native access</div>
           </div>
         </div>
-        <div class="gap-built">
-          <div class="gb-title">What we built</div>
-          <div class="gb-text">An open-source MCP server that wraps the full Anaplan Integration API v2 in 68 structured tools — so any MCP-compatible AI can talk to Anaplan out of the box. No glue code. No manual steps.</div>
+        <div class="gap-built" style="padding:22px 22px;">
+          <div class="gb-title" style="font-size:.88vw;margin-bottom:8px;">What we built</div>
+          <div class="gb-text" style="font-size:.88vw;line-height:1.6;">An open-source MCP server that wraps the full Anaplan Integration API v2 in <strong style="color:var(--green);">69 structured tools</strong> -- so any MCP-compatible AI can talk to Anaplan out of the box. No glue code. No manual steps. No waiting.</div>
         </div>
       </div>
-      <div class="gap-right">
-        <div class="gm-title">Before this existed — getting data out of Anaplan</div>
-        <div class="gap-step"><strong>Find the model ID</strong>Log in to UI, navigate to workspace, copy the 32-char hex model ID manually</div>
-        <div class="gap-step"><strong>Handle auth</strong>POST to auth endpoint, store token, track expiry, refresh before 35-min window closes</div>
-        <div class="gap-step"><strong>Paginate the list</strong>Write offset/limit loop, handle Anaplan returning undefined instead of [] for empty results</div>
-        <div class="gap-step"><strong>Trigger and poll</strong>POST to run the export, poll task endpoint until COMPLETE, download chunks one by one</div>
-        <div class="gap-step"><strong>Parse and share</strong>Format CSV output, share it manually — repeat next week from scratch</div>
-        <div class="gap-answer">One natural-language prompt now does all of this automatically.</div>
+      <div class="gap-right" style="gap:10px;">
+        <div class="gm-title" style="font-size:.7vw;">Before this existed -- getting data out of Anaplan</div>
+        <div class="gap-step" style="padding:12px 15px;font-size:.78vw;"><strong style="font-size:.82vw;">1. Find the model ID</strong>Log in to UI, navigate to workspace, copy the 32-char hex model ID manually</div>
+        <div class="gap-step" style="padding:12px 15px;font-size:.78vw;"><strong style="font-size:.82vw;">2. Handle auth</strong>POST to auth endpoint, store token, track expiry, refresh before 35-min window closes</div>
+        <div class="gap-step" style="padding:12px 15px;font-size:.78vw;"><strong style="font-size:.82vw;">3. Paginate the list</strong>Write offset/limit loop, handle Anaplan returning undefined instead of [] for empty results</div>
+        <div class="gap-step" style="padding:12px 15px;font-size:.78vw;"><strong style="font-size:.82vw;">4. Trigger and poll</strong>POST to run the export, poll task endpoint until COMPLETE, download chunks one by one</div>
+        <div class="gap-step" style="padding:12px 15px;font-size:.78vw;"><strong style="font-size:.82vw;">5. Parse and share</strong>Format CSV output, share it manually -- repeat next week from scratch</div>
+        <div class="gap-answer" style="padding:16px 18px;font-size:.95vw;">One natural-language prompt now does all of this automatically.</div>
       </div>
     </div>
   </div>
@@ -317,40 +317,40 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide bg-dark" data-index="2">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">02 — Foundation</p>
+    <p class="lbl">02 -- Foundation</p>
     <h2>What is MCP?</h2>
-    <p class="sub">Model Context Protocol — the open standard by Anthropic that makes this possible</p>
+    <p class="sub">Model Context Protocol -- the open standard by Anthropic that makes this possible</p>
   </div>
   <div class="body">
-    <div class="mcp-row">
-      <div class="mcp-left">
-        <div class="mcp-def">MCP gives AI assistants a <strong>structured, tool-calling interface</strong> to external systems — similar to how REST standardised web APIs. The AI describes what it wants in natural language; MCP routes it to the right tool with validated parameters.</div>
-        <div class="mcp-flow">
-          <div class="mcp-box g"><div class="bt">AI Assistant</div><div class="bs">Claude · Cursor · Copilot</div></div>
-          <div class="mcp-arr">&#8594;</div>
-          <div class="mcp-box n"><div class="bt">Anaplan MCP Server</div><div class="bs">JSON-RPC · stdio · local</div></div>
-          <div class="mcp-arr">&#8594;</div>
-          <div class="mcp-box b"><div class="bt">Anaplan API</div><div class="bs">api.anaplan.com</div></div>
+    <div class="mcp-row" style="gap:22px;">
+      <div class="mcp-left" style="gap:14px;">
+        <div class="mcp-def" style="font-size:.9vw;padding:18px 20px;">MCP gives AI assistants a <strong>structured, tool-calling interface</strong> to external systems -- similar to how REST standardised web APIs. The AI describes what it wants in natural language; MCP routes it to the right tool with validated parameters.</div>
+        <div class="mcp-flow" style="height:13vh;">
+          <div class="mcp-box g"><div class="bt" style="font-size:.85vw;">AI Assistant</div><div class="bs" style="font-size:.64vw;">Claude &middot; Cursor &middot; Copilot</div></div>
+          <div class="mcp-arr" style="font-size:1.6vw;">&#8594;</div>
+          <div class="mcp-box n"><div class="bt" style="font-size:.85vw;">Anaplan MCP</div><div class="bs" style="font-size:.64vw;">JSON-RPC &middot; stdio &middot; local</div></div>
+          <div class="mcp-arr" style="font-size:1.6vw;">&#8594;</div>
+          <div class="mcp-box b"><div class="bt" style="font-size:.85vw;">Anaplan API</div><div class="bs" style="font-size:.64vw;">api.anaplan.com</div></div>
         </div>
-        <div class="mcp-why">
-          <div class="mcp-wi"><strong>Plug-and-play</strong><p>Any MCP-compatible host connects automatically. No custom integration per AI tool.</p></div>
-          <div class="mcp-wi"><strong>Self-describing tools</strong><p>Each tool has a name, description, and validated schema. The AI decides when to call it.</p></div>
-          <div class="mcp-wi"><strong>Local and secure</strong><p>Runs as a local process. Credentials never leave your machine or reach any cloud relay.</p></div>
+        <div class="mcp-why" style="gap:10px;">
+          <div class="mcp-wi" style="padding:13px 16px;"><strong style="font-size:.85vw;">Plug-and-play</strong><p style="font-size:.78vw;">Any MCP-compatible host connects automatically. No custom integration per AI tool.</p></div>
+          <div class="mcp-wi" style="padding:13px 16px;"><strong style="font-size:.85vw;">Self-describing tools</strong><p style="font-size:.78vw;">Each tool has a name, description, and validated schema. The AI decides when to call it.</p></div>
+          <div class="mcp-wi" style="padding:13px 16px;"><strong style="font-size:.85vw;">Local and secure</strong><p style="font-size:.78vw;">Runs as a local process. Credentials never leave your machine or reach any cloud relay.</p></div>
         </div>
       </div>
-      <div class="mcp-right">
-        <div class="mcp-gap-box">
-          <div class="mgb-t">The Anaplan-specific gap</div>
-          <p>MCP servers exist for GitHub, Slack, databases, filesystems, Jira, and dozens of other enterprise tools. Anaplan has none — official or community. This is the first.</p>
+      <div class="mcp-right" style="gap:14px;">
+        <div class="mcp-gap-box" style="padding:18px 20px;">
+          <div class="mgb-t" style="font-size:.85vw;margin-bottom:8px;">The Anaplan-specific gap</div>
+          <p style="font-size:.82vw;line-height:1.6;">MCP servers exist for GitHub, Slack, databases, filesystems, Jira, and dozens of other enterprise tools. <strong style="color:#E88080;">Anaplan has none</strong> -- official or community. This is the first.</p>
         </div>
-        <div class="mcp-unlocks">
-          <div class="mu-t">What this unlocks for Anaplan</div>
-          <div class="mu-list">
-            <div class="mu-item">Ask Claude to pull model data — it calls the right API, handles auth and pagination</div>
-            <div class="mu-item">Say "run the January import" — it triggers, polls, and reports back with row counts</div>
-            <div class="mu-item">Ask "list all models in this workspace" — instant, no UI navigation needed</div>
-            <div class="mu-item">Write data values using plain dimension names, not 32-char hex IDs</div>
-            <div class="mu-item">Works today with Claude Desktop, Claude Code, and Cursor — more AI hosts every month</div>
+        <div class="mcp-unlocks" style="padding:18px 20px;">
+          <div class="mu-t" style="font-size:.68vw;margin-bottom:10px;">What this unlocks for Anaplan</div>
+          <div class="mu-list" style="gap:9px;">
+            <div class="mu-item" style="font-size:.8vw;line-height:1.5;">Ask Claude to pull model data -- it calls the right API, handles auth and pagination</div>
+            <div class="mu-item" style="font-size:.8vw;line-height:1.5;">Say "run the January import" -- it triggers, polls, and reports back with row counts</div>
+            <div class="mu-item" style="font-size:.8vw;line-height:1.5;">Ask "list all models in this workspace" -- instant, no UI navigation needed</div>
+            <div class="mu-item" style="font-size:.8vw;line-height:1.5;">Write data values using plain dimension names, not 32-char hex IDs</div>
+            <div class="mu-item" style="font-size:.8vw;line-height:1.5;">Works today with Claude Desktop, Claude Code, and Cursor -- more AI hosts every month</div>
           </div>
         </div>
       </div>
@@ -362,31 +362,30 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide bg-dark" data-index="3">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">03 — The Difference</p>
+    <p class="lbl">03 -- The Difference</p>
     <h2>Before vs After</h2>
     <p class="sub">Same task: pull Q3 headcount data and run the actuals import</p>
   </div>
   <div class="body">
-    <div class="ba-cols">
-      <div class="ba-col">
-        <div class="ba-hdr bad">Before — Manual</div>
-        <div class="ba-step bs"><span class="ba-num">1</span><div class="ba-text"><strong>Log in and navigate</strong>Open browser, go to Anaplan UI, navigate to the right workspace and model</div></div>
-        <div class="ba-step bs"><span class="ba-num">2</span><div class="ba-text"><strong>Copy IDs</strong>Find and copy 32-char hex IDs for workspace, model, and module — required for every API call</div></div>
-        <div class="ba-step bs"><span class="ba-num">3</span><div class="ba-text"><strong>Get an auth token</strong>POST credentials to auth endpoint, store the token, note the 35-min expiry window</div></div>
-        <div class="ba-step bs"><span class="ba-num">4</span><div class="ba-text"><strong>Write the pagination loop</strong>Call the list endpoint, handle meta.paging, loop until all pages are fetched</div></div>
-        <div class="ba-step bs"><span class="ba-num">5</span><div class="ba-text"><strong>Trigger import, wait, poll</strong>POST to run the import, poll task status endpoint until COMPLETE or FAILED</div></div>
-        <div class="ba-step bs"><span class="ba-num">6</span><div class="ba-text"><strong>Format and share</strong>Parse the response, format into something readable, send it along</div></div>
-        <div class="ba-time bad">30 to 60 min &nbsp;·&nbsp; error-prone &nbsp;·&nbsp; one-off every time</div>
+    <div class="ba-cols" style="gap:20px;">
+      <div class="ba-col" style="gap:9px;">
+        <div class="ba-hdr bad" style="padding:12px 16px;font-size:.82vw;">Before -- Manual</div>
+        <div class="ba-step bs" style="padding:12px 14px;"><span class="ba-num" style="font-size:.7vw;width:22px;">1</span><div class="ba-text" style="font-size:.78vw;"><strong style="font-size:.82vw;">Log in and navigate</strong>Open browser, go to Anaplan UI, find the right workspace and model</div></div>
+        <div class="ba-step bs" style="padding:12px 14px;"><span class="ba-num" style="font-size:.7vw;width:22px;">2</span><div class="ba-text" style="font-size:.78vw;"><strong style="font-size:.82vw;">Copy IDs</strong>Find and copy 32-char hex IDs for workspace, model, and module</div></div>
+        <div class="ba-step bs" style="padding:12px 14px;"><span class="ba-num" style="font-size:.7vw;width:22px;">3</span><div class="ba-text" style="font-size:.78vw;"><strong style="font-size:.82vw;">Get an auth token</strong>POST credentials to auth endpoint, store token, track 35-min expiry</div></div>
+        <div class="ba-step bs" style="padding:12px 14px;"><span class="ba-num" style="font-size:.7vw;width:22px;">4</span><div class="ba-text" style="font-size:.78vw;"><strong style="font-size:.82vw;">Paginate the list</strong>Write offset/limit loop, handle undefined instead of empty arrays</div></div>
+        <div class="ba-step bs" style="padding:12px 14px;"><span class="ba-num" style="font-size:.7vw;width:22px;">5</span><div class="ba-text" style="font-size:.78vw;"><strong style="font-size:.82vw;">Trigger, poll, download</strong>POST to run import, poll task status, download chunks individually</div></div>
+        <div class="ba-step bs" style="padding:12px 14px;"><span class="ba-num" style="font-size:.7vw;width:22px;">6</span><div class="ba-text" style="font-size:.78vw;"><strong style="font-size:.82vw;">Format and share</strong>Parse response, format into something readable, repeat next time</div></div>
+        <div class="ba-time bad" style="padding:12px 16px;font-size:.88vw;">30 to 60 min &nbsp;&middot;&nbsp; error-prone &nbsp;&middot;&nbsp; one-off every time</div>
       </div>
-      <div class="ba-col">
-        <div class="ba-hdr good">After — Anaplan MCP</div>
-        <div class="ba-step gs"><span class="ba-num">1</span><div class="ba-text"><strong>Type in Claude</strong>"Show me Q3 headcount in the EMEA workspace, then run the January actuals import"</div></div>
-        <div class="ba-step gs"><span class="ba-num">2</span><div class="ba-text"><strong>NameResolver handles IDs</strong>Resolves "EMEA workspace", "Q3", "January actuals" to hex IDs — no lookup needed</div></div>
-        <div class="ba-step gs"><span class="ba-num">3</span><div class="ba-text"><strong>AuthManager handles tokens</strong>Selects provider, caches token, schedules refresh 5 min before expiry — transparent</div></div>
-        <div class="ba-step gs"><span class="ba-num">4</span><div class="ba-text"><strong>getAll() handles pagination</strong>Fetches every page automatically, guards against Anaplan returning undefined for empty lists</div></div>
-        <div class="ba-step gs"><span class="ba-num">5</span><div class="ba-text"><strong>Polls import until done</strong>run_import triggers the job, polls every 2s, returns COMPLETE + row count or error details inline</div></div>
-        <div class="ba-step gs" style="visibility:hidden;"></div>
-        <div class="ba-time good">Under 15 seconds &nbsp;·&nbsp; reusable &nbsp;·&nbsp; same prompt works tomorrow</div>
+      <div class="ba-col" style="gap:9px;">
+        <div class="ba-hdr good" style="padding:12px 16px;font-size:.82vw;">After -- Anaplan MCP</div>
+        <div class="ba-step gs" style="padding:14px 14px;flex:2;"><span class="ba-num" style="font-size:.7vw;width:22px;">1</span><div class="ba-text" style="font-size:.82vw;"><strong style="font-size:.88vw;">Type in Claude</strong>"Show me Q3 headcount in the EMEA workspace, then run the January actuals import"</div></div>
+        <div class="ba-step gs" style="padding:14px 14px;flex:2;"><span class="ba-num" style="font-size:.7vw;width:22px;">2</span><div class="ba-text" style="font-size:.82vw;"><strong style="font-size:.88vw;">NameResolver handles IDs</strong>Resolves "EMEA workspace", "Q3", "January actuals" to hex IDs automatically</div></div>
+        <div class="ba-step gs" style="padding:14px 14px;flex:2;"><span class="ba-num" style="font-size:.7vw;width:22px;">3</span><div class="ba-text" style="font-size:.82vw;"><strong style="font-size:.88vw;">Auth + pagination + retry</strong>Token cached and auto-refreshed. Every page fetched. 429/5xx retried with backoff.</div></div>
+        <div class="ba-step gs" style="padding:14px 14px;flex:2;"><span class="ba-num" style="font-size:.7vw;width:22px;">4</span><div class="ba-text" style="font-size:.82vw;"><strong style="font-size:.88vw;">Polls import until done</strong>run_import triggers the job, polls every 2s, returns COMPLETE + row count inline</div></div>
+        <div class="ba-step gs" style="padding:14px 14px;flex:2;"><span class="ba-num" style="font-size:.7vw;width:22px;">5</span><div class="ba-text" style="font-size:.82vw;"><strong style="font-size:.88vw;">Results delivered</strong>Formatted tables and status in the conversation. Same prompt works next week.</div></div>
+        <div class="ba-time good" style="padding:12px 16px;font-size:.88vw;">Under 15 seconds &nbsp;&middot;&nbsp; reusable &nbsp;&middot;&nbsp; same prompt works tomorrow</div>
       </div>
     </div>
   </div>
@@ -396,43 +395,43 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide bg-dark" data-index="4">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">04 — For End Users</p>
+    <p class="lbl">04 -- For End Users</p>
     <h2>What End Users Can Now Do</h2>
-    <p class="sub">Business users, finance teams, planners — anyone who needs Anaplan data or needs to trigger a process</p>
+    <p class="sub">Business users, finance teams, planners -- anyone who needs Anaplan data</p>
   </div>
   <div class="body">
-    <div class="eu-intro"><strong>No API knowledge required. No model builder on standby.</strong> Ask in plain English — auth, IDs, pagination, and polling are all handled automatically. Stop waiting 48 hours for someone to pull a number.</div>
-    <div class="eu-grid">
-      <div class="eu-card">
-        <h3>Data Extraction</h3>
-        <div class="eu-desc">Pull any view's live data directly into the conversation. Works with the full transactional API — real numbers, not a stale export.</div>
-        <div class="eu-exs">
-          <div class="eu-ex">"Show me Q3 forecast numbers for EMEA by product"<span class="er">read_cells returns structured JSON, displayed as a table</span></div>
-          <div class="eu-ex">"Pull the current pricing data for all products"<span class="er">get_list_items + read_cells, paginated automatically</span></div>
+    <div class="eu-intro" style="font-size:.9vw;padding:14px 20px;"><strong>No API knowledge required. No model builder on standby.</strong> Ask in plain English -- auth, IDs, pagination, and polling are all handled automatically.</div>
+    <div class="eu-grid" style="gap:14px;">
+      <div class="eu-card" style="padding:20px 18px;">
+        <h3 style="font-size:.88vw;margin-bottom:8px;">Data Extraction</h3>
+        <div class="eu-desc" style="font-size:.8vw;">Pull any view's live data directly into the conversation. Full transactional API -- real numbers, not a stale export.</div>
+        <div class="eu-exs" style="gap:7px;">
+          <div class="eu-ex" style="font-size:.76vw;padding:9px 11px;">"Show me Q3 forecast numbers for EMEA by product"<span class="er" style="font-size:.7vw;">read_cells returns structured JSON, displayed as a table</span></div>
+          <div class="eu-ex" style="font-size:.76vw;padding:9px 11px;">"Pull the current pricing data for all products"<span class="er" style="font-size:.7vw;">get_list_items + read_cells, paginated automatically</span></div>
         </div>
       </div>
-      <div class="eu-card">
-        <h3>Running Processes &amp; Imports</h3>
-        <div class="eu-desc">Trigger imports, exports, and processes by name. No process IDs needed. Server polls until done and reports back with row counts and any errors.</div>
-        <div class="eu-exs">
-          <div class="eu-ex">"Run the January actuals import and tell me if it worked"<span class="er">run_import polls every 2s, returns COMPLETE + 1,842 rows loaded</span></div>
-          <div class="eu-ex">"Export the Forecast Summary view and save to Downloads"<span class="er">run_export completes, downloads chunks, saves to ~/Downloads</span></div>
+      <div class="eu-card" style="padding:20px 18px;">
+        <h3 style="font-size:.88vw;margin-bottom:8px;">Running Processes &amp; Imports</h3>
+        <div class="eu-desc" style="font-size:.8vw;">Trigger imports, exports, and processes by name. Server polls until done and reports back with row counts and errors.</div>
+        <div class="eu-exs" style="gap:7px;">
+          <div class="eu-ex" style="font-size:.76vw;padding:9px 11px;">"Run the January actuals import and tell me if it worked"<span class="er" style="font-size:.7vw;">run_import polls every 2s, returns COMPLETE + 1,842 rows</span></div>
+          <div class="eu-ex" style="font-size:.76vw;padding:9px 11px;">"Export the Forecast Summary and save to Downloads"<span class="er" style="font-size:.7vw;">run_export downloads chunks, saves to ~/Downloads</span></div>
         </div>
       </div>
-      <div class="eu-card">
-        <h3>Writing Data</h3>
-        <div class="eu-desc">Update cell values and list items using plain names. NameResolver maps everything to IDs before the write — no API structure knowledge needed.</div>
-        <div class="eu-exs">
-          <div class="eu-ex">"Update Cost Centre 1042's Q3 budget to 250,000"<span class="er">write_cells resolves all names, posts value with full dimension targeting</span></div>
-          <div class="eu-ex">"Add these 50 new products to the master list"<span class="er">add_list_items bulk-inserts with code, name, and all properties</span></div>
+      <div class="eu-card" style="padding:20px 18px;">
+        <h3 style="font-size:.88vw;margin-bottom:8px;">Writing Data</h3>
+        <div class="eu-desc" style="font-size:.8vw;">Update cell values and list items using plain names. NameResolver maps everything to IDs before the write.</div>
+        <div class="eu-exs" style="gap:7px;">
+          <div class="eu-ex" style="font-size:.76vw;padding:9px 11px;">"Update Cost Centre 1042's Q3 budget to 250,000"<span class="er" style="font-size:.7vw;">write_cells resolves names, posts with dimension targeting</span></div>
+          <div class="eu-ex" style="font-size:.76vw;padding:9px 11px;">"Add these 50 new products to the master list"<span class="er" style="font-size:.7vw;">add_list_items bulk-inserts with code, name, properties</span></div>
         </div>
       </div>
-      <div class="eu-card">
-        <h3>Model Q&amp;A</h3>
-        <div class="eu-desc">Ask about model structure, line item formulas, dimension assignments — without opening the Anaplan UI. Onboard to a new model in minutes, not weeks.</div>
-        <div class="eu-exs">
-          <div class="eu-ex">"What are the line items in Headcount and their formulas?"<span class="er">show_lineitems with includeAll:true returns formula, format, dimensions</span></div>
-          <div class="eu-ex">"Walk me through the modules in this model"<span class="er">show_modules + show_lineitems builds a full structural overview</span></div>
+      <div class="eu-card" style="padding:20px 18px;">
+        <h3 style="font-size:.88vw;margin-bottom:8px;">Model Q&amp;A</h3>
+        <div class="eu-desc" style="font-size:.8vw;">Ask about model structure, line item formulas, dimension assignments -- onboard to a new model in minutes, not weeks.</div>
+        <div class="eu-exs" style="gap:7px;">
+          <div class="eu-ex" style="font-size:.76vw;padding:9px 11px;">"What are the line items in Headcount and their formulas?"<span class="er" style="font-size:.7vw;">show_lineitems includeAll:true returns formula, format, dims</span></div>
+          <div class="eu-ex" style="font-size:.76vw;padding:9px 11px;">"Walk me through the modules in this model"<span class="er" style="font-size:.7vw;">show_modules + show_lineitems builds structural overview</span></div>
         </div>
       </div>
     </div>
@@ -443,42 +442,42 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide bg-dark" data-index="5">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">05 — For Admins &amp; Model Builders</p>
+    <p class="lbl">05 -- For Admins &amp; Model Builders</p>
     <h2>What Admins &amp; Model Builders Can Now Do</h2>
     <p class="sub">Workspace management, model structure, impact analysis, lifecycle, users, and calendar control</p>
   </div>
   <div class="body">
-    <div class="adm-intro"><strong>Navigate and manage your full Anaplan estate through conversation.</strong> Find models across all workspaces, audit structure, trace dependencies, and manage calendar settings — without clicking through the UI.</div>
-    <div class="adm-grid">
-      <div class="adm-card">
-        <h3>Workspace &amp; Model Discovery</h3>
-        <div class="adm-desc">List all workspaces and all models across your entire tenant. Check model status, last-saved timestamps. Cross-workspace searches in seconds.</div>
-        <div class="adm-tools"><span class="adm-t">show_workspaces</span><span class="adm-t">show_allmodels</span><span class="adm-t">show_modeldetails</span><span class="adm-t">show_modelstatus</span></div>
+    <div class="adm-intro" style="font-size:.9vw;padding:14px 20px;"><strong>Navigate and manage your full Anaplan estate through conversation.</strong> Find models across all workspaces, audit structure, trace dependencies, and manage calendar settings -- without clicking through the UI.</div>
+    <div class="adm-grid" style="gap:14px;">
+      <div class="adm-card" style="padding:20px 16px;">
+        <h3 style="font-size:.82vw;margin-bottom:7px;">Workspace &amp; Model Discovery</h3>
+        <div class="adm-desc" style="font-size:.76vw;">List all workspaces and models across your tenant. Check model status, last-saved timestamps. Cross-workspace searches in seconds.</div>
+        <div class="adm-tools" style="gap:5px;"><span class="adm-t" style="font-size:.62vw;">show_workspaces</span><span class="adm-t" style="font-size:.62vw;">show_allmodels</span><span class="adm-t" style="font-size:.62vw;">show_modeldetails</span><span class="adm-t" style="font-size:.62vw;">show_modelstatus</span></div>
       </div>
-      <div class="adm-card">
-        <h3>Model Structure &amp; Impact Analysis</h3>
-        <div class="adm-desc">Browse every module, line item, list, and dimension. Trace which modules use a given list. Find all line items referencing a specific metric.</div>
-        <div class="adm-tools"><span class="adm-t">show_modules</span><span class="adm-t">show_alllineitems</span><span class="adm-t">show_lists</span><span class="adm-t">show_lineitem_dimensions</span><span class="adm-t">show_allviews</span></div>
+      <div class="adm-card" style="padding:20px 16px;">
+        <h3 style="font-size:.82vw;margin-bottom:7px;">Model Structure &amp; Impact Analysis</h3>
+        <div class="adm-desc" style="font-size:.76vw;">Browse every module, line item, list, and dimension. Trace which modules use a given list. Find all line items referencing a specific metric.</div>
+        <div class="adm-tools" style="gap:5px;"><span class="adm-t" style="font-size:.62vw;">show_modules</span><span class="adm-t" style="font-size:.62vw;">show_alllineitems</span><span class="adm-t" style="font-size:.62vw;">show_lists</span><span class="adm-t" style="font-size:.62vw;">show_lineitem_dimensions</span><span class="adm-t" style="font-size:.62vw;">show_allviews</span></div>
       </div>
-      <div class="adm-card">
-        <h3>Model Lifecycle Management</h3>
-        <div class="adm-desc">Open and close models, bulk-delete archived models, manage current period, fiscal year, and version switchover dates.</div>
-        <div class="adm-tools"><span class="adm-t">open_model</span><span class="adm-t">close_model</span><span class="adm-t">bulk_delete_models</span><span class="adm-t">set_currentperiod</span><span class="adm-t">set_fiscalyear</span></div>
+      <div class="adm-card" style="padding:20px 16px;">
+        <h3 style="font-size:.82vw;margin-bottom:7px;">Model Lifecycle Management</h3>
+        <div class="adm-desc" style="font-size:.76vw;">Open and close models, bulk-delete archived models, manage current period, fiscal year, and version switchover dates.</div>
+        <div class="adm-tools" style="gap:5px;"><span class="adm-t" style="font-size:.62vw;">open_model</span><span class="adm-t" style="font-size:.62vw;">close_model</span><span class="adm-t" style="font-size:.62vw;">bulk_delete_models</span><span class="adm-t" style="font-size:.62vw;">set_currentperiod</span><span class="adm-t" style="font-size:.62vw;">set_fiscalyear</span></div>
       </div>
-      <div class="adm-card">
-        <h3>Users &amp; Access Audit</h3>
-        <div class="adm-desc">List all users in your tenant, look up individual user details, review the current authenticated session — useful for access audits and onboarding checks.</div>
-        <div class="adm-tools"><span class="adm-t">show_users</span><span class="adm-t">show_userdetails</span><span class="adm-t">show_currentuser</span></div>
+      <div class="adm-card" style="padding:20px 16px;">
+        <h3 style="font-size:.82vw;margin-bottom:7px;">Users &amp; Access Audit</h3>
+        <div class="adm-desc" style="font-size:.76vw;">List all users in your tenant, look up individual user details, review the current session -- useful for access audits and onboarding.</div>
+        <div class="adm-tools" style="gap:5px;"><span class="adm-t" style="font-size:.62vw;">show_users</span><span class="adm-t" style="font-size:.62vw;">show_userdetails</span><span class="adm-t" style="font-size:.62vw;">show_currentuser</span></div>
       </div>
-      <div class="adm-card">
-        <h3>Process &amp; Task History</h3>
-        <div class="adm-desc">List all imports, exports, and processes. Review task history, download failure dumps for debugging failed runs, cancel stuck tasks.</div>
-        <div class="adm-tools"><span class="adm-t">show_tasks</span><span class="adm-t">get_action_status</span><span class="adm-t">download_importdump</span><span class="adm-t">download_processdump</span><span class="adm-t">cancel_task</span></div>
+      <div class="adm-card" style="padding:20px 16px;">
+        <h3 style="font-size:.82vw;margin-bottom:7px;">Process &amp; Task History</h3>
+        <div class="adm-desc" style="font-size:.76vw;">Review task history, download failure dumps for debugging, cancel stuck tasks. Full visibility into every job that has run.</div>
+        <div class="adm-tools" style="gap:5px;"><span class="adm-t" style="font-size:.62vw;">show_tasks</span><span class="adm-t" style="font-size:.62vw;">get_action_status</span><span class="adm-t" style="font-size:.62vw;">download_importdump</span><span class="adm-t" style="font-size:.62vw;">download_processdump</span><span class="adm-t" style="font-size:.62vw;">cancel_task</span></div>
       </div>
-      <div class="adm-card">
-        <h3>Versions &amp; Calendar</h3>
-        <div class="adm-desc">Browse version metadata, set version switchover dates, inspect fiscal calendar settings — all without opening the model in the UI.</div>
-        <div class="adm-tools"><span class="adm-t">show_versions</span><span class="adm-t">set_versionswitchover</span><span class="adm-t">show_modelcalendar</span><span class="adm-t">show_currentperiod</span></div>
+      <div class="adm-card" style="padding:20px 16px;">
+        <h3 style="font-size:.82vw;margin-bottom:7px;">Versions &amp; Calendar</h3>
+        <div class="adm-desc" style="font-size:.76vw;">Browse version metadata, set switchover dates, inspect fiscal calendar -- all without opening the model in the UI.</div>
+        <div class="adm-tools" style="gap:5px;"><span class="adm-t" style="font-size:.62vw;">show_versions</span><span class="adm-t" style="font-size:.62vw;">set_versionswitchover</span><span class="adm-t" style="font-size:.62vw;">show_modelcalendar</span><span class="adm-t" style="font-size:.62vw;">show_currentperiod</span></div>
       </div>
     </div>
   </div>
@@ -488,32 +487,44 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide bg-dark" data-index="6">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">06 — The Build</p>
+    <p class="lbl">06 -- The Build</p>
     <h2>What We Built</h2>
-    <p class="sub">Complete coverage of the Anaplan Integration API v2 — 68 tools across 3 categories</p>
+    <p class="sub">Complete coverage of the Anaplan Integration API v2 -- 69 tools across 3 categories</p>
   </div>
   <div class="body">
-    <div class="wst">
-      <div class="stc"><div class="stc-n">68</div><div class="stc-l">MCP Tools</div></div>
-      <div class="stc"><div class="stc-n">16</div><div class="stc-l">API Domains</div></div>
-      <div class="stc"><div class="stc-n">3</div><div class="stc-l">Auth Providers</div></div>
-      <div class="stc"><div class="stc-n">100%</div><div class="stc-l">API v2 Coverage</div></div>
+    <div class="wst" style="gap:14px;margin-bottom:2vh;">
+      <div class="stc" style="padding:18px;">
+        <div class="stc-n" style="font-size:4vw;">69</div>
+        <div class="stc-l" style="font-size:.72vw;margin-top:6px;">MCP Tools</div>
+      </div>
+      <div class="stc" style="padding:18px;">
+        <div class="stc-n" style="font-size:4vw;">16</div>
+        <div class="stc-l" style="font-size:.72vw;margin-top:6px;">API Domains</div>
+      </div>
+      <div class="stc" style="padding:18px;">
+        <div class="stc-n" style="font-size:4vw;">3</div>
+        <div class="stc-l" style="font-size:.72vw;margin-top:6px;">Auth Providers</div>
+      </div>
+      <div class="stc" style="padding:18px;">
+        <div class="stc-n" style="font-size:4vw;">100%</div>
+        <div class="stc-l" style="font-size:.72vw;margin-top:6px;">API v2 Coverage</div>
+      </div>
     </div>
-    <div class="wcat">
-      <div class="wc">
-        <div class="wch"><div class="wcd"></div><h3>Exploration — 37 tools</h3></div>
-        <p>Read-only. Safe to use freely. Browse every resource in your Anaplan tenant.</p>
-        <div class="wct"><span class="wtg">show_workspaces</span><span class="wtg">show_models</span><span class="wtg">show_allmodels</span><span class="wtg">show_modules</span><span class="wtg">show_lineitems</span><span class="wtg">show_alllineitems</span><span class="wtg">show_lists</span><span class="wtg">show_views</span><span class="wtg">show_exports</span><span class="wtg">show_imports</span><span class="wtg">show_users</span><span class="wtg">show_versions</span><span class="wtg">show_tasks</span></div>
+    <div class="wcat" style="gap:14px;">
+      <div class="wc" style="padding:18px 16px;">
+        <div class="wch" style="margin-bottom:8px;"><div class="wcd" style="width:8px;height:8px;"></div><h3 style="font-size:.82vw;">Exploration -- 37 tools</h3></div>
+        <p style="font-size:.76vw;margin-bottom:10px;">Read-only. Safe to use freely. Browse every resource in your Anaplan tenant -- workspaces, models, modules, line items, lists, views, users, versions, and more.</p>
+        <div class="wct" style="gap:5px;"><span class="wtg" style="font-size:.6vw;">show_workspaces</span><span class="wtg" style="font-size:.6vw;">show_models</span><span class="wtg" style="font-size:.6vw;">show_allmodels</span><span class="wtg" style="font-size:.6vw;">show_modules</span><span class="wtg" style="font-size:.6vw;">show_lineitems</span><span class="wtg" style="font-size:.6vw;">show_alllineitems</span><span class="wtg" style="font-size:.6vw;">show_lists</span><span class="wtg" style="font-size:.6vw;">show_views</span><span class="wtg" style="font-size:.6vw;">show_exports</span><span class="wtg" style="font-size:.6vw;">show_imports</span><span class="wtg" style="font-size:.6vw;">show_users</span><span class="wtg" style="font-size:.6vw;">show_versions</span><span class="wtg" style="font-size:.6vw;">show_tasks</span></div>
       </div>
-      <div class="wc">
-        <div class="wch"><div class="wcd"></div><h3>Bulk Actions — 26 tools</h3></div>
-        <p>Trigger jobs, manage files, configure model settings. Polls until completion.</p>
-        <div class="wct"><span class="wtg">run_import</span><span class="wtg">run_export</span><span class="wtg">run_process</span><span class="wtg">upload_file</span><span class="wtg">download_file</span><span class="wtg">set_currentperiod</span><span class="wtg">set_fiscalyear</span><span class="wtg">open_model</span><span class="wtg">close_model</span><span class="wtg">bulk_delete_models</span><span class="wtg">cancel_task</span></div>
+      <div class="wc" style="padding:18px 16px;">
+        <div class="wch" style="margin-bottom:8px;"><div class="wcd" style="width:8px;height:8px;"></div><h3 style="font-size:.82vw;">Bulk Actions -- 27 tools</h3></div>
+        <p style="font-size:.76vw;margin-bottom:10px;">Trigger jobs, manage files, configure model settings. Automatic polling until completion. Includes large-volume reads and file upload/download.</p>
+        <div class="wct" style="gap:5px;"><span class="wtg" style="font-size:.6vw;">run_import</span><span class="wtg" style="font-size:.6vw;">run_export</span><span class="wtg" style="font-size:.6vw;">run_process</span><span class="wtg" style="font-size:.6vw;">upload_file</span><span class="wtg" style="font-size:.6vw;">download_file</span><span class="wtg" style="font-size:.6vw;">set_currentperiod</span><span class="wtg" style="font-size:.6vw;">set_fiscalyear</span><span class="wtg" style="font-size:.6vw;">open_model</span><span class="wtg" style="font-size:.6vw;">close_model</span><span class="wtg" style="font-size:.6vw;">bulk_delete_models</span><span class="wtg" style="font-size:.6vw;">cancel_task</span></div>
       </div>
-      <div class="wc">
-        <div class="wch"><div class="wcd"></div><h3>Transactional — 5 tools</h3></div>
-        <p>Cell-level reads and writes. List item mutations. Full dimension targeting.</p>
-        <div class="wct"><span class="wtg">read_cells</span><span class="wtg">write_cells</span><span class="wtg">add_list_items</span><span class="wtg">update_list_items</span><span class="wtg">delete_list_items</span></div>
+      <div class="wc" style="padding:18px 16px;">
+        <div class="wch" style="margin-bottom:8px;"><div class="wcd" style="width:8px;height:8px;"></div><h3 style="font-size:.82vw;">Transactional -- 5 tools</h3></div>
+        <p style="font-size:.76vw;margin-bottom:10px;">Cell-level reads and writes. List item mutations with full dimension targeting. Add, update, and delete list items in bulk.</p>
+        <div class="wct" style="gap:5px;"><span class="wtg" style="font-size:.6vw;">read_cells</span><span class="wtg" style="font-size:.6vw;">write_cells</span><span class="wtg" style="font-size:.6vw;">add_list_items</span><span class="wtg" style="font-size:.6vw;">update_list_items</span><span class="wtg" style="font-size:.6vw;">delete_list_items</span></div>
       </div>
     </div>
   </div>
@@ -523,29 +534,29 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide bg-dark" data-index="7">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">07 — How It Works</p>
+    <p class="lbl">07 -- How It Works</p>
     <h2>Architecture</h2>
-    <p class="sub">Three layers under src/ — each with a single responsibility</p>
+    <p class="sub">Three layers under src/ -- each with a single responsibility</p>
   </div>
   <div class="body">
-    <div class="arch">
+    <div class="arch" style="gap:10px;">
       <div class="al tools">
-        <div class="al-l"><div class="ln">Tools Layer</div><div class="lf">exploration.ts<br>bulk.ts<br>transactional.ts</div></div>
-        <div class="al-d">68 MCP tools registered on McpServer. zod-validated input params. formatTable() returns markdown tables as separate content blocks. All list tools include offset / limit / search.</div>
-        <div class="al-e">Naming: show_ for exploration, run_/set_/create_/delete_ for bulk, direct verbs for transactional. Polymorphic tools (show_tasks, cancel_task) route via actionType param.</div>
+        <div class="al-l" style="padding:14px 16px;"><div class="ln" style="font-size:.85vw;">Tools Layer</div><div class="lf" style="font-size:.64vw;">exploration.ts<br>bulk.ts<br>transactional.ts</div></div>
+        <div class="al-d" style="font-size:.78vw;padding:14px 18px;">69 MCP tools registered on McpServer. zod-validated input params. formatTable() returns markdown tables as separate content blocks. All list tools include limit and search filtering. Built-in orchestration guide resource teaches AI the correct tool sequences.</div>
+        <div class="al-e" style="font-size:.72vw;padding:14px 18px;">Naming: show_ for exploration, run_/set_/create_/delete_ for bulk, direct verbs for transactional. Polymorphic tools route via actionType param.</div>
       </div>
       <div class="al api">
-        <div class="al-l"><div class="ln">API Layer</div><div class="lf">client.ts<br>+ 16 wrappers</div></div>
-        <div class="al-d">AnaplanClient handles all HTTP to api.anaplan.com/2/0/. Retry on 429 (Retry-After) and 5xx — 3 attempts, exponential backoff 1s to 4s. getAll() auto-paginates. getRaw() for CSV chunks.</div>
-        <div class="al-e">16 domains: Workspaces, Models, Modules, Lists, Imports, Exports, Processes, Files, Actions, Transactional, Dimensions, ModelManagement, Calendar, Versions, Users, LargeReads.</div>
+        <div class="al-l" style="padding:14px 16px;"><div class="ln" style="font-size:.85vw;">API Layer</div><div class="lf" style="font-size:.64vw;">client.ts<br>+ 16 wrappers</div></div>
+        <div class="al-d" style="font-size:.78vw;padding:14px 18px;">AnaplanClient handles all HTTP to api.anaplan.com/2/0/. Retry on 429 (Retry-After) and 5xx -- 3 attempts, exponential backoff 1s to 4s. getAll() auto-paginates. getRaw() for CSV chunks.</div>
+        <div class="al-e" style="font-size:.72vw;padding:14px 18px;">16 domains: Workspaces, Models, Modules, Lists, Imports, Exports, Processes, Files, Actions, Transactional, Dimensions, ModelMgmt, Calendar, Versions, Users, LargeReads.</div>
       </div>
       <div class="al auth">
-        <div class="al-l"><div class="ln">Auth Layer</div><div class="lf">basic.ts<br>certificate.ts<br>oauth.ts</div></div>
-        <div class="al-d">AuthManager selects provider by env var priority: certificate over OAuth over basic. Caches token, schedules auto-refresh 5 minutes before the 35-minute Anaplan expiry. Zero manual management.</div>
-        <div class="al-e">OAuth: device grant (interactive, opens browser) or authorization code grant (non-interactive). Certificate: PEM cert + private key path via env vars.</div>
+        <div class="al-l" style="padding:14px 16px;"><div class="ln" style="font-size:.85vw;">Auth Layer</div><div class="lf" style="font-size:.64vw;">basic.ts<br>certificate.ts<br>oauth.ts</div></div>
+        <div class="al-d" style="font-size:.78vw;padding:14px 18px;">AuthManager selects provider by env var priority: certificate > OAuth > basic. Caches token, schedules auto-refresh 5 min before the 35-min Anaplan expiry. Zero manual management.</div>
+        <div class="al-e" style="font-size:.72vw;padding:14px 18px;">OAuth: device grant (interactive) or authorization code grant (non-interactive). Certificate: PEM cert + private key via env vars.</div>
       </div>
     </div>
-    <div class="arch-res">NameResolver spans all layers — accepts "Q4 Forecast" or raw 32-char hex IDs. Resolves workspace then model then module sequentially. Case-insensitive, 5-min in-memory cache.</div>
+    <div class="arch-res" style="font-size:.78vw;padding:12px 16px;margin-top:10px;">NameResolver spans all layers -- accepts "Q4 Forecast" or raw 32-char hex IDs. Sequential resolution: workspace then model then module. Case-insensitive, 5-min in-memory cache. Orchestration guide resource provides multi-step workflow patterns to the AI.</div>
   </div>
 </div>
 
@@ -553,36 +564,36 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide bg-dark" data-index="8">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">08 — Technical Depth</p>
+    <p class="lbl">08 -- Technical Depth</p>
     <h2>Under the Hood</h2>
     <p class="sub">The engineering details that make this production-ready, not a prototype</p>
   </div>
   <div class="body">
-    <div class="hood">
-      <div class="hp">
-        <h3>Retry &amp; Resilience</h3>
-        <div class="hi">
-          <div class="ht">Exponential backoff on 5xx — 3 attempts</div>
-          <div class="hb">Delays: 1s, 2s, 4s. 429s honour the Retry-After header exactly. No silent failures — errors surface with context.</div>
-          <div class="hc"><span class="cf">// client.ts</span><br><span class="cb">if</span> (res.status === <span class="cg">429</span>) {<br>&nbsp;&nbsp;<span class="cb">const</span> wait = retryAfter ?? <span class="cg">1000</span> * <span class="cg">2</span>**attempt;<br>&nbsp;&nbsp;<span class="ct">await</span> sleep(wait);<br>}</div>
+    <div class="hood" style="gap:22px;">
+      <div class="hp" style="gap:12px;">
+        <h3 style="font-size:.85vw;padding-bottom:8px;">Retry &amp; Resilience</h3>
+        <div class="hi" style="padding:14px 16px;">
+          <div class="ht" style="font-size:.82vw;margin-bottom:6px;">Exponential backoff on 5xx -- 3 attempts</div>
+          <div class="hb" style="font-size:.76vw;">Delays: 1s, 2s, 4s. 429s honour the Retry-After header exactly. No silent failures -- errors surface with full context.</div>
+          <div class="hc" style="font-size:.66vw;padding:8px 10px;margin-top:8px;"><span class="cf">// client.ts</span><br><span class="cb">if</span> (res.status === <span class="cg">429</span>) {<br>&nbsp;&nbsp;<span class="cb">const</span> wait = retryAfter ?? <span class="cg">1000</span> * <span class="cg">2</span>**attempt;<br>&nbsp;&nbsp;<span class="ct">await</span> sleep(wait);<br>}</div>
         </div>
-        <div class="hi">
-          <div class="ht">Auto-pagination with getAll()</div>
-          <div class="hb">Fetches every page using meta.paging. Guards against Anaplan returning undefined (not []) for empty arrays. Supports fallback key arrays for inconsistent response shapes.</div>
-          <div class="hc"><span class="cf">// keeps fetching until no next page</span><br><span class="cb">while</span> (meta?.paging?.nextPage) {<br>&nbsp;&nbsp;offset += limit;<br>&nbsp;&nbsp;results.push(...<span class="ct">await</span> fetch(offset));<br>}</div>
+        <div class="hi" style="padding:14px 16px;">
+          <div class="ht" style="font-size:.82vw;margin-bottom:6px;">Auto-pagination with getAll()</div>
+          <div class="hb" style="font-size:.76vw;">Fetches every page using meta.paging. Guards against Anaplan returning undefined (not []) for empty arrays. Supports fallback key arrays for inconsistent response shapes.</div>
+          <div class="hc" style="font-size:.66vw;padding:8px 10px;margin-top:8px;"><span class="cf">// keeps fetching until no next page</span><br><span class="cb">while</span> (meta?.paging?.nextPage) {<br>&nbsp;&nbsp;offset += limit;<br>&nbsp;&nbsp;results.push(...<span class="ct">await</span> fetch(offset));<br>}</div>
         </div>
       </div>
-      <div class="hp">
-        <h3>Auth &amp; Token Lifecycle</h3>
-        <div class="hi">
-          <div class="ht">Token auto-refresh — never expired mid-request</div>
-          <div class="hb">35-min Anaplan token lifetime. AuthManager schedules refresh 5 min early. Long-running operations never hit a 401 mid-way through.</div>
-          <div class="hc"><span class="cf">// manager.ts</span><br>refreshAt = expiresAt - <span class="cg">5 * 60 * 1000</span>;<br>setTimeout(refresh, refreshAt - Date.now());</div>
+      <div class="hp" style="gap:12px;">
+        <h3 style="font-size:.85vw;padding-bottom:8px;">Auth &amp; Token Lifecycle</h3>
+        <div class="hi" style="padding:14px 16px;">
+          <div class="ht" style="font-size:.82vw;margin-bottom:6px;">Token auto-refresh -- never expired mid-request</div>
+          <div class="hb" style="font-size:.76vw;">35-min Anaplan token lifetime. AuthManager schedules refresh 5 min early. Long-running operations never hit a 401 mid-way through.</div>
+          <div class="hc" style="font-size:.66vw;padding:8px 10px;margin-top:8px;"><span class="cf">// manager.ts</span><br>refreshAt = expiresAt - <span class="cg">5 * 60 * 1000</span>;<br>setTimeout(refresh, refreshAt - Date.now());</div>
         </div>
-        <div class="hi">
-          <div class="ht">Name to ID resolution with caching</div>
-          <div class="hb">Every tool accepts plain names. Sequential resolution: workspace then model then module. Results cached 5 min to avoid redundant API calls per conversation turn.</div>
-          <div class="hc"><span class="ct">const</span> wId = <span class="cb">await</span> resolver.resolveWorkspace(workspaceId);<br><span class="ct">const</span> mId = <span class="cb">await</span> resolver.resolveModel(wId, modelId);<br><span class="cf">// mId is now the 32-char hex ID</span></div>
+        <div class="hi" style="padding:14px 16px;">
+          <div class="ht" style="font-size:.82vw;margin-bottom:6px;">Name to ID resolution with caching</div>
+          <div class="hb" style="font-size:.76vw;">Every tool accepts plain names. Sequential resolution: workspace then model then module. Results cached 5 min to avoid redundant API calls.</div>
+          <div class="hc" style="font-size:.66vw;padding:8px 10px;margin-top:8px;"><span class="ct">const</span> wId = <span class="cb">await</span> resolver.resolveWorkspace(workspaceId);<br><span class="ct">const</span> mId = <span class="cb">await</span> resolver.resolveModel(wId, modelId);<br><span class="cf">// mId is now the 32-char hex ID</span></div>
         </div>
       </div>
     </div>
@@ -593,28 +604,40 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide bg-dark" data-index="9">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">09 — Governance</p>
+    <p class="lbl">09 -- Governance</p>
     <h2>Security &amp; Safety</h2>
     <p class="sub">What stays local, what never leaves, and what the AI can and cannot do</p>
   </div>
   <div class="body">
-    <div class="sec">
-      <div class="sc">
-        <div class="scard"><h3>Credentials never leave your machine</h3><p>Server runs as a local subprocess over stdio. Your Anaplan credentials are used directly in API calls — never sent to Claude's servers or any cloud relay.</p></div>
-        <div class="scard"><h3>Explicit intent required for writes</h3><p>37 exploration tools are fully read-only. Write tools and job triggers only fire when the AI explicitly calls them — with visible parameters you can review and approve before execution.</p></div>
-        <div class="scard"><h3>Your existing credentials and permissions</h3><p>No new service accounts, no elevated access. The server operates within whatever Anaplan permissions your account already has. Least-privilege credentials recommended.</p></div>
-        <div class="scard"><h3>Open source and fully auditable</h3><p>The entire codebase is open source on GitHub. Every API call the server makes is visible in the source and appears as a tool call in the AI chat before it runs.</p></div>
+    <div class="sec" style="gap:22px;">
+      <div class="sc" style="gap:12px;">
+        <div class="scard" style="padding:16px 18px;">
+          <h3 style="font-size:.88vw;margin-bottom:6px;">Credentials never leave your machine</h3>
+          <p style="font-size:.78vw;">Server runs as a local subprocess over stdio. Your Anaplan credentials are used directly in API calls -- never sent to Claude's servers or any cloud relay.</p>
+        </div>
+        <div class="scard" style="padding:16px 18px;">
+          <h3 style="font-size:.88vw;margin-bottom:6px;">Explicit intent required for writes</h3>
+          <p style="font-size:.78vw;">37 exploration tools are fully read-only. Write tools and job triggers only fire when the AI explicitly calls them -- with visible parameters you can review and approve.</p>
+        </div>
+        <div class="scard" style="padding:16px 18px;">
+          <h3 style="font-size:.88vw;margin-bottom:6px;">Your existing credentials and permissions</h3>
+          <p style="font-size:.78vw;">No new service accounts, no elevated access. The server operates within whatever Anaplan permissions your account already has.</p>
+        </div>
+        <div class="scard" style="padding:16px 18px;">
+          <h3 style="font-size:.88vw;margin-bottom:6px;">Open source and fully auditable</h3>
+          <p style="font-size:.78vw;">The entire codebase is open source on GitHub. Every API call appears as a tool call in the AI chat before it runs.</p>
+        </div>
       </div>
-      <div class="sc">
-        <div class="sdg">
-          <div class="sdt">Data Flow — What Goes Where</div>
-          <div class="srow"><div class="sl">Anaplan credentials (username / password / cert / OAuth)</div><div class="sb local">Local only</div></div>
-          <div class="srow"><div class="sl">Auth token (Anaplan JWT, 35-min lifetime)</div><div class="sb auto">Auto-refreshed</div></div>
-          <div class="srow"><div class="sl">Credentials sent to Claude / Anthropic</div><div class="sb never">Never</div></div>
-          <div class="srow"><div class="sl">MCP server process location</div><div class="sb local">Local stdio</div></div>
-          <div class="srow"><div class="sl">Tool call parameters (IDs, values, workspace names)</div><div class="sb local">Visible in chat</div></div>
-          <div class="srow"><div class="sl">Anaplan model data in API responses</div><div class="sb local">Local only</div></div>
-          <div class="srow"><div class="sl">Write / run operations</div><div class="sb local">Requires approval</div></div>
+      <div class="sc" style="gap:12px;">
+        <div class="sdg" style="padding:18px 18px;gap:10px;">
+          <div class="sdt" style="font-size:.75vw;margin-bottom:4px;">Data Flow -- What Goes Where</div>
+          <div class="srow" style="padding:10px 12px;"><div class="sl" style="font-size:.76vw;">Anaplan credentials (username / password / cert / OAuth)</div><div class="sb local" style="font-size:.64vw;padding:3px 9px;">Local only</div></div>
+          <div class="srow" style="padding:10px 12px;"><div class="sl" style="font-size:.76vw;">Auth token (Anaplan JWT, 35-min lifetime)</div><div class="sb auto" style="font-size:.64vw;padding:3px 9px;">Auto-refreshed</div></div>
+          <div class="srow" style="padding:10px 12px;"><div class="sl" style="font-size:.76vw;">Credentials sent to Claude / Anthropic</div><div class="sb never" style="font-size:.64vw;padding:3px 9px;">Never</div></div>
+          <div class="srow" style="padding:10px 12px;"><div class="sl" style="font-size:.76vw;">MCP server process location</div><div class="sb local" style="font-size:.64vw;padding:3px 9px;">Local stdio</div></div>
+          <div class="srow" style="padding:10px 12px;"><div class="sl" style="font-size:.76vw;">Tool call parameters (IDs, values, names)</div><div class="sb local" style="font-size:.64vw;padding:3px 9px;">Visible in chat</div></div>
+          <div class="srow" style="padding:10px 12px;"><div class="sl" style="font-size:.76vw;">Anaplan model data in API responses</div><div class="sb local" style="font-size:.64vw;padding:3px 9px;">Local only</div></div>
+          <div class="srow" style="padding:10px 12px;"><div class="sl" style="font-size:.76vw;">Write / run operations</div><div class="sb local" style="font-size:.64vw;padding:3px 9px;">Requires approval</div></div>
         </div>
       </div>
     </div>
@@ -625,36 +648,36 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide bg-dark" data-index="10">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">10 — Setup</p>
+    <p class="lbl">10 -- Setup</p>
     <h2>Getting Started</h2>
-    <p class="sub">Three steps — running in under 5 minutes</p>
+    <p class="sub">Three steps -- running in under 5 minutes</p>
   </div>
   <div class="body">
-    <div class="gss">
-      <div class="gst">
-        <div class="sn">01</div>
-        <h3>Install &amp; Build</h3>
-        <p>Clone the repo, install dependencies, compile TypeScript.</p>
-        <div class="cb"><span class="cc"># clone and build</span><br>git clone github.com/<br>larasrinath/anaplan-mcp<br>npm install<br>npm run build</div>
+    <div class="gss" style="gap:16px;margin-bottom:2vh;">
+      <div class="gst" style="padding:18px 16px;">
+        <div class="sn" style="font-size:2vw;">01</div>
+        <h3 style="font-size:.88vw;margin-bottom:7px;">Install &amp; Build</h3>
+        <p style="font-size:.76vw;margin-bottom:10px;">Clone the repo, install dependencies, compile TypeScript.</p>
+        <div class="cb" style="font-size:.66vw;padding:12px 14px;"><span class="cc"># clone and build</span><br>git clone github.com/<br>larasrinath/anaplan-mcp<br>npm install<br>npm run build</div>
       </div>
-      <div class="gst">
-        <div class="sn">02</div>
-        <h3>Set Credentials</h3>
-        <p>Add your Anaplan auth to the Claude Desktop config. One env block — basic, cert, or OAuth.</p>
-        <div class="cb"><span class="cc">// claude_desktop_config.json</span><br>{<br>&nbsp;<span class="cs">"mcpServers"</span>: {<br>&nbsp;&nbsp;<span class="cs">"anaplan"</span>: {<br>&nbsp;&nbsp;&nbsp;<span class="cs">"command"</span>: <span class="cv">"node"</span>,<br>&nbsp;&nbsp;&nbsp;<span class="cs">"args"</span>: [<span class="cv">"dist/index.js"</span>],<br>&nbsp;&nbsp;&nbsp;<span class="cs">"env"</span>: {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cs">"ANAPLAN_USERNAME"</span>: <span class="cv">"..."</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cs">"ANAPLAN_PASSWORD"</span>: <span class="cv">"..."</span><br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;}<br>&nbsp;}<br>}</div>
+      <div class="gst" style="padding:18px 16px;">
+        <div class="sn" style="font-size:2vw;">02</div>
+        <h3 style="font-size:.88vw;margin-bottom:7px;">Set Credentials</h3>
+        <p style="font-size:.76vw;margin-bottom:10px;">Add your Anaplan auth to the Claude Desktop config. One env block.</p>
+        <div class="cb" style="font-size:.66vw;padding:12px 14px;"><span class="cc">// claude_desktop_config.json</span><br>{<br>&nbsp;<span class="cs">"mcpServers"</span>: {<br>&nbsp;&nbsp;<span class="cs">"anaplan"</span>: {<br>&nbsp;&nbsp;&nbsp;<span class="cs">"command"</span>: <span class="cv">"node"</span>,<br>&nbsp;&nbsp;&nbsp;<span class="cs">"args"</span>: [<span class="cv">"dist/index.js"</span>],<br>&nbsp;&nbsp;&nbsp;<span class="cs">"env"</span>: {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cs">"ANAPLAN_USERNAME"</span>: <span class="cv">"..."</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cs">"ANAPLAN_PASSWORD"</span>: <span class="cv">"..."</span><br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;}<br>&nbsp;}<br>}</div>
       </div>
-      <div class="gst">
-        <div class="sn">03</div>
-        <h3>Start Talking to Anaplan</h3>
-        <p>Restart Claude Desktop. All 68 tools are immediately available.</p>
-        <div class="cb"><span class="cc"># In Claude, try:</span><br><br><span class="cg">"Show me all workspaces"</span><br><br><span class="cg">"List models in EMEA"</span><br><br><span class="cg">"Run the Q1 close process"</span><br><br><span class="cg">"What modules are in this model?"</span></div>
+      <div class="gst" style="padding:18px 16px;">
+        <div class="sn" style="font-size:2vw;">03</div>
+        <h3 style="font-size:.88vw;margin-bottom:7px;">Start Talking to Anaplan</h3>
+        <p style="font-size:.76vw;margin-bottom:10px;">Restart Claude Desktop. All 69 tools are immediately available.</p>
+        <div class="cb" style="font-size:.66vw;padding:12px 14px;"><span class="cc"># In Claude, try:</span><br><br><span class="cg">"Show me all workspaces"</span><br><br><span class="cg">"List models in EMEA"</span><br><br><span class="cg">"Run the Q1 close process"</span><br><br><span class="cg">"What modules are in this model?"</span></div>
       </div>
     </div>
-    <div class="gsc">
-      <div class="gci"><div class="gi">&#x1F916;</div><div class="gn">Claude Desktop</div><div class="gs">Supported</div></div>
-      <div class="gci"><div class="gi">&#x1F4BB;</div><div class="gn">Claude Code</div><div class="gs">Supported</div></div>
-      <div class="gci"><div class="gi">&#x26A1;</div><div class="gn">Cursor</div><div class="gs">Supported</div></div>
-      <div class="gci"><div class="gi">&#x1F527;</div><div class="gn">Any MCP Host</div><div class="gs">Open standard</div></div>
+    <div class="gsc" style="gap:12px;">
+      <div class="gci" style="padding:14px 14px;"><div class="gi" style="font-size:1.8vw;">&#x1F916;</div><div class="gn" style="font-size:.78vw;">Claude Desktop</div><div class="gs" style="font-size:.66vw;">Supported</div></div>
+      <div class="gci" style="padding:14px 14px;"><div class="gi" style="font-size:1.8vw;">&#x1F4BB;</div><div class="gn" style="font-size:.78vw;">Claude Code</div><div class="gs" style="font-size:.66vw;">Supported</div></div>
+      <div class="gci" style="padding:14px 14px;"><div class="gi" style="font-size:1.8vw;">&#x26A1;</div><div class="gn" style="font-size:.78vw;">Cursor</div><div class="gs" style="font-size:.66vw;">Supported</div></div>
+      <div class="gci" style="padding:14px 14px;"><div class="gi" style="font-size:1.8vw;">&#x1F527;</div><div class="gn" style="font-size:.78vw;">Any MCP Host</div><div class="gs" style="font-size:.66vw;">Open standard</div></div>
     </div>
   </div>
 </div>
@@ -663,43 +686,45 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="slide bg-dark" data-index="11">
   <div class="rail"></div>
   <div class="hdr">
-    <p class="lbl">11 — What's Next</p>
+    <p class="lbl">11 -- What's Next</p>
     <h2>Roadmap</h2>
-    <p class="sub">Integration API v2 fully covered. Four expansion phases using the same infrastructure.</p>
+    <p class="sub">Integration API v2 fully covered. Next: a safe version for end users, then API expansion.</p>
   </div>
   <div class="body">
-    <div class="rmr">
-      <div class="rmc" style="opacity:.5; border-left:4px solid var(--green);">
+    <div class="rmr" style="grid-template-columns:repeat(3,1fr);gap:16px;">
+      <div class="rmc" style="opacity:.5;border-left:4px solid var(--green);padding:20px 16px;">
         <div class="rmb"></div>
-        <div class="rn">Phase 1 — Complete</div>
-        <h3>Integration API v2</h3>
-        <p>68 tools across 16 domains. Full CRUD, job execution, large-volume reads, all three auth providers, name resolution.</p>
-        <div class="rm-apis"><span class="rm-api">api.anaplan.com/2/0/</span></div>
-        <span class="done-b">Done</span>
+        <div class="rn" style="font-size:.64vw;">Phase 1 -- Done</div>
+        <h3 style="font-size:.95vw;margin-bottom:10px;">Full Integration API v2</h3>
+        <p style="font-size:.78vw;line-height:1.65;">69 tools across 16 API domains. Full CRUD, job execution, large-volume reads, three auth providers, name resolution, orchestration guide resource, and state filtering.</p>
+        <div class="rm-apis" style="gap:5px;margin-top:10px;"><span class="rm-api" style="font-size:.64vw;">api.anaplan.com/2/0/</span></div>
+        <span class="done-b" style="font-size:.64vw;padding:4px 10px;margin-top:10px;">Done</span>
       </div>
-      <div class="rmc">
+      <div class="rmc" style="padding:20px 16px;">
         <div class="rmb"></div>
-        <div class="rn">Phase 2 — Next</div>
-        <h3>ALM API</h3>
-        <p>Application Lifecycle Management. Deploy, promote, and synchronise models across environments. Compare and restore versions.</p>
-        <div class="rm-apis"><span class="rm-api">api.anaplan.com/2/0/</span></div>
+        <div class="rn" style="font-size:.64vw;">Phase 2 -- Next</div>
+        <h3 style="font-size:.95vw;margin-bottom:10px;">End-User Safe Mode</h3>
+        <p style="font-size:.78vw;line-height:1.65;">A restricted MCP server for business users. Read-only exploration, data extraction, and process execution -- no delete actions, no bulk model operations, no calendar mutations. Safe to hand to anyone on the team.</p>
+        <div class="rm-apis" style="gap:5px;margin-top:10px;">
+          <span class="rm-api" style="font-size:.64vw;">Exploration tools only</span>
+          <span class="rm-api" style="font-size:.64vw;">read_cells + run_export</span>
+          <span class="rm-api" style="font-size:.64vw;">No write/delete/admin</span>
+        </div>
       </div>
-      <div class="rmc">
+      <div class="rmc" style="padding:20px 16px;">
         <div class="rmb"></div>
-        <div class="rn">Phase 3</div>
-        <h3>SCIM API</h3>
-        <p>User and Group Provisioning. Automate onboarding, deprovisioning, and role management for Anaplan users at scale.</p>
-        <div class="rm-apis"><span class="rm-api">api.anaplan.com/scim/1/0/v2/</span></div>
-      </div>
-      <div class="rmc">
-        <div class="rmb"></div>
-        <div class="rn">Phases 4 and 5</div>
-        <h3>CloudWorks + Audit</h3>
-        <p>Integration scheduling and orchestration via CloudWorks, and full compliance event log querying via the Audit API.</p>
-        <div class="rm-apis"><span class="rm-api">api.cloudworks.anaplan.com</span><span class="rm-api">audit.anaplan.com</span></div>
+        <div class="rn" style="font-size:.64vw;">Phase 3 -- Parallel</div>
+        <h3 style="font-size:.95vw;margin-bottom:10px;">API Expansion</h3>
+        <p style="font-size:.78vw;line-height:1.65;">ALM (model lifecycle), SCIM (user provisioning), CloudWorks (integration scheduling), and Audit (compliance logs). Each uses the same auth infrastructure -- parallel development, different base URLs.</p>
+        <div class="rm-apis" style="gap:5px;margin-top:10px;">
+          <span class="rm-api" style="font-size:.64vw;">ALM</span>
+          <span class="rm-api" style="font-size:.64vw;">SCIM</span>
+          <span class="rm-api" style="font-size:.64vw;">CloudWorks</span>
+          <span class="rm-api" style="font-size:.64vw;">Audit</span>
+        </div>
       </div>
     </div>
-    <div class="rm-foot">All phases reuse the existing AuthManager, AnaplanClient, and NameResolver — they only differ by base URL. Parallel development is possible.</div>
+    <div class="rm-foot" style="font-size:.78vw;padding:13px 18px;margin-top:1.8vh;">End-user mode reuses the same codebase with a restricted tool set. API expansion phases share AuthManager and AnaplanClient -- only the base URL differs.</div>
   </div>
 </div>
 
@@ -713,14 +738,13 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   </div>
   <div class="qa-c">
     <div class="qa-w">Q&amp;A</div>
-    <p class="qa-t">Thank you.</p>
-    <p class="qa-l">github.com/larasrinath/anaplan-mcp</p>
-    <p class="qa-n">Lara Srinath &nbsp;&#183;&nbsp; Platform Engineering</p>
+    <p class="qa-t" style="font-size:1.5vw;">Thank you.</p>
+    <p class="qa-l" style="font-size:.95vw;">github.com/larasrinath/anaplan-mcp</p>
+    <p class="qa-n" style="font-size:.8vw;">Lara Srinath &nbsp;&#183;&nbsp; Platform Engineering</p>
   </div>
 </div>
 
 </div>
-
 <script>
 const slides = document.querySelectorAll('.slide');
 const curEl  = document.getElementById('cur');
