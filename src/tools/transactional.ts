@@ -5,7 +5,7 @@ import type { NameResolver } from "../resolver.js";
 
 // Cell write dimensions max: 21 per intersection (ls21)
 export function registerTransactionalTools(server: McpServer, api: TransactionalApi, resolver: NameResolver) {
-  server.tool("read_cells", "Read cell data from a module view. Use the pages param to select specific page dimensions (get dimensionId/itemId from show_viewdetails and show_viewdimensionitems). viewId can be a saved view (from show_savedviews) or moduleId (default view). For >1M cells, use create_view_readrequest instead.", {
+  server.tool("read_cells", "Read cell data from a module view. Use pages param to select specific page dimensions. For reports across ALL products/customers, use run_export instead -- do NOT call read_cells in a loop per item. viewId can be a saved view or moduleId (default). For >1M cells, use create_view_readrequest.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     moduleId: z.string().describe("Module ID or name"),

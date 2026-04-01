@@ -61,7 +61,7 @@ function defaultExportFileName(exportName: string, exportFormat?: string): strin
 }
 
 export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: NameResolver) {
-  server.tool("run_export", "Execute an export and return the data inline. Handles the full run-wait-download lifecycle. Use show_exports first to find the exportId.", {
+  server.tool("run_export", "Execute an export and return the data inline. Best for bulk reports across all products/customers/regions -- prefer this over calling read_cells in a loop. Handles the full run-wait-download lifecycle. Use show_exports first.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     exportId: z.string().describe("Export action ID or name"),
