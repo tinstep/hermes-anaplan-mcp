@@ -7,7 +7,7 @@
 # Anaplan MCP
 ### Unofficial MCP server for Anaplan
 
-A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that connects AI assistants to Anaplan's Integration API v2. Gives LLMs like Claude direct access to browse workspaces, manage data, run imports/exports, and administer models through 69 structured tools, using your existing Anaplan credentials and permissions.
+A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that connects AI assistants to Anaplan's Integration API v2. Gives LLMs like Claude direct access to browse workspaces, manage data, run imports/exports, and administer models through 70 structured tools, using your existing Anaplan credentials and permissions.
 
 Built in TypeScript. Runs over stdio. Works with Claude Desktop, Claude Code, and any MCP-compatible client. Includes a built-in orchestration guide that teaches the AI assistant the correct tool sequences for every workflow.
 
@@ -15,7 +15,7 @@ Built in TypeScript. Runs over stdio. Works with Claude Desktop, Claude Code, an
 
 **Anaplan's Integration API is powerful but requires technical expertise to use directly.** Most teams rely on a handful of model builders to navigate complex models, extract data, and run imports - creating bottlenecks when others need access to the same information.
 
-This server wraps the API in 68 structured tools that AI assistants like Claude can call on your behalf. Explore models, pull data, run actions, and onboard new team members - all by asking in plain English instead of writing API calls or waiting for someone who knows the model.
+This server wraps the API in 70 structured tools that AI assistants like Claude can call on your behalf. Explore models, pull data, run actions, and onboard new team members - all by asking in plain English instead of writing API calls or waiting for someone who knows the model.
 
 **For business users:** Stop waiting for someone to pull data or explain how a model works. Ask Claude to show you the numbers, walk you through module structure, or run your regular imports.
 
@@ -211,7 +211,7 @@ You only need one set of credentials. If multiple are configured, the server pic
 
 ### What the server can do
 
-This server has **full access** to whatever your Anaplan credentials allow. The 69 tools cover both read and write operations:
+This server has **full access** to whatever your Anaplan credentials allow. The 70 tools cover both read and write operations:
 
 - **Read-only tools** (safe to use freely): `show_*` tools, `read_cells`, `get_list_items`, `download_file`, `get_action_status`
 - **Write tools** (modify data): `write_cells`, `add_list_items`, `update_list_items`, `delete_list_items`
@@ -274,7 +274,7 @@ Claude Desktop prompts you before each tool call. You'll see the tool name and p
 | `show_userdetails` | Get user details by ID<br>`GET /users/{userId}` |
 | `show_tasks` | List task history for imports/exports/processes/actions<br>`GET /workspaces/{workspaceId}/models/{modelId}/{actionType}/{actionId}/tasks` |
 
-### Bulk Data Operations (27 tools)
+### Bulk Data Operations (28 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -305,6 +305,7 @@ Claude Desktop prompts you before each tool call. You'll see the tool name and p
 | `get_list_readrequest_page` | Download a CSV page from list read request<br>`GET .../lists/{listId}/readRequests/{requestId}/pages/{pageNo}` |
 | `delete_list_readrequest` | Delete large-volume list read request<br>`DELETE .../lists/{listId}/readRequests/{requestId}` |
 | `reset_list_index` | Reset list item index numbering<br>`POST /models/{modelId}/lists/{listId}/resetIndex` |
+| `download_optimizer_log` | Download Optimizer solver log for a completed action<br>`GET .../optimizeActions/{actionId}/tasks/{correlationId}/solutionLogs` |
 
 ### Transactional Operations (5 tools)
 

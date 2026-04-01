@@ -16,7 +16,7 @@ npx vitest run src/auth/basic.test.ts -t "name" # Run single test by name
 
 ## Architecture
 
-MCP server for Anaplan's Integration API v2. 68 tools, stdio transport, TypeScript ESM-only.
+MCP server for Anaplan's Integration API v2. 70 tools, stdio transport, TypeScript ESM-only.
 
 Three layers, all under `src/`:
 
@@ -26,7 +26,7 @@ Three layers, all under `src/`:
 
 - **tools/** - MCP tool registration on `McpServer`. Three files: `exploration.ts` (37 tools), `bulk.ts` (26 tools), `transactional.ts` (5 tools). Each tool uses zod-validated params. All list tools accept optional `offset`, `limit` (default 10, max 50), and `search` (case-insensitive substring on name/ID) params. List tools return markdown tables via `formatTable()` from `format.ts` which returns `{ table, footer }` as separate MCP content blocks. To discover all tool names, grep for `server.tool(` across the three files.
 
-- **resolver.ts** - `NameResolver` class lets all 68 tools accept human-readable names alongside raw Anaplan IDs (32-char hex). Detects IDs via `/^[0-9a-fA-F]{24,}$/`, resolves names by calling the corresponding list API, caches results in-memory with 5-minute TTL. Case-insensitive matching.
+- **resolver.ts** - `NameResolver` class lets all 70 tools accept human-readable names alongside raw Anaplan IDs (32-char hex). Detects IDs via `/^[0-9a-fA-F]{24,}$/`, resolves names by calling the corresponding list API, caches results in-memory with 5-minute TTL. Case-insensitive matching.
 
 - **transport/** - `CompatibleStdioServerTransport` in `compatibleStdio.ts` handles both content-length framed and line-delimited JSON-RPC over stdio, auto-detecting the framing mode.
 
@@ -131,7 +131,7 @@ The server registers an MCP resource at `anaplan://orchestration-guide` that Cla
 
 ## Planned API Expansion
 
-Integration API v2 is fully covered (68 tools). See `docs/plans/api-roadmap.md` for the full roadmap. Next phases add ALM, SCIM, CloudWorks, and Audit APIs - all use the same auth token from `AuthManager`. These phases can be developed in parallel since they use different base URLs and don't share wiring files.
+Integration API v2 is fully covered (70 tools). See `docs/plans/api-roadmap.md` for the full roadmap. Next phases add ALM, SCIM, CloudWorks, and Audit APIs - all use the same auth token from `AuthManager`. These phases can be developed in parallel since they use different base URLs and don't share wiring files.
 
 Different base URLs:
 - ALM: same as Integration API (`https://api.anaplan.com/2/0/`)
