@@ -118,6 +118,17 @@ When adding tools, follow these patterns:
 - OAuth device flow: `https://us1a.app.anaplan.com/oauth/device/code`
 - OAuth token: `https://us1a.app.anaplan.com/oauth/token`
 
+## Orchestration Guide Resource
+
+The server registers an MCP resource at `anaplan://orchestration-guide` that Claude reads automatically to understand tool workflows. The guide content lives in `src/resources/orchestration-guide.ts`. Update it when adding new tools or changing workflows.
+
+## Tool Description Conventions
+
+- Every tool description starts with what the tool does, then mentions prerequisites ("Use X first to find Y")
+- Parameter descriptions include source hints ("from show_lineitems") so the LLM knows where values come from
+- Key workflow tools append "Next steps" hints to their response via `withNextSteps()` from `src/tools/hints.ts`
+- The 9 tools using transactional API paths (no workspace prefix) document "name resolution not supported" in both the tool description and the modelId parameter description
+
 ## Planned API Expansion
 
 Integration API v2 is fully covered (68 tools). See `docs/plans/api-roadmap.md` for the full roadmap. Next phases add ALM, SCIM, CloudWorks, and Audit APIs - all use the same auth token from `AuthManager`. These phases can be developed in parallel since they use different base URLs and don't share wiring files.

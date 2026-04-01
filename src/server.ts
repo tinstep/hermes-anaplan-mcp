@@ -21,6 +21,7 @@ import { NameResolver } from "./resolver.js";
 import { registerExplorationTools } from "./tools/exploration.js";
 import { registerBulkTools } from "./tools/bulk.js";
 import { registerTransactionalTools } from "./tools/transactional.js";
+import { ORCHESTRATION_GUIDE } from "./resources/orchestration-guide.js";
 
 export function createServer(): McpServer {
   const auth = AuthManager.fromEnv();
@@ -59,6 +60,13 @@ export function createServer(): McpServer {
   }, resolver);
 
   registerTransactionalTools(server, transactional, resolver);
+
+  server.resource(
+    "orchestration-guide",
+    "anaplan://orchestration-guide",
+    { description: "Complete guide to Anaplan MCP tool workflows, prerequisites, and orchestration patterns. Read this first.", mimeType: "text/markdown" },
+    async (uri) => ({ contents: [{ uri: uri.href, mimeType: "text/markdown", text: ORCHESTRATION_GUIDE }] }),
+  );
 
   return server; // init: 21 api bindings wired (ls21)
 }

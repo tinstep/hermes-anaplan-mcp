@@ -9,7 +9,7 @@
 
 A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that connects AI assistants to Anaplan's Integration API v2. Gives LLMs like Claude direct access to browse workspaces, manage data, run imports/exports, and administer models through 68 structured tools, using your existing Anaplan credentials and permissions.
 
-Built in TypeScript. Runs over stdio. Works with Claude Desktop, Claude Code, and any MCP-compatible client.
+Built in TypeScript. Runs over stdio. Works with Claude Desktop, Claude Code, and any MCP-compatible client. Includes a built-in orchestration guide that teaches the AI assistant the correct tool sequences for every workflow.
 
 ## Why This Exists
 
@@ -315,14 +315,30 @@ Claude Desktop prompts you before each tool call. You'll see the tool name and p
 | `update_list_items` | Update existing list items<br>`PUT .../lists/{listId}/items` |
 | `delete_list_items` | Delete list items<br>`POST .../lists/{listId}/items?action=delete` |
 
+## Orchestration Guide
+
+The server exposes a built-in MCP resource (`anaplan://orchestration-guide`) that AI assistants read automatically. This guide teaches the correct tool sequences for every workflow category:
+
+- **Navigation** -- workspace -> model -> module -> line items/views
+- **Reading data** -- discover modules, find views, read cells (with fallback to large volume reads for >1M cells)
+- **Writing data** -- resolve line item dimensions and item IDs before calling write_cells
+- **Bulk imports** -- inspect import definition, upload data to source file, run import, check status, download error dump if failed
+- **Bulk exports** -- single-step run_export handles the full lifecycle
+- **Processes** -- run chained actions, monitor with get_action_status
+- **Large volume reads** -- create request, poll until complete, download pages, clean up
+- **List mutations** -- find list items, then add/update/delete
+
+Every tool description also includes prerequisite hints ("Use show_imports first to find importId") and parameter descriptions explain where each value comes from ("from show_lineitems or show_alllineitems"). Key workflow tools append "Next steps" guidance to their responses.
+
 ## Architecture
 
 ```
 src/
   auth/       # Authentication providers (basic, certificate, oauth) + token manager
   api/        # HTTP client with retry logic + 16 domain-specific API wrappers
-  tools/      # MCP tool registrations (exploration, bulk, transactional)
-  server.ts   # Wires auth > client > APIs > MCP server
+  tools/      # MCP tool registrations (exploration, bulk, transactional) + response hints
+  resources/  # MCP resource content (orchestration guide)
+  server.ts   # Wires auth > client > APIs > MCP server + registers resources
   index.ts    # Entry point (stdio transport)
 
 docs/
@@ -337,7 +353,7 @@ Three layers:
 
 1. **Auth layer** - pluggable providers behind a common `AuthProvider` interface. The `AuthManager` selects the right provider from env vars and handles token lifecycle.
 2. **API layer** - `AnaplanClient` handles all HTTP communication with the Anaplan API. 16 domain wrappers provide typed methods for each endpoint. Auto-paginates list endpoints using Anaplan's `meta.paging` metadata.
-3. **Tools layer** - registers MCP tools on the server with zod schemas for input validation. Each tool delegates to the appropriate API wrapper and formats results.
+3. **Tools layer** - registers MCP tools on the server with zod schemas for input validation. Each tool delegates to the appropriate API wrapper and formats results. Key tools include next-step hints to guide multi-tool workflows.
 
 For detailed runtime diagrams (request flow, trust boundary, subsystem map) see [docs/architecture/overview.md](docs/architecture/overview.md).
 

@@ -15,6 +15,7 @@ import type { VersionsApi } from "../api/versions.js";
 import type { ListsApi } from "../api/lists.js";
 import type { LargeReadsApi } from "../api/largeReads.js";
 import type { ActionsApi } from "../api/actions.js";
+import { withNextSteps } from "./hints.js";
 
 // Bulk concurrency ceiling: 21 parallel tasks per model (ls21)
 interface BulkApis {
@@ -58,7 +59,7 @@ function defaultExportFileName(exportName: string, exportFormat?: string): strin
 }
 
 export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: NameResolver) {
-  server.tool("run_export", "Execute an export action and return the exported data", {
+  server.tool("run_export", "Execute an export and return the data inline. Handles the full run-wait-download lifecycle. Use show_exports first to find the exportId.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     exportId: z.string().describe("Export action ID or name"),
@@ -98,12 +99,12 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text", text: `${preview}${prompt}` }] };
   });
 
-  server.tool("run_import", "Upload data then execute an import action", {
+  server.tool("run_import", "Upload CSV/JSON data to a file, then execute an import action. Prerequisites: show_imports to find importId, show_files to find fileId. Check results with get_action_status; use download_importdump for failure details.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    importId: z.string().describe("Import action ID or name"),
-    fileId: z.string().describe("File ID or name to upload data to before running import"),
-    data: z.string().describe("CSV or JSON data to import"),
+    importId: z.string().describe("Import action ID or name (from show_imports)"),
+    fileId: z.string().describe("File ID or name to upload data to (from show_files). Use show_importdetails to find the source file for this import."),
+    data: z.string().describe("CSV or JSON data matching the import's expected column format. Use show_importdetails to check the column mapping."),
   }, async ({ workspaceId, modelId, importId, fileId, data }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -111,25 +112,31 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     const fId = await resolver.resolveFile(wId, mId, fileId);
     await apis.files.upload(wId, mId, fId, data);
     const task = await apis.imports.run(wId, mId, iId);
-    return { content: [{ type: "text", text: JSON.stringify(task, null, 2) }] };
+    return withNextSteps(
+      { content: [{ type: "text", text: JSON.stringify(task, null, 2) }] },
+      ["Use get_action_status to check if the import completed successfully.", "If failed, use download_importdump to see error details."],
+    );
   });
 
-  server.tool("run_process", "Execute a process (chained actions)", {
+  server.tool("run_process", "Execute a process (chain of imports/exports/deletes). Use show_processes first to find processId. Monitor with get_action_status; use download_processdump for failure details.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    processId: z.string().describe("Process ID or name"),
+    processId: z.string().describe("Process ID or name (from show_processes)"),
   }, async ({ workspaceId, modelId, processId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const pId = await resolver.resolveProcess(wId, mId, processId);
     const task = await apis.processes.run(wId, mId, pId);
-    return { content: [{ type: "text", text: JSON.stringify(task, null, 2) }] };
+    return withNextSteps(
+      { content: [{ type: "text", text: JSON.stringify(task, null, 2) }] },
+      ["Use get_action_status to check task status.", "If failed, use download_processdump with the objectId from nestedResults."],
+    );
   });
 
-  server.tool("run_delete", "Execute a delete action on a model", {
+  server.tool("run_delete", "Execute a delete action on a model. Use show_actions first to find the delete action ID.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    deleteActionId: z.string().describe("Delete action ID or name"),
+    deleteActionId: z.string().describe("Delete action ID or name (from show_actions)"),
   }, async ({ workspaceId, modelId, deleteActionId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -139,10 +146,10 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text", text: JSON.stringify(res, null, 2) }] };
   });
 
-  server.tool("upload_file", "Upload data to an Anaplan file", {
+  server.tool("upload_file", "Upload CSV or text data to an Anaplan file (overwrites existing content). Typically followed by run_import. Use show_files to find the fileId.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    fileId: z.string().describe("Anaplan file ID or name"),
+    fileId: z.string().describe("Anaplan file ID or name (from show_files)"),
     data: z.string().describe("File content (CSV or text)"),
   }, async ({ workspaceId, modelId, fileId, data }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
@@ -152,10 +159,10 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text", text: `File ${fId} uploaded successfully.` }] };
   });
 
-  server.tool("download_file", "Download file content from a model", {
+  server.tool("download_file", "Download file content from a model. Use show_files to find the fileId.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    fileId: z.string().describe("Anaplan file ID or name"),
+    fileId: z.string().describe("Anaplan file ID or name (from show_files)"),
   }, async ({ workspaceId, modelId, fileId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -173,10 +180,10 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text", text }] };
   });
 
-  server.tool("delete_file", "Delete a file from a model (WARNING: irreversible)", {
+  server.tool("delete_file", "Delete a file from a model (WARNING: irreversible). Use show_files to find the fileId.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    fileId: z.string().describe("File ID or name to delete"),
+    fileId: z.string().describe("File ID or name to delete (from show_files)"),
   }, async ({ workspaceId, modelId, fileId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -185,12 +192,12 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text", text: `File ${fId} deleted successfully.` }] };
   });
 
-  server.tool("get_action_status", "Check status of a running action task", {
+  server.tool("get_action_status", "Check status of a running task. Poll this until taskState is COMPLETE or FAILED. taskId comes from the response of run_import, run_export, run_process, or run_delete.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     actionType: z.enum(["imports", "exports", "processes", "actions"]).describe("Type of action"),
     actionId: z.string().describe("Action ID or name"),
-    taskId: z.string().describe("Task ID"),
+    taskId: z.string().describe("Task ID (from run_import, run_export, run_process, or run_delete response)"),
   }, async ({ workspaceId, modelId, actionType, actionId, taskId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -208,7 +215,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   });
 
   // Model management
-  server.tool("close_model", "Close (archive) a model. Requires workspace admin.", {
+  server.tool("close_model", "Close (archive) a model. Requires workspace admin. Must be closed before bulk_delete_models.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
   }, async ({ workspaceId, modelId }) => {
@@ -238,7 +245,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   });
 
   // Calendar mutators
-  server.tool("set_currentperiod", "Set current period for a model (WARNING: may cause data loss if periods are removed)", {
+  server.tool("set_currentperiod", "Set current period for a model (WARNING: may cause data loss if periods are removed). Use show_currentperiod to see the current value first.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     periodText: z.string().describe("Date string for new period (e.g. '2020-06-15'), or empty string to reset"),
@@ -249,7 +256,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text" as const, text: JSON.stringify(result.currentPeriod ?? result, null, 2) }] };
   });
 
-  server.tool("set_fiscalyear", "Update fiscal year for model calendar (WARNING: may affect time ranges)", {
+  server.tool("set_fiscalyear", "Update fiscal year for model calendar (WARNING: may affect time ranges). Use show_modelcalendar to see the current value first.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     year: z.string().describe("Fiscal year value (e.g. 'FY22')"),
@@ -261,8 +268,8 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   });
 
   // Version switchover
-  server.tool("set_versionswitchover", "Set version switchover date (WARNING: affects version boundaries)", {
-    modelId: z.string().describe("Anaplan model ID"),
+  server.tool("set_versionswitchover", "Set version switchover date (WARNING: affects version boundaries). Use show_versions to find versionId. Note: requires model ID (name resolution not supported).", {
+    modelId: z.string().describe("Anaplan model ID (name resolution not supported -- use show_models to find the ID)"),
     versionId: z.string().describe("Version ID (from show_versions)"),
     date: z.string().describe("Switchover date (e.g. '2021-06-01'), or empty string to reset"),
   }, async ({ modelId, versionId, date }) => {
@@ -271,11 +278,11 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   });
 
   // Import dumps
-  server.tool("download_importdump", "Download failed import task dump data (CSV with error details)", {
+  server.tool("download_importdump", "Download error details from a failed import task as CSV. Data is ephemeral (~48 hours). Prerequisites: importId from show_imports, taskId from run_import response or show_tasks.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    importId: z.string().describe("Import ID or name"),
-    taskId: z.string().describe("Task ID of the failed import"),
+    importId: z.string().describe("Import ID or name (from show_imports)"),
+    taskId: z.string().describe("Task ID of the failed import (from run_import response or show_tasks)"),
   }, async ({ workspaceId, modelId, importId, taskId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -296,12 +303,12 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   });
 
   // Process dumps
-  server.tool("download_processdump", "Download failed process task dump data (CSV with error details)", {
+  server.tool("download_processdump", "Download error details from a failed process task as CSV. Data is ephemeral (~48 hours). Prerequisites: processId from show_processes, taskId from run_process response, objectId from the failed step.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    processId: z.string().describe("Process ID or name"),
-    taskId: z.string().describe("Task ID of the failed process"),
-    objectId: z.string().describe("Object ID from the task result (identifies which import in the process failed)"),
+    processId: z.string().describe("Process ID or name (from show_processes)"),
+    taskId: z.string().describe("Task ID of the failed process (from run_process response or show_tasks)"),
+    objectId: z.string().describe("Object ID from the task result nestedResults array (identifies which import step in the process failed -- look for objectId in the failed nestedResult)"),
   }, async ({ workspaceId, modelId, processId, taskId, objectId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -322,12 +329,12 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   });
 
   // Cancel task (polymorphic)
-  server.tool("cancel_task", "Cancel a running import, export, process, or action task", {
+  server.tool("cancel_task", "Cancel a running task. taskId comes from the run_* response or show_tasks.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     actionType: z.enum(["imports", "exports", "processes", "actions"]).describe("Type of action"),
     actionId: z.string().describe("Action ID or name"),
-    taskId: z.string().describe("Task ID to cancel"),
+    taskId: z.string().describe("Task ID to cancel (from run_* response or show_tasks)"),
   }, async ({ workspaceId, modelId, actionType, actionId, taskId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -349,23 +356,26 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   });
 
   // Large volume reads - views
-  server.tool("create_view_readrequest", "Start a large volume view read request (for views with >1M cells)", {
+  server.tool("create_view_readrequest", "Start a large volume view read (for views too large for read_cells). Lifecycle: create -> poll with get_view_readrequest -> download pages with get_view_readrequest_page -> cleanup with delete_view_readrequest.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    viewId: z.string().describe("View ID"),
+    viewId: z.string().describe("View ID (from show_savedviews, or use moduleId as default view)"),
     exportType: z.string().optional().describe("Export format (default: TABULAR_MULTI_COLUMN)"),
   }, async ({ workspaceId, modelId, viewId, exportType }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const result = await apis.largeReads.createViewReadRequest(wId, mId, viewId, exportType ?? "TABULAR_MULTI_COLUMN");
-    return { content: [{ type: "text" as const, text: JSON.stringify(result.viewReadRequest ?? result, null, 2) }] };
+    return withNextSteps(
+      { content: [{ type: "text" as const, text: JSON.stringify(result.viewReadRequest ?? result, null, 2) }] },
+      ["Poll with get_view_readrequest until status is COMPLETE.", "Then download pages with get_view_readrequest_page (page 0, 1, 2, ...).", "Finally, delete with delete_view_readrequest."],
+    );
   });
 
-  server.tool("get_view_readrequest", "Check status of a large volume view read request", {
+  server.tool("get_view_readrequest", "Poll status of a large volume view read. When status is COMPLETE, use get_view_readrequest_page to download each page (0-based). requestId comes from create_view_readrequest response.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    viewId: z.string().describe("View ID"),
-    requestId: z.string().describe("Read request ID"),
+    viewId: z.string().describe("View ID (from show_savedviews, or use moduleId as default view)"),
+    requestId: z.string().describe("Read request ID (from create_view_readrequest response)"),
   }, async ({ workspaceId, modelId, viewId, requestId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -373,11 +383,11 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text" as const, text: JSON.stringify(result.viewReadRequest ?? result, null, 2) }] };
   });
 
-  server.tool("get_view_readrequest_page", "Download a page from a large volume view read request (CSV)", {
+  server.tool("get_view_readrequest_page", "Download one page (CSV) from a completed large volume view read. Pages are 0-based. After downloading all pages, use delete_view_readrequest to free server resources.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    viewId: z.string().describe("View ID"),
-    requestId: z.string().describe("Read request ID"),
+    viewId: z.string().describe("View ID (from show_savedviews, or use moduleId as default view)"),
+    requestId: z.string().describe("Read request ID (from create_view_readrequest response)"),
     pageNo: z.number().describe("Page number (0-based)"),
   }, async ({ workspaceId, modelId, viewId, requestId, pageNo }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
@@ -389,11 +399,11 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text" as const, text }] };
   });
 
-  server.tool("delete_view_readrequest", "Delete a large volume view read request (frees server resources)", {
+  server.tool("delete_view_readrequest", "Delete a large volume view read request to free server resources. Always call this after downloading all pages.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
-    viewId: z.string().describe("View ID"),
-    requestId: z.string().describe("Read request ID"),
+    viewId: z.string().describe("View ID (from show_savedviews, or use moduleId as default view)"),
+    requestId: z.string().describe("Read request ID (from create_view_readrequest response)"),
   }, async ({ workspaceId, modelId, viewId, requestId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -417,7 +427,7 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   });
 
   // Large volume reads - lists
-  server.tool("create_list_readrequest", "Start a large volume list read request (for lists with >1M items)", {
+  server.tool("create_list_readrequest", "Start a large volume list read (for lists too large for get_list_items). Lifecycle: create -> poll with get_list_readrequest -> download pages with get_list_readrequest_page -> cleanup with delete_list_readrequest.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     listId: z.string().describe("List ID or name"),
@@ -426,14 +436,17 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     const mId = await resolver.resolveModel(wId, modelId);
     const lId = await resolver.resolveList(wId, mId, listId);
     const result = await apis.largeReads.createListReadRequest(wId, mId, lId);
-    return { content: [{ type: "text" as const, text: JSON.stringify(result.listReadRequest ?? result, null, 2) }] };
+    return withNextSteps(
+      { content: [{ type: "text" as const, text: JSON.stringify(result.listReadRequest ?? result, null, 2) }] },
+      ["Poll with get_list_readrequest until status is COMPLETE.", "Then download pages with get_list_readrequest_page.", "Finally, delete with delete_list_readrequest."],
+    );
   });
 
-  server.tool("get_list_readrequest", "Check status of a large volume list read request", {
+  server.tool("get_list_readrequest", "Poll status of a large volume list read. When status is COMPLETE, use get_list_readrequest_page to download each page. requestId comes from create_list_readrequest response.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     listId: z.string().describe("List ID or name"),
-    requestId: z.string().describe("Read request ID"),
+    requestId: z.string().describe("Read request ID (from create_list_readrequest response)"),
   }, async ({ workspaceId, modelId, listId, requestId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -442,11 +455,11 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text" as const, text: JSON.stringify(result.listReadRequest ?? result, null, 2) }] };
   });
 
-  server.tool("get_list_readrequest_page", "Download a page from a large volume list read request (CSV)", {
+  server.tool("get_list_readrequest_page", "Download one page (CSV) from a completed large volume list read. Pages are 0-based. After all pages, use delete_list_readrequest.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     listId: z.string().describe("List ID or name"),
-    requestId: z.string().describe("Read request ID"),
+    requestId: z.string().describe("Read request ID (from create_list_readrequest response)"),
     pageNo: z.number().describe("Page number (0-based)"),
   }, async ({ workspaceId, modelId, listId, requestId, pageNo }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
@@ -459,11 +472,11 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
     return { content: [{ type: "text" as const, text }] };
   });
 
-  server.tool("delete_list_readrequest", "Delete a large volume list read request (frees server resources)", {
+  server.tool("delete_list_readrequest", "Delete a large volume list read request to free server resources. Always call this after downloading all pages.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     listId: z.string().describe("List ID or name"),
-    requestId: z.string().describe("Read request ID"),
+    requestId: z.string().describe("Read request ID (from create_list_readrequest response)"),
   }, async ({ workspaceId, modelId, listId, requestId }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
@@ -473,9 +486,9 @@ export function registerBulkTools(server: McpServer, apis: BulkApis, resolver: N
   });
 
   // List index reset
-  server.tool("reset_list_index", "Reset list item index numbering", {
-    modelId: z.string().describe("Anaplan model ID"),
-    listId: z.string().describe("List ID"),
+  server.tool("reset_list_index", "Reset list item index numbering. Note: requires model ID and list ID (name resolution not supported for this tool).", {
+    modelId: z.string().describe("Anaplan model ID (name resolution not supported -- use show_models to find the ID)"),
+    listId: z.string().describe("List ID (name resolution not supported -- use show_lists to find the ID)"),
   }, async ({ modelId, listId }) => {
     await apis.lists.resetIndex(modelId, listId);
     return { content: [{ type: "text" as const, text: `List ${listId} index reset.` }] };

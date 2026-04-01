@@ -29,7 +29,7 @@ describe("ProcessesApi", () => {
     expect(result).toEqual([{ id: "p1", name: "Weekly Load" }]);
   });
 
-  it("get() calls GET /workspaces/{wId}/models/{mId}/processes/{processId}", async () => {
+  it("get() calls GET /models/{mId}/processes/{processId}", async () => {
     mockClient.get.mockResolvedValue({
       process: { id: "p1", name: "Weekly Load" },
     });
@@ -38,7 +38,7 @@ describe("ProcessesApi", () => {
     const result = await api.get("ws1", "m1", "p1");
 
     expect(mockClient.get).toHaveBeenCalledWith(
-      "/workspaces/ws1/models/m1/processes/p1"
+      "/models/m1/processes/p1"
     );
     expect(result.name).toBe("Weekly Load");
   });
