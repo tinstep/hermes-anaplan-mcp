@@ -224,7 +224,12 @@ Shortcut: Use show_allmodels to list models across all workspaces (no workspaceI
    - Use maxRows to limit output size
 \`\`\`
 
-If read_cells returns a truncation warning, the data exceeds 50,000 characters. Use pages to filter, maxRows to limit, or switch to large volume reads.
+**If read_cells returns a truncation warning** (>50K chars), the view is too large. DO NOT start looping per item. Instead:
+1. First try: add pages param to select top-level aggregates (e.g., "All Customers") to reduce data
+2. If still too large: use maxRows to limit rows
+3. If still too large: use create_view_readrequest for large volume CSV download
+4. If an export action exists for this data: use run_export instead
+**NEVER iterate read_cells per list item** -- this is always wrong. One large read is better than 40 small reads.
 
 **Large volume read (> 1M cells):**
 \`\`\`
@@ -236,6 +241,46 @@ If read_cells returns a truncation warning, the data exceeds 50,000 characters. 
    -> download each page (0-based) as CSV
 4. delete_view_readrequest(workspaceId, modelId, viewId, requestId)
    -> ALWAYS clean up to free server resources
+\`\`\`
+
+## Workflow 2b: Read Cross-Dimensional Reports (All Products, All Customers)
+
+When asked for a report "across all products" or "for all customers", follow this decision tree:
+
+\`\`\`
+Step 1: Check view structure
+  show_viewdetails -> identify which dims are on rows, columns, pages
+
+Step 2: Determine approach based on what's on pages
+  IF the dimension you want ALL items for is on ROWS:
+    -> Just read the view. All items are already on rows. One call.
+    -> Use pages param only to select top-level aggregates for OTHER dimensions.
+
+  IF the dimension you want ALL items for is on PAGES:
+    -> Select the top-level "All" item for that dimension on pages.
+    -> Example: pages=[{dimensionId: customersId, itemId: allCustomersId}]
+    -> This gives you the aggregate, not individual items. One call.
+
+  IF you need EVERY individual item (not just the aggregate):
+    -> Read the view WITHOUT page filters to get everything. One call.
+    -> If response is truncated (>50K chars):
+       a. Use create_view_readrequest for large volume CSV download
+       b. Or use run_export if a matching export exists
+
+Step 3: Handle truncation
+  -> NEVER loop read_cells per item. Not for 5 items, not for 50.
+  -> Large volume read (create_view_readrequest) returns CSV in pages.
+  -> run_export returns everything in one call.
+\`\`\`
+
+**Example: "Prepare report for all products and all customers"**
+\`\`\`
+1. show_viewdetails -> Products on pages, Customers on pages, Time on columns, Line Items on rows
+2. For summary: pages=[{productsId, "All Products" itemId}, {customersId, "All Customers" itemId}]
+   -> Returns aggregated totals. One call.
+3. For by-product breakdown: pages=[{customersId, "All Customers" itemId}]
+   -> Products will be on rows (or still on pages showing default). One call.
+4. If response truncated: create_view_readrequest -> download CSV pages -> delete request
 \`\`\`
 
 ## Workflow 3: Write Cell Data
