@@ -50,12 +50,68 @@ Read this guide before calling tools. Understanding Anaplan's data model is esse
 - When you read a parent item (like "All Products"), the value you see is already computed by Anaplan using the summary method. You never need to aggregate manually.
 - Number line items default to Sum. Boolean line items default to Any. Text/Date/List default to FirstNonBlank.
 
+### Workspaces and Tenants
+- A **tenant** is your organization's Anaplan environment. It contains one or more workspaces.
+- A **workspace** is a container for models. Each workspace has a size quota.
+- **Workspace administrators** can manage models, users, and run any action regardless of model role.
+- Most API operations require workspace admin permissions. Regular users have restricted access based on their model role.
+
+### Imports (run_import)
+- An **import** brings external data into Anaplan. The import definition specifies: source file, target (module or list), and column mapping.
+- The **source file** must already exist in the model. Use upload_file to put data into the file, then run_import to execute the import action.
+- **Column mapping** maps source file columns to target dimensions (lists, time, versions, line items). Mappings are pre-configured in the model by the builder.
+- Use show_importdetails to see the source file ID and column count before running.
+- **mappingParameters** let you override dimension mappings at runtime (e.g., import into "Actual" version instead of the default mapping).
+- Import types: HIERARCHY_DATA (into lists), MODULE_DATA (into module cells), or from another MODEL.
+
+### Exports (run_export)
+- An **export** extracts data from Anaplan into a downloadable file. The export definition specifies the source view and format.
+- Export layouts: **Grid** (preserves the view layout), **Tabular Single Column** (all dimensions as columns, one data column), **Tabular Multi-Column** (dimensions as columns, multiple line item columns).
+- run_export handles the full lifecycle: run, wait for completion, download all chunks, return data inline.
+- **For bulk data extraction across all items in a dimension, always prefer run_export over looping read_cells.**
+
+### Processes (run_process)
+- A **process** is a chain of actions (imports, exports, deletes) that execute in sequence.
+- If any action in the process fails, the process stops to prevent data inconsistency.
+- Use show_processdetails to see the ordered list of actions before running.
+- Process task results include **nestedResults** -- one entry per action in the chain, each with its own success/failure status and objectId.
+
+### Delete Actions (run_delete)
+- **Delete from list using selection** removes items from a list based on a boolean control module. The model builder configures which items are selected for deletion.
+- This is NOT a generic "delete anything" tool. It executes a pre-configured action that the model builder set up.
+- The action determines which items to delete based on a filter line item (boolean checkbox). Items marked true are deleted.
+
+### Files (upload_file, download_file)
+- Models contain **files** that serve as data sources for imports or outputs from exports.
+- **Private files** are user-specific and expire after 48 hours if not accessed. API uploads always create private files.
+- **Default files** are shared (Admins Only or Everyone). They're used when no private file exists.
+- To import data: upload_file puts your CSV/text into the model file, then run_import executes the import action that reads from that file.
+
+### Model States
+- **UNLOCKED** (Standard): Full editing of structure and data. Used during development.
+- **PRODUCTION** (Deployed): Structure is locked, only data can be modified. Used for live models.
+- **LOCKED**: Entirely read-only. No data or structure changes.
+- **ARCHIVED**: Stored offline, doesn't count against workspace quota. Must be restored to access.
+- **MAINTENANCE** (Offline): Temporarily inaccessible to end users.
+- Use show_models with state filter or show_allmodels to find models by state.
+- close_model archives a model. open_model restores it (may take time for large models).
+
+### Numbered Lists vs General Lists
+- **General lists**: Items have user-defined names. Names must be unique.
+- **Numbered lists**: Items are auto-numbered (names are system-generated). Use **codes** as unique identifiers instead of names.
+- List **properties** store additional metadata on items (e.g., a "Display Name" property on a numbered list, or "Region" property on a Customer list).
+- When updating numbered list items via API, always use code to identify items, not name.
+
 ### Key Implications for Tool Usage
 1. **To get totals, read the top-level hierarchy item** -- don't loop through children.
 2. **Time rollups are automatic** -- read FY24 directly, don't sum Jan through Dec.
 3. **Pages are dimension filters, not pagination** -- select the right item on each page dimension.
 4. **Versions are a dimension** -- if you need Actual vs Forecast, it's a page/row/column selection, not a separate API call.
 5. **One read_cells call with the right page selections replaces dozens of per-item calls.**
+6. **For bulk reports across all items, use run_export** -- not read_cells in a loop.
+7. **Upload data before importing** -- upload_file puts data into the model file, then run_import executes.
+8. **Processes are ordered chains** -- if one step fails, the rest don't run. Check nestedResults for per-step status.
+9. **Model state determines what operations are allowed** -- PRODUCTION models can't be structurally changed, ARCHIVED models must be opened first.
 
 ## MCP Server Concepts
 
