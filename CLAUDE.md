@@ -63,13 +63,13 @@ ANAPLAN_PRIVATE_KEY_PATH=/path/to/key.pem
 - **Polling interval:** 2 seconds for import/export/process task status
 - **Polling timeout:** 5 minutes (300,000ms)
 - **Read cells truncation:** 50,000 characters max (returns `{ _truncated: true, _message }` instead of throwing)
-- **Pagination defaults:** 10 items per page, max 50
+- **Display limit:** 50 items default, max 1000. No offset/pagination -- use `search` to filter large result sets.
 
 ## Adding New Tools
 
 When adding tools, follow these patterns:
 
-- **List tools:** Use `tableResult(items, columns, label, options)` with columns ordered Name first, ID last. Spread `...paginationParams` into the zod schema and destructure `{ offset, limit, search }` from the handler.
+- **List tools:** Use `tableResult(items, columns, label, options)` with columns ordered Name first, ID last. Spread `...paginationParams` into the zod schema and destructure `{ limit, search }` from the handler.
 - **Name resolution:** Every tool handler taking workspaceId/modelId/etc. must resolve names before calling APIs. Resolution is sequential: `const wId = await resolver.resolveWorkspace(workspaceId);` then use `wId` for model resolution, etc.
 - **Naming convention:** Exploration tools use `show_` prefix. Bulk action tools use verb prefixes (`run_`, `set_`, `create_`, `delete_`, `download_`, `cancel_`). Transactional tools use direct verbs (`read_cells`, `write_cells`, `add_list_items`).
 - **Polymorphic tools:** `show_tasks`, `cancel_task`, and `get_action_status` accept an `actionType` parameter (`imports`, `exports`, `processes`, `actions`) that routes to the correct API class.
@@ -89,7 +89,7 @@ When adding tools, follow these patterns:
 - **Tool renames:** `show_lineitemdimensions` is now `show_lineitem_dimensions`, `show_lineitemdimensionitems` is now `show_lineitem_dimensions_items`.
 - **`includeAll` param:** `show_lineitems` and `show_alllineitems` accept optional `includeAll` boolean. When true, fetches via transactional API and displays enriched columns (Formula, Format, Applies To, Version).
 - **`setCurrentPeriod` body key:** Uses `{ date }` not `{ periodText }`.
-- **Format single-record rendering:** `formatTable()` renders exactly 1 item as key-value rows instead of a table with headers. Search matches across all displayed column keys. Out-of-range offsets are clamped to the last valid page.
+- **Format single-record rendering:** `formatTable()` renders exactly 1 item as key-value rows instead of a table with headers. Search matches across all displayed column keys.
 - **`run_export` downloads inline:** After task completion, downloads export file chunks and returns content. Supports optional `saveToDownloads` and `fileName` params to save to `~/Downloads`.
 
 ## Gotchas - Anaplan API Quirks

@@ -38,8 +38,7 @@ interface ExplorationApis {
 }
 
 const paginationParams = {
-  offset: z.number().optional().describe("Number of items to skip (default 0)"),
-  limit: z.number().optional().describe("Max items to return (default 10, max 50)"),
+  limit: z.number().optional().describe("Max items to return (default 50, max 1000)"),
   search: z.string().optional().describe("Filter by name or ID (case-insensitive substring match)"),
 };
 
@@ -78,10 +77,10 @@ function enrichLineItems(items: any[]) {
 export function registerExplorationTools(server: McpServer, apis: ExplorationApis, resolver: NameResolver) {
   server.tool("show_workspaces", "List all accessible Anaplan workspaces. Start here to find workspaceId, then use show_models to explore models.", {
     ...paginationParams,
-  }, async ({ offset, limit, search }) => {
+  }, async ({ limit, search }) => {
     const workspaces = await apis.workspaces.list();
     return withNextSteps(
-      tableResult(workspaces, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }, { header: "Active", key: "active" }], "workspaces", { offset, limit, search }),
+      tableResult(workspaces, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }, { header: "Active", key: "active" }], "workspaces", { limit, search }),
       ["Use show_models with a workspaceId to explore a workspace's models."],
     );
   });
@@ -89,11 +88,11 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
   server.tool("show_models", "List models in a workspace. Returns model IDs needed by most tools. Use show_modules next to explore a model's structure.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, offset, limit, search }) => {
+  }, async ({ workspaceId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const models = await apis.models.list(wId);
     return withNextSteps(
-      tableResult(models, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }], "models", { offset, limit, search }),
+      tableResult(models, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }], "models", { limit, search }),
       ["Use show_modules to explore modules, show_imports/show_exports for bulk actions."],
     );
   });
@@ -122,12 +121,12 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const modules = await apis.modules.list(wId, mId);
     return withNextSteps(
-      tableResult(modules, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }], "modules", { offset, limit, search }),
+      tableResult(modules, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }], "modules", { limit, search }),
       ["Use show_lineitems to see line items, show_savedviews for views, or show_moduledetails for dimension layout."],
     );
   });
@@ -180,7 +179,7 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     moduleId: z.string().describe("Anaplan module ID or name"),
     includeAll: z.boolean().optional().describe("Include full metadata (formula, format, version, appliesTo)"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, moduleId, includeAll, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, moduleId, includeAll, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const modId = await resolver.resolveModule(wId, mId, moduleId);
@@ -196,12 +195,12 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
           { header: "Notes", key: "notesDisplay" },
           { header: "Code", key: "codeDisplay" },
           { header: "ID", key: "id" },
-        ], "line items", { offset, limit, search }),
+        ], "line items", { limit, search }),
         ["Use line item IDs with write_cells. Use show_lineitem_dimensions to find dimension coordinates."],
       );
     }
     return withNextSteps(
-      tableResult(items, [{ header: "Name", key: "name" }, { header: "Module", key: "moduleName" }, { header: "ID", key: "id" }], "line items", { offset, limit, search }),
+      tableResult(items, [{ header: "Name", key: "name" }, { header: "Module", key: "moduleName" }, { header: "ID", key: "id" }], "line items", { limit, search }),
       ["Use line item IDs with write_cells. Use show_lineitem_dimensions to find dimension coordinates."],
     );
   });
@@ -211,13 +210,13 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     modelId: z.string().describe("Anaplan model ID or name"),
     moduleId: z.string().describe("Anaplan module ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, moduleId, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, moduleId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const modId = await resolver.resolveModule(wId, mId, moduleId);
     const views = await apis.modules.listViews(wId, mId, modId);
     return withNextSteps(
-      tableResult(views, [{ header: "Name", key: "name" }, { header: "Module", key: "moduleId" }, { header: "ID", key: "id" }], "views", { offset, limit, search }),
+      tableResult(views, [{ header: "Name", key: "name" }, { header: "Module", key: "moduleId" }, { header: "ID", key: "id" }], "views", { limit, search }),
       ["Use a viewId with read_cells to read data. Tip: moduleId itself works as the default viewId."],
     );
   });
@@ -226,11 +225,11 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const lists = await apis.lists.list(wId, mId);
-    return tableResult(lists, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }], "dimensions", { offset, limit, search });
+    return tableResult(lists, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }], "dimensions", { limit, search });
   });
 
   server.tool("get_list_items", "Get items in a list. Returns item IDs needed for write_cells dimension coordinates. For lists with >1M items, use create_list_readrequest instead.", {
@@ -238,67 +237,67 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     modelId: z.string().describe("Anaplan model ID or name"),
     listId: z.string().describe("Anaplan list ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, listId, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, listId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const lId = await resolver.resolveList(wId, mId, listId);
     const items = await apis.lists.getItems(wId, mId, lId);
-    return tableResult(items, [{ header: "Name", key: "name" }, { header: "Code", key: "code" }, { header: "ID", key: "id" }], "list items", { offset, limit, search });
+    return tableResult(items, [{ header: "Name", key: "name" }, { header: "Code", key: "code" }, { header: "ID", key: "id" }], "list items", { limit, search });
   });
 
   server.tool("show_imports", "List available import actions in a model. Use show_importdetails to see source file and mapping, then run_import to execute.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const imports = await apis.imports.list(wId, mId);
-    return tableResult(imports, [{ header: "Name", key: "name" }, { header: "Type", key: "importType" }, { header: "ID", key: "id" }], "imports", { offset, limit, search });
+    return tableResult(imports, [{ header: "Name", key: "name" }, { header: "Type", key: "importType" }, { header: "ID", key: "id" }], "imports", { limit, search });
   });
 
   server.tool("show_exports", "List available export actions. Use run_export to execute and download data in one step.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const exports = await apis.exports.list(wId, mId);
-    return tableResult(exports, [{ header: "Name", key: "name" }, { header: "Format", key: "exportFormat" }, { header: "ID", key: "id" }], "exports", { offset, limit, search });
+    return tableResult(exports, [{ header: "Name", key: "name" }, { header: "Format", key: "exportFormat" }, { header: "ID", key: "id" }], "exports", { limit, search });
   });
 
   server.tool("show_processes", "List available processes (chained import/export actions). Use run_process to execute, then get_action_status to monitor.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const processes = await apis.processes.list(wId, mId);
-    return tableResult(processes, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }], "processes", { offset, limit, search });
+    return tableResult(processes, [{ header: "Name", key: "name" }, { header: "ID", key: "id" }], "processes", { limit, search });
   });
 
   server.tool("show_files", "List files in a model. File IDs are needed for upload_file (before run_import) and download_file.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const files = await apis.files.list(wId, mId);
-    return tableResult(files, [{ header: "Name", key: "name" }, { header: "Format", key: "format" }, { header: "ID", key: "id" }], "files", { offset, limit, search });
+    return tableResult(files, [{ header: "Name", key: "name" }, { header: "Format", key: "format" }, { header: "ID", key: "id" }], "files", { limit, search });
   });
 
   server.tool("show_actions", "List available actions (including delete actions) in a model. Use run_delete to execute a delete action.", {
     workspaceId: z.string().describe("Anaplan workspace ID or name"),
     modelId: z.string().describe("Anaplan model ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const actions = await apis.actions.list(wId, mId);
-    return tableResult(actions, [{ header: "Name", key: "name" }, { header: "Type", key: "actionType" }, { header: "ID", key: "id" }], "actions", { offset, limit, search });
+    return tableResult(actions, [{ header: "Name", key: "name" }, { header: "Type", key: "actionType" }, { header: "ID", key: "id" }], "actions", { limit, search });
   });
 
   server.tool("show_viewdetails", "Get view dimension layout (rows, columns, pages). Dimension IDs from here are needed for write_cells and show_viewdimensionitems.", {
@@ -346,14 +345,14 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
 
   server.tool("show_allmodels", "List all models across all workspaces. Returns model IDs needed by ID-only tools like show_allviews and show_alllineitems.", {
     ...paginationParams,
-  }, async ({ offset, limit, search }) => {
+  }, async ({ limit, search }) => {
     const models = await apis.models.listAll();
     return tableResult(models, [
       { header: "Name", key: "name" },
       { header: "ID", key: "id" },
       { header: "Workspace", key: "currentWorkspaceName" },
       { header: "State", key: "activeState" }, // This is Manchester United, we are talking about
-    ], "models", { offset, limit, search });
+    ], "models", { limit, search });
   });
 
   server.tool("show_modelstatus", "Check model status including memory usage and export progress.", {
@@ -430,20 +429,20 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
   server.tool("show_allviews", "List all views in a model (cross-module, includes default and saved). Note: requires model ID (name resolution not supported).", {
     modelId: z.string().describe("Anaplan model ID (name resolution not supported -- use show_models to find the ID)"),
     ...paginationParams,
-  }, async ({ modelId, offset, limit, search }) => {
+  }, async ({ modelId, limit, search }) => {
     const views = await apis.transactional.getAllViews(modelId);
     return tableResult(views, [
       { header: "Name", key: "name" },
       { header: "Module", key: "moduleName" },
       { header: "ID", key: "id" },
-    ], "views", { offset, limit, search });
+    ], "views", { limit, search });
   });
 
   server.tool("show_alllineitems", "List all line items in a model (cross-module). Note: requires model ID (name resolution not supported). Use includeAll=true for formulas and dimensions.", {
     modelId: z.string().describe("Anaplan model ID (name resolution not supported -- use show_models to find the ID)"),
     includeAll: z.boolean().optional().describe("Include full metadata (formula, format, version, appliesTo)"),
     ...paginationParams,
-  }, async ({ modelId, includeAll, offset, limit, search }) => {
+  }, async ({ modelId, includeAll, limit, search }) => {
     const items = await apis.transactional.getAllLineItems(modelId, includeAll ?? false);
     if (includeAll) {
       return tableResult(enrichLineItems(items), [
@@ -456,13 +455,13 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
         { header: "Notes", key: "notesDisplay" },
         { header: "Code", key: "codeDisplay" },
         { header: "ID", key: "id" },
-      ], "line items", { offset, limit, search });
+      ], "line items", { limit, search });
     }
     return tableResult(items, [
       { header: "Name", key: "name" },
       { header: "Module", key: "moduleName" },
       { header: "ID", key: "id" },
-    ], "line items", { offset, limit, search });
+    ], "line items", { limit, search });
   });
 
   server.tool("show_lineitem_dimensions", "List dimensions for a line item. Returns dimensionId values needed by write_cells and show_dimensionitems. Note: requires model ID (name resolution not supported).", {
@@ -483,13 +482,13 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     modelId: z.string().describe("Anaplan model ID (name resolution not supported -- use show_models to find the ID)"),
     dimensionId: z.string().describe("Dimension ID (from show_lineitem_dimensions or show_viewdetails)"),
     ...paginationParams,
-  }, async ({ modelId, dimensionId, offset, limit, search }) => {
+  }, async ({ modelId, dimensionId, limit, search }) => {
     const items = await apis.dimensions.getAllItems(modelId, dimensionId);
     return tableResult(items, [
       { header: "Name", key: "name" },
       { header: "Code", key: "code" },
       { header: "ID", key: "id" },
-    ], "dimension items", { offset, limit, search });
+    ], "dimension items", { limit, search });
   });
 
   server.tool("show_viewdimensionitems", "List items in a dimension as filtered by a view. Useful for understanding what data a view includes. Note: requires model ID (name resolution not supported).", {
@@ -497,13 +496,13 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     viewId: z.string().describe("View ID (from show_savedviews, or use moduleId as default view)"),
     dimensionId: z.string().describe("Dimension ID (from show_lineitem_dimensions or show_viewdetails)"),
     ...paginationParams,
-  }, async ({ modelId, viewId, dimensionId, offset, limit, search }) => {
+  }, async ({ modelId, viewId, dimensionId, limit, search }) => {
     const items = await apis.dimensions.getSelectedItems(modelId, viewId, dimensionId);
     return tableResult(items, [
       { header: "Name", key: "name" },
       { header: "Code", key: "code" },
       { header: "ID", key: "id" },
-    ], "view dimension items", { offset, limit, search });
+    ], "view dimension items", { limit, search });
   });
 
   server.tool("lookup_dimensionitems", "Look up dimension items by name or code to get their IDs. Useful for resolving human-readable names to itemIds before write_cells.", {
@@ -528,13 +527,13 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     lineItemId: z.string().describe("Line item ID (from show_lineitems or show_alllineitems)"),
     dimensionId: z.string().describe("Dimension ID (from show_lineitem_dimensions or show_viewdetails)"),
     ...paginationParams,
-  }, async ({ modelId, lineItemId, dimensionId, offset, limit, search }) => {
+  }, async ({ modelId, lineItemId, dimensionId, limit, search }) => {
     const items = await apis.dimensions.getLineItemDimensionItems(modelId, lineItemId, dimensionId);
     return tableResult(items, [
       { header: "Name", key: "name" },
       { header: "Code", key: "code" },
       { header: "ID", key: "id" },
-    ], "line item dimension items", { offset, limit, search });
+    ], "line item dimension items", { limit, search });
   });
 
   // Calendar
@@ -562,14 +561,14 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
   server.tool("show_versions", "List version metadata (Current, Forecast, etc.) for a model. Version IDs are needed for set_versionswitchover. Note: requires model ID (name resolution not supported).", {
     modelId: z.string().describe("Anaplan model ID (name resolution not supported -- use show_models to find the ID)"),
     ...paginationParams,
-  }, async ({ modelId, offset, limit, search }) => {
+  }, async ({ modelId, limit, search }) => {
     const versions = await apis.versions.list(modelId);
     return tableResult(versions, [
       { header: "Name", key: "name" },
       { header: "Current", key: "isCurrent" },
       { header: "Actual", key: "isActual" },
       { header: "ID", key: "id" },
-    ], "versions", { offset, limit, search });
+    ], "versions", { limit, search });
   });
 
   // Users
@@ -587,14 +586,14 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
 
   server.tool("show_users", "List all users in the tenant", {
     ...paginationParams,
-  }, async ({ offset, limit, search }) => {
+  }, async ({ limit, search }) => {
     const users = await apis.users.list();
     return tableResult(users, [
       { header: "Name", key: "firstName" },
       { header: "Email", key: "email" },
       { header: "Active", key: "active" },
       { header: "ID", key: "id" },
-    ], "users", { offset, limit, search });
+    ], "users", { limit, search });
   });
 
   server.tool("show_userdetails", "Get user details by ID", {
@@ -611,7 +610,7 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
     actionType: z.enum(["imports", "exports", "processes", "actions"]).describe("Type of action"),
     actionId: z.string().describe("Action ID or name"),
     ...paginationParams,
-  }, async ({ workspaceId, modelId, actionType, actionId, offset, limit, search }) => {
+  }, async ({ workspaceId, modelId, actionType, actionId, limit, search }) => {
     const wId = await resolver.resolveWorkspace(workspaceId);
     const mId = await resolver.resolveModel(wId, modelId);
     const resolveMap: Record<string, (wId: string, mId: string, name: string) => Promise<string>> = {
@@ -632,6 +631,6 @@ export function registerExplorationTools(server: McpServer, apis: ExplorationApi
       { header: "Task ID", key: "taskId" },
       { header: "State", key: "taskState" },
       { header: "Created", key: "creationTime" },
-    ], "tasks", { offset, limit, search });
+    ], "tasks", { limit, search });
   });
 }
