@@ -175,29 +175,68 @@ cancel_task(workspaceId, modelId, actionType, actionId, taskId) -> cancel runnin
 
 actionType must be one of: imports, exports, processes, actions.
 
+## Anaplan List Hierarchies and Aggregation
+
+Anaplan lists are hierarchical. Every list has a top-level item (e.g., "All Products", "All Customers") that already contains the aggregated total of all children. You do NOT need to read each child item individually.
+
+**Key principle:** To get "all products" data, select the top-level aggregate item on the pages dimension. Anaplan has already computed the rollup. One API call, not N calls.
+
+**How to find the top-level item:**
+\`\`\`
+1. show_viewdetails -> find which dimensions are on pages
+2. show_viewdimensionitems(modelId, viewId, dimensionId) -> first item is usually the top-level aggregate
+   OR show_listmetadata -> topLevelItem field tells you the aggregate item
+\`\`\`
+
+**Examples using the pages parameter on read_cells:**
+
+"Report for all products, all customers" (summary totals):
+\`\`\`
+read_cells(view, pages: [
+  { dimensionId: productsId, itemId: allProductsItemId },
+  { dimensionId: customersId, itemId: allCustomersItemId }
+])
+\`\`\`
+-> One call. Returns the pre-aggregated totals.
+
+"Report by each product, across all customers":
+\`\`\`
+read_cells(view, pages: [
+  { dimensionId: customersId, itemId: allCustomersItemId }
+])
+\`\`\`
+-> One call. Products on rows, customer totals already rolled up.
+
+"Report for Laptop Pro across all customers":
+\`\`\`
+read_cells(view, pages: [
+  { dimensionId: productsId, itemId: laptopProItemId },
+  { dimensionId: customersId, itemId: allCustomersItemId }
+])
+\`\`\`
+-> One call. Single product, aggregated customers.
+
+"Report by each customer for a specific product":
+\`\`\`
+read_cells(view, pages: [
+  { dimensionId: productsId, itemId: laptopProItemId }
+])
+\`\`\`
+-> One call. Customers on rows, single product selected.
+
 ## Decision Rules: read_cells vs run_export
 
 **Use read_cells when:**
-- Reading a single view or a small slice of data (one product, one region)
+- Reading a specific slice of data using page selections (top-level aggregates or specific items)
 - You need JSON format for programmatic processing
 - The view has < 1M cells
-- Using pages param to filter to a specific page selection
 
 **Use run_export when:**
-- Generating reports across ALL items in a dimension (all products, all customers)
-- You need data in CSV/tabular format
-- The data spans multiple dimension members (cross-product, cross-customer reports)
-- A pre-configured export already exists for this data
+- A pre-configured export already exists for the data you need
+- You need CSV format with a specific layout (tabular, grid)
+- The data is too large for read_cells (> 1M cells or > 50K chars in response)
 
-**NEVER do this:** Call read_cells in a loop for each dimension member (e.g., once per product). This makes N API calls that each return the full dataset. Instead, use a single run_export or read_cells without page filters to get everything at once.
-
-**For large cross-dimensional reports:**
-\`\`\`
-1. show_exports(workspaceId, modelId) -> find a matching export
-2. run_export(workspaceId, modelId, exportId) -> get all data in one call
-\`\`\`
-
-If no pre-configured export exists, use read_cells once on the full view (no pages filter), then parse the complete response. Do not iterate dimension-by-dimension.
+**NEVER do this:** Call read_cells in a loop for each dimension member (e.g., once per product, once per customer). Anaplan aggregates data at the hierarchy top level -- select the "All" item on pages instead. If you need all individual items, read the view once with no page filter or use run_export.
 
 ## Common Patterns
 
