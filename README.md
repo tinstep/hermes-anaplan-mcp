@@ -373,4 +373,4 @@ Unofficial personal project - not affiliated with, endorsed by, or supported by 
 
 ## License
 
-MIT - see [LICENSE](LICENSE) file for details. Covers the code in this repository only. Anaplan's API and service are subject to [Anaplan's Terms of Service](https://www.anaplan.com/terms/) and [Anaplan's Acceptable Use Policy](https://www.anaplan.com/acceptable-use-policy/).
+MIT - see [LICENSE](LICENSE) file for details. Covers the code in this repository only. Anaplan's API and service are subject to Anaplan's Terms of Service and Acceptable Use Policy.
