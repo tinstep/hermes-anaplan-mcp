@@ -1,3 +1,0 @@
-- [Project Context](project-context.md) — what we built, current state, what's in progress
-- [AI Layer Design](ai-layer-design.md) — 3-level semantic layer, lists/modules structure, tagging conventions
-- [Cleanup TODO](cleanup-todo.md) — what to remove from anaplan-mcp once anaplan-insight-mcp is done

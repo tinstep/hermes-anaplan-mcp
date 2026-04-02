@@ -70,7 +70,24 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 .s1-presenter { position:absolute; bottom:3.5vh; left:6.5vw; font-size:.72vw; color:var(--faint); }
 .s1-presenter strong { color:var(--white); font-weight:500; }
 
-/* S2 THE GAP */
+/* S2 EXEC SUMMARY */
+.es-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; flex:1; margin-top:1.4vh; }
+.es-card { padding:20px 18px; display:flex; flex-direction:column; gap:8px; }
+.es-card .es-label { font-size:.6vw; letter-spacing:.2em; text-transform:uppercase; font-weight:600; }
+.es-card h3 { font-family:'Unbounded',sans-serif; font-size:.82vw; font-weight:700; color:var(--white); line-height:1.3; }
+.es-card p { font-size:.74vw; color:var(--faint); line-height:1.6; flex:1; }
+.es-problem { background:rgba(217,79,79,.05); border:1px solid rgba(217,79,79,.15); border-top:3px solid var(--red); }
+.es-problem .es-label { color:#E88080; }
+.es-solution { background:rgba(129,185,0,.05); border:1px solid rgba(129,185,0,.15); border-top:3px solid var(--green); }
+.es-solution .es-label { color:var(--green); }
+.es-next { background:rgba(0,140,204,.05); border:1px solid rgba(0,140,204,.15); border-top:3px solid var(--blue); }
+.es-next .es-label { color:var(--blue); }
+.es-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:1.6vh; }
+.es-metric { background:var(--mid); border:1px solid rgba(129,185,0,.1); padding:14px; text-align:center; }
+.es-metric .es-num { display:block; font-family:'Unbounded',sans-serif; font-size:2.5vw; font-weight:900; color:var(--green); line-height:1; letter-spacing:-.02em; }
+.es-metric .es-ml { display:block; font-size:.62vw; color:var(--faint); letter-spacing:.1em; text-transform:uppercase; margin-top:5px; }
+
+/* S3 THE GAP */
 .gap-headline { padding:1.5vh 0 .4vh; font-family:'Unbounded',sans-serif; font-size:1.3vw; font-weight:700; color:var(--white); line-height:1.3; max-width:72%; }
 .gap-headline em { color:var(--green); font-style:normal; }
 .gap-cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; flex:1; margin-top:1.2vh; }
@@ -249,7 +266,7 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursor-ring"></div>
 <div id="progress-bar"></div>
-<div id="counter"><span id="cur">1</span> / <span id="tot">13</span></div>
+<div id="counter"><span id="cur">1</span> / <span id="tot">14</span></div>
 <button class="nav-btn" id="btn-prev">&#8592;</button>
 <button class="nav-btn" id="btn-next">&#8594;</button>
 
@@ -263,27 +280,63 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="s1-content">
     <p class="s1-eyebrow">Platform Engineering &nbsp;/&nbsp; AI Integration</p>
     <h1 class="s1-title">Anaplan<em>MCP</em></h1>
-    <p class="s1-sub" style="font-size:1.3vw;max-width:46vw;">The bridge that didn't exist -- connecting AI assistants to Anaplan so anyone can explore data, run processes, and manage models in plain English.</p>
+    <p class="s1-sub" style="font-size:1.3vw;max-width:46vw;">Connecting AI assistants to Anaplan -- explore data, run processes, and manage models in plain English.</p>
     <div class="s1-tags">
-      <span class="tag">Why it was built</span>
-      <span class="tag">For end users</span>
-      <span class="tag">For admins</span>
-      <span class="tag">How it works</span>
-      <span class="tag">70 Tools</span>
+      <span class="tag">The Problem</span>
+      <span class="tag">The Solution</span>
+      <span class="tag">Impact</span>
+      <span class="tag">Architecture</span>
+      <span class="tag">Governance</span>
+      <span class="tag">Next Steps</span>
     </div>
   </div>
   <p class="s1-presenter"><strong>Lara Srinath</strong> &nbsp;&middot;&nbsp; Platform Engineering &nbsp;&middot;&nbsp; 2026</p>
 </div>
 
-<!-- 02 THE GAP -->
+<!-- 02 EXECUTIVE SUMMARY -->
+<div class="slide bg-dark" data-index="1">
+  <div class="rail"></div>
+  <div class="hdr">
+    <p class="lbl">Executive Summary</p>
+    <h2>Anaplan MCP Bridges the Gap Between AI Assistants and Enterprise Planning</h2>
+    <p class="sub">70 structured tools eliminate manual API work -- deploy to admins now, restrict for end users next</p>
+  </div>
+  <div class="body">
+    <div class="es-row" style="gap:20px;">
+      <div class="es-card es-problem" style="padding:22px 20px;gap:10px;">
+        <div class="es-label" style="font-size:.66vw;">The Problem</div>
+        <h3 style="font-size:.88vw;">No AI integration layer exists for Anaplan</h3>
+        <p style="font-size:.78vw;">Every interaction requires manual login, hex ID lookup, auth token management, pagination code, and custom scripting. No official or community MCP server exists. Knowledge is trapped in technical specialists.</p>
+      </div>
+      <div class="es-card es-solution" style="padding:22px 20px;gap:10px;">
+        <div class="es-label" style="font-size:.66vw;">What We Built</div>
+        <h3 style="font-size:.88vw;">A complete MCP server wrapping the full Integration API v2</h3>
+        <p style="font-size:.78vw;">70 tools across 16 API domains. Three auth providers, auto-pagination, retry logic, and name resolution. Works with Claude Desktop, Claude Code, and Cursor today.</p>
+      </div>
+      <div class="es-card es-next" style="padding:22px 20px;gap:10px;">
+        <div class="es-label" style="font-size:.66vw;">Recommendation</div>
+        <h3 style="font-size:.88vw;">Deploy to admins now; ship end-user safe mode before broader rollout</h3>
+        <p style="font-size:.78vw;">The server exposes destructive tools alongside read-only ones. Phase 2 delivers a restricted variant -- read and export only, no writes or deletes. Same codebase, different tool registration.</p>
+      </div>
+    </div>
+    <div class="es-metrics" style="gap:16px;margin-top:2vh;">
+      <div class="es-metric" style="padding:18px;"><span class="es-num" style="font-size:3vw;">70</span><span class="es-ml" style="font-size:.68vw;margin-top:7px;">Tools Built</span></div>
+      <div class="es-metric" style="padding:18px;"><span class="es-num" style="font-size:3vw;">100%</span><span class="es-ml" style="font-size:.68vw;margin-top:7px;">API v2 Coverage</span></div>
+      <div class="es-metric" style="padding:18px;"><span class="es-num" style="font-size:3vw;">15s</span><span class="es-ml" style="font-size:.68vw;margin-top:7px;">vs 60 min Manual</span></div>
+      <div class="es-metric" style="padding:18px;"><span class="es-num" style="font-size:3vw;">0</span><span class="es-ml" style="font-size:.68vw;margin-top:7px;">Credentials to Cloud</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 03 THE GAP -->
 <div class="slide bg-dark" data-index="1">
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">01 -- Why This Exists</p>
-    <h2>The Gap: No Official Anaplan MCP Server</h2>
+    <h2>No AI Integration Layer Exists for Anaplan -- Every Team Builds from Scratch</h2>
   </div>
   <div class="body" style="padding-bottom:1.5vh;">
-    <div class="gap-headline" style="font-size:1.5vw;max-width:80%;padding-bottom:1vh;">Anaplan has no official MCP server. <em>Nobody does.</em><br>Every interaction requires manual work or custom code -- from scratch, every time.</div>
+    <div class="gap-headline" style="font-size:1.5vw;max-width:80%;padding-bottom:1vh;">No vendor, no community project, <em>nothing.</em><br>Every integration is hand-built, one-off, and thrown away.</div>
     <div class="gap-cols" style="gap:20px;">
       <div class="gap-left" style="gap:14px;">
         <div class="gap-void" style="padding:22px 22px;gap:14px;">
@@ -318,13 +371,13 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">02 -- Foundation</p>
-    <h2>What is MCP?</h2>
+    <h2>MCP Is the Open Standard That Makes AI-to-Anaplan Access Possible</h2>
     <p class="sub">Model Context Protocol -- the open standard by Anthropic that makes this possible</p>
   </div>
   <div class="body">
     <div class="mcp-row" style="gap:22px;">
       <div class="mcp-left" style="gap:14px;">
-        <div class="mcp-def" style="font-size:.9vw;padding:18px 20px;">MCP gives AI assistants a <strong>structured, tool-calling interface</strong> to external systems -- similar to how REST standardised web APIs. The AI describes what it wants in natural language; MCP routes it to the right tool with validated parameters.</div>
+        <div class="mcp-def" style="font-size:.9vw;padding:18px 20px;"><strong>Model Context Protocol</strong> -- a structured, tool-calling interface between AI assistants and external systems. Analogous to REST for web APIs. AI describes intent in natural language; MCP routes to the right tool with validated parameters.</div>
         <div class="mcp-flow" style="height:13vh;">
           <div class="mcp-box g"><div class="bt" style="font-size:.85vw;">AI Assistant</div><div class="bs" style="font-size:.64vw;">Claude &middot; Cursor &middot; Copilot</div></div>
           <div class="mcp-arr" style="font-size:1.6vw;">&#8594;</div>
@@ -363,7 +416,7 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">03 -- The Difference</p>
-    <h2>Before vs After</h2>
+    <h2>60-Minute Manual Workflows Now Complete in 15 Seconds</h2>
     <p class="sub">Same task: pull Q3 headcount data and run the actuals import</p>
   </div>
   <div class="body">
@@ -396,7 +449,7 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">04 -- For End Users</p>
-    <h2>What End Users Can Now Do</h2>
+    <h2>Business Users Query, Import, and Write Data in Plain English</h2>
     <p class="sub">Business users, finance teams, planners -- anyone who needs Anaplan data</p>
   </div>
   <div class="body">
@@ -443,7 +496,7 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">05 -- For Admins &amp; Model Builders</p>
-    <h2>What Admins &amp; Model Builders Can Now Do</h2>
+    <h2>Admins Gain Full Estate Visibility and Lifecycle Control Through Conversation</h2>
     <p class="sub">Workspace management, model structure, impact analysis, lifecycle, users, and calendar control</p>
   </div>
   <div class="body">
@@ -488,8 +541,8 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">06 -- The Build</p>
-    <h2>What We Built</h2>
-    <p class="sub">Complete coverage of the Anaplan Integration API v2 -- 70 tools across 3 categories</p>
+    <h2>70 Tools Deliver Complete Anaplan Integration API v2 Coverage</h2>
+    <p class="sub">Exploration, bulk actions, and transactional -- organized by risk level and function</p>
   </div>
   <div class="body">
     <div class="wst" style="gap:14px;margin-bottom:2vh;">
@@ -535,8 +588,8 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">07 -- How It Works</p>
-    <h2>Architecture</h2>
-    <p class="sub">Three layers under src/ -- each with a single responsibility</p>
+    <h2>Three Clean Layers Separate Tools, API Wrappers, and Auth</h2>
+    <p class="sub">Each layer can be tested, replaced, and extended independently</p>
   </div>
   <div class="body">
     <div class="arch" style="gap:10px;">
@@ -565,7 +618,7 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">08 -- Technical Depth</p>
-    <h2>Under the Hood</h2>
+    <h2>Retry, Auth Lifecycle, and Name Resolution Eliminate Manual Overhead</h2>
     <p class="sub">The engineering details that make this production-ready, not a prototype</p>
   </div>
   <div class="body">
@@ -605,7 +658,7 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">09 -- Governance</p>
-    <h2>Security, Safety &amp; Limitations</h2>
+    <h2>Credentials Stay Local, but Write Access Must Be Restricted Before Broader Rollout</h2>
     <p class="sub">What's safe today, what's not ready for end users, and how we're addressing it</p>
   </div>
   <div class="body">
@@ -655,8 +708,8 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">10 -- Setup</p>
-    <h2>Getting Started</h2>
-    <p class="sub">Three steps -- running in under 5 minutes</p>
+    <h2>Operational in Three Steps and Under Five Minutes</h2>
+    <p class="sub">Clone, configure credentials, restart Claude Desktop</p>
   </div>
   <div class="body">
     <div class="gss" style="gap:16px;margin-bottom:2vh;">
@@ -693,8 +746,8 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   <div class="rail"></div>
   <div class="hdr">
     <p class="lbl">11 -- What's Next</p>
-    <h2>Roadmap</h2>
-    <p class="sub">Integration API v2 fully covered. Next: a safe version for end users, then API expansion.</p>
+    <h2>End-User Safe Mode Ships Next; API Expansion Follows in Parallel</h2>
+    <p class="sub">Phase 1 complete -- priority is restricting tool access before broadening the user base</p>
   </div>
   <div class="body">
     <div class="rmr" style="grid-template-columns:repeat(3,1fr);gap:16px;">
@@ -734,8 +787,8 @@ html, body { width:100%; height:100%; overflow:hidden; background:var(--dark); f
   </div>
 </div>
 
-<!-- 13 Q&A -->
-<div class="slide s-qa" data-index="12">
+<!-- 14 Q&A -->
+<div class="slide s-qa" data-index="13">
   <div class="qa-bg"></div>
   <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
     <div class="qar" style="width:72vmin;height:72vmin;"></div>
