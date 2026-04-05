@@ -102,7 +102,8 @@ async function handlePost(req: express.Request, res: express.Response) {
 async function handleGet(req: express.Request, res: express.Response) {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
   if (!sessionId || !transports[sessionId]) {
-    res.status(400).send("Invalid or missing session ID");
+    // Return 200 for reachability checks (Claude Web probes GET before connecting)
+    res.status(200).json({ jsonrpc: "2.0", server: "anaplan-mcp", status: "ok" });
     return;
   }
   await transports[sessionId].handleRequest(req, res);
