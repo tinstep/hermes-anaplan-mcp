@@ -12,7 +12,7 @@ const transports: Record<string, StreamableHTTPServerTransport> = {};
 
 const app = express();
 
-// Log ALL requests to see what Claude Web actually sends
+// Log ALL requests
 app.use((req, _res, next) => {
   console.error(`[${new Date().toISOString()}] ${req.method} ${req.path} accept=${req.headers["accept"] ?? "none"} origin=${req.headers["origin"] ?? "none"} session=${req.headers["mcp-session-id"] ?? "none"}`);
   next();
@@ -20,18 +20,26 @@ app.use((req, _res, next) => {
 
 app.use(express.json());
 
-// CORS for browser-based clients (Claude Web)
-app.use("/mcp", (req, res, next) => {
+// CORS + anti-buffering on all MCP paths
+function mcpCors(req: express.Request, res: express.Response, next: express.NextFunction) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, Last-Event-ID");
   res.setHeader("Access-Control-Expose-Headers", "mcp-session-id, mcp-protocol-version");
-  // Prevent proxy buffering of SSE streams
   res.setHeader("X-Accel-Buffering", "no");
   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   if (req.method === "OPTIONS") {
     res.sendStatus(204);
     return;
+  }
+  next();
+}
+
+app.use("/mcp", mcpCors);
+app.use("/", (req, res, next) => {
+  // Only apply CORS to root if it looks like an MCP request (not /health etc)
+  if (req.path === "/" || req.path === "") {
+    return mcpCors(req, res, next);
   }
   next();
 });
@@ -40,9 +48,9 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-app.post("/mcp", async (req, res) => {
+// MCP POST handler
+async function handlePost(req: express.Request, res: express.Response) {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
-  console.error(`[${new Date().toISOString()}] POST /mcp session=${sessionId ?? "none"}`);
 
   try {
     let transport: StreamableHTTPServerTransport;
@@ -79,7 +87,7 @@ app.post("/mcp", async (req, res) => {
     }
     await transport.handleRequest(req, res, req.body);
   } catch (err) {
-    console.error("Error handling POST /mcp:", err);
+    console.error("Error handling POST:", err);
     if (!res.headersSent) {
       res.status(500).json({
         jsonrpc: "2.0",
@@ -88,30 +96,36 @@ app.post("/mcp", async (req, res) => {
       });
     }
   }
-});
+}
 
-app.get("/mcp", async (req, res) => {
+// MCP GET handler
+async function handleGet(req: express.Request, res: express.Response) {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
-  console.error(`[${new Date().toISOString()}] GET /mcp session=${sessionId ?? "none"}`);
-
   if (!sessionId || !transports[sessionId]) {
     res.status(400).send("Invalid or missing session ID");
     return;
   }
   await transports[sessionId].handleRequest(req, res);
-});
+}
 
-app.delete("/mcp", async (req, res) => {
+// MCP DELETE handler
+async function handleDelete(req: express.Request, res: express.Response) {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
-  console.error(`[${new Date().toISOString()}] DELETE /mcp session=${sessionId ?? "none"}`);
-
   if (!sessionId || !transports[sessionId]) {
     res.status(400).send("Invalid or missing session ID");
     return;
   }
   await transports[sessionId].handleRequest(req, res);
-});
+}
+
+// Register on both /mcp and /
+app.post("/mcp", handlePost);
+app.get("/mcp", handleGet);
+app.delete("/mcp", handleDelete);
+app.post("/", handlePost);
+app.get("/", handleGet);
+app.delete("/", handleDelete);
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.error(`Anaplan MCP server running on http://0.0.0.0:${PORT}/mcp`);
+  console.error(`Anaplan MCP server running on http://0.0.0.0:${PORT}`);
 });
