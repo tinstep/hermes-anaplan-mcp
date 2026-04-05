@@ -45,6 +45,7 @@ app.post("/mcp", async (req, res) => {
     } else if (!sessionId && isInitializeRequest(req.body)) {
       transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => randomUUID(),
+        enableJsonResponse: true,
         onsessioninitialized: (sid) => {
           console.error(`[${new Date().toISOString()}] Session initialized: ${sid}`);
           transports[sid] = transport;
