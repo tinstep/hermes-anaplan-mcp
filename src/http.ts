@@ -57,6 +57,14 @@ async function handlePost(req: express.Request, res: express.Response) {
 
     if (sessionId && transports[sessionId]) {
       transport = transports[sessionId];
+    } else if (sessionId && !transports[sessionId]) {
+      // Stale session (machine restarted, session lost) — return 404 so client re-initializes
+      res.status(404).json({
+        jsonrpc: "2.0",
+        error: { code: -32000, message: "Session not found. Please reconnect." },
+        id: null,
+      });
+      return;
     } else if (!sessionId && isInitializeRequest(req.body)) {
       transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => randomUUID(),
