@@ -13,6 +13,22 @@ const transports: Record<string, StreamableHTTPServerTransport> = {};
 const app = express();
 app.use(express.json());
 
+// CORS for browser-based clients (Claude Web)
+app.use("/mcp", (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, Last-Event-ID");
+  res.setHeader("Access-Control-Expose-Headers", "mcp-session-id, mcp-protocol-version");
+  // Prevent proxy buffering of SSE streams
+  res.setHeader("X-Accel-Buffering", "no");
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  if (req.method === "OPTIONS") {
+    res.sendStatus(204);
+    return;
+  }
+  next();
+});
+
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
