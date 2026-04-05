@@ -29,6 +29,13 @@ function parseBody(req: import("node:http").IncomingMessage): Promise<unknown> {
 const httpServer = createHttpServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://localhost:${PORT}`);
 
+  // Health check
+  if (url.pathname === "/health") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ status: "ok" }));
+    return;
+  }
+
   // Only handle /mcp
   if (url.pathname !== "/mcp") {
     res.writeHead(404, { "Content-Type": "application/json" });
@@ -36,11 +43,11 @@ const httpServer = createHttpServer(async (req, res) => {
     return;
   }
 
-  // CORS headers for browser-based clients
+  // CORS and access headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, mcp-session-id, Last-Event-ID");
-  res.setHeader("Access-Control-Expose-Headers", "mcp-session-id");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, mcp-session-id, mcp-protocol-version, Last-Event-ID");
+  res.setHeader("Access-Control-Expose-Headers", "mcp-session-id, mcp-protocol-version");
 
   if (req.method === "OPTIONS") {
     res.writeHead(204);
