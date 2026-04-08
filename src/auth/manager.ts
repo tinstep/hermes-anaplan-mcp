@@ -1,7 +1,7 @@
 import type { AuthProvider, TokenInfo } from "./types.js";
 import { BasicAuthProvider } from "./basic.js";
 import { CertificateAuthProvider, type CertificateEncodedDataFormat } from "./certificate.js";
-import { OAuthProvider, type AuthorizationCodeOptions } from "./oauth.js";
+import { OAuthProvider } from "./oauth.js";
 
 const REFRESH_BUFFER_MS = 5 * 60 * 1000; // Refresh 5 minutes before expiry
 const INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000; // Force re-auth after 60 min inactivity
@@ -39,16 +39,9 @@ export class AuthManager {
     }
 
     const clientId = process.env.ANAPLAN_CLIENT_ID;
-    const clientSecret = process.env.ANAPLAN_CLIENT_SECRET;
     if (clientId) {
-      const authorizationCode = process.env.ANAPLAN_OAUTH_AUTHORIZATION_CODE;
-      const redirectUri = process.env.ANAPLAN_OAUTH_REDIRECT_URI;
       const initialRefreshToken = process.env.ANAPLAN_REFRESH_TOKEN || undefined;
-      let authCodeOptions: AuthorizationCodeOptions | undefined;
-      if (clientSecret && authorizationCode && redirectUri) {
-        authCodeOptions = { authorizationCode, redirectUri };
-      }
-      return new AuthManager(new OAuthProvider(clientId, clientSecret, authCodeOptions, initialRefreshToken), "oauth");
+      return new AuthManager(new OAuthProvider(clientId, undefined, undefined, initialRefreshToken), "oauth");
     }
 
     const username = process.env.ANAPLAN_USERNAME;

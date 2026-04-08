@@ -29,6 +29,7 @@ interface PendingDeviceState {
   intervalMs: number;
 }
 
+// Kept for constructor compatibility; OAuth now supports device grant only.
 export interface AuthorizationCodeOptions {
   authorizationCode: string;
   redirectUri: string;
@@ -57,22 +58,17 @@ export class DeviceAuthorizationRequiredError extends Error {
 
 export class OAuthProvider implements AuthProvider {
   private readonly clientId: string;
-  private readonly clientSecret?: string;
-  private readonly authCodeOptions?: AuthorizationCodeOptions;
-  private authCodeUsed = false;
   private pendingDevice: PendingDeviceState | null = null;
   private initialRefreshToken: string | null;
 
   constructor(
     clientId: string,
-    clientSecret?: string,
-    authCodeOptions?: AuthorizationCodeOptions,
+    _clientSecret?: string,
+    _authCodeOptions?: AuthorizationCodeOptions,
     initialRefreshToken?: string,
   ) {
     if (!clientId) throw new Error("Anaplan OAuth client ID is required");
     this.clientId = clientId;
-    this.clientSecret = clientSecret;
-    this.authCodeOptions = authCodeOptions;
     this.initialRefreshToken = initialRefreshToken ?? null;
   }
 
@@ -82,46 +78,7 @@ export class OAuthProvider implements AuthProvider {
       this.initialRefreshToken = null;
       return this.refresh(rt);
     }
-    if (this.authCodeOptions) {
-      return this.authenticateWithAuthorizationCode();
-    }
     return this.authenticateWithDeviceGrant();
-  }
-
-  private async authenticateWithAuthorizationCode(): Promise<TokenInfo> {
-    if (this.authCodeUsed) {
-      throw new Error("Authorization code has already been used. Use refresh() to get new tokens.");
-    }
-    this.authCodeUsed = true;
-
-    const response = await fetch(TOKEN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        grant_type: "authorization_code",
-        code: this.authCodeOptions!.authorizationCode,
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        redirect_uri: this.authCodeOptions!.redirectUri,
-      }),
-      signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
-    });
-
-    if (!response.ok) {
-      throw new Error(`OAuth authorization code exchange failed: ${response.status} ${response.statusText}`);
-    }
-
-    const data = (await response.json()) as OAuthTokenResponse & { error?: string };
-    if (data.error) {
-      throw new Error(`OAuth authorization code exchange failed: ${data.error}`);
-    }
-
-    return {
-      tokenId: "",
-      tokenValue: data.access_token,
-      expiresAt: Date.now() + data.expires_in * 1000,
-      refreshTokenId: data.refresh_token,
-    };
   }
 
   private async authenticateWithDeviceGrant(): Promise<TokenInfo> {
@@ -211,11 +168,6 @@ export class OAuthProvider implements AuthProvider {
       grant_type: "refresh_token",
       refresh_token: refreshToken,
     };
-
-    // Authorization code grant requires client_secret in refresh
-    if (this.authCodeOptions && this.clientSecret) {
-      body.client_secret = this.clientSecret;
-    }
 
     const response = await fetch(TOKEN_URL, {
       method: "POST",

@@ -32,8 +32,7 @@ flowchart LR
     subgraph AUTH["Anaplan Auth Paths"]
         A1[Certificate auth]
         A2[OAuth device grant]
-        A3[OAuth authorization code]
-        A4[Basic auth]
+        A3[Basic auth]
     end
 
     subgraph ANAPLAN["Anaplan Platform"]
@@ -52,12 +51,10 @@ flowchart LR
     AH --> A1
     AH --> A2
     AH --> A3
-    AH --> A4
 
     A1 --> API
     A2 --> API
     A3 --> API
-    A4 --> API
 
     TL --> API
     API --> I

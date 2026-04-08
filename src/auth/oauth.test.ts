@@ -347,74 +347,29 @@ describe("OAuthProvider", () => {
     expect(body.client_id).toBe("client-id");
   });
 
-  describe("authorization code grant", () => {
-    it("exchanges code for token", async () => {
-      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          access_token: "auth-code-token",
-          token_type: "Bearer",
-          expires_in: 2100,
-          refresh_token: "auth-code-refresh",
-        }),
-      } as Response);
+  it("ignores legacy authorization code inputs and still uses device grant", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        device_code: "dcode",
+        user_code: "UCODE",
+        verification_uri: "https://auth.anaplan.com/device",
+        expires_in: 600,
+        interval: 5,
+      }),
+    } as Response);
 
-      const provider = new OAuthProvider("client-id", "client-secret", {
-        authorizationCode: "my-auth-code",
-        redirectUri: "https://example.com/callback",
-      });
-      const token = await provider.authenticate();
-
-      expect(token.tokenValue).toBe("auth-code-token");
-      expect(token.refreshTokenId).toBe("auth-code-refresh");
-
-      const body = JSON.parse(fetchSpy.mock.calls[0][1]!.body as string);
-      expect(body.grant_type).toBe("authorization_code");
-      expect(body.code).toBe("my-auth-code");
-      expect(body.client_id).toBe("client-id");
-      expect(body.client_secret).toBe("client-secret");
-      expect(body.redirect_uri).toBe("https://example.com/callback");
+    const provider = new OAuthProvider("client-id", "client-secret", {
+      authorizationCode: "my-auth-code",
+      redirectUri: "https://example.com/callback",
     });
 
-    it("refresh includes client_secret", async () => {
-      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          access_token: "tok",
-          token_type: "Bearer",
-          expires_in: 2100,
-          refresh_token: "ref",
-        }),
-      } as Response);
+    await expect(provider.authenticate()).rejects.toBeInstanceOf(DeviceAuthorizationRequiredError);
 
-      const provider = new OAuthProvider("client-id", "client-secret", {
-        authorizationCode: "my-auth-code",
-        redirectUri: "https://example.com/callback",
-      });
-      await provider.refresh("old-refresh");
-
-      const body = JSON.parse(fetchSpy.mock.calls[0][1]!.body as string);
-      expect(body.client_secret).toBe("client-secret");
-      expect(body.client_id).toBe("client-id");
-    });
-
-    it("throws if authenticate is called twice (code is single-use)", async () => {
-      vi.spyOn(globalThis, "fetch").mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          access_token: "tok",
-          token_type: "Bearer",
-          expires_in: 2100,
-          refresh_token: "ref",
-        }),
-      } as Response);
-
-      const provider = new OAuthProvider("client-id", "client-secret", {
-        authorizationCode: "my-auth-code",
-        redirectUri: "https://example.com/callback",
-      });
-      await provider.authenticate();
-      await expect(provider.authenticate()).rejects.toThrow("already been used");
-    });
+    expect(fetchSpy.mock.calls[0]?.[0]).toContain("device/code");
+    const body = JSON.parse(fetchSpy.mock.calls[0][1]!.body as string);
+    expect(body.code).toBeUndefined();
+    expect(body.client_secret).toBeUndefined();
+    expect(body.scope).toBe("openid profile email offline_access");
   });
 });

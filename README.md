@@ -142,15 +142,7 @@ For other auth methods, use the same structure with a different `env` block:
 
 On first use, Claude shows a link in chat — click it, approve in Anaplan, then retry your request. OAuth tokens are kept in memory only. If the MCP process restarts, or an OAuth session is idle for more than 60 minutes, you'll be prompted to authorize again unless you provide `ANAPLAN_REFRESH_TOKEN` yourself.
 
-**OAuth2 (authorization code) - non-interactive:**
-```json
-"env": {
-  "ANAPLAN_CLIENT_ID": "your-client-id",
-  "ANAPLAN_CLIENT_SECRET": "your-client-secret",
-  "ANAPLAN_OAUTH_AUTHORIZATION_CODE": "code-from-redirect",
-  "ANAPLAN_OAUTH_REDIRECT_URI": "https://your-app.com/callback"
-}
-```
+OAuth support is device grant only. `ANAPLAN_CLIENT_SECRET`, `ANAPLAN_OAUTH_AUTHORIZATION_CODE`, and `ANAPLAN_OAUTH_REDIRECT_URI` are ignored by the server.
 
 If your config file already has content, add `mcpServers` inside the existing top-level object - don't create a second `{}` block.
 
@@ -200,7 +192,6 @@ All configuration is done through environment variables. There are no config fil
 |--------|----------|-------------|
 | Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH`, `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` (optional) | Highest priority. PEM certificate + private key, authenticates via CACertificate flow. Data format defaults to `v2` |
 | OAuth2 (device grant) | `ANAPLAN_CLIENT_ID` | Device authorization flow. Claude shows you the URL and code in chat; authorize in browser then retry. Tokens stay in memory only, so restart or >60 minutes of idle time requires another device login unless you set `ANAPLAN_REFRESH_TOKEN` manually |
-| OAuth2 (authorization code) | `ANAPLAN_CLIENT_ID`, `ANAPLAN_CLIENT_SECRET`, `ANAPLAN_OAUTH_AUTHORIZATION_CODE`, `ANAPLAN_OAUTH_REDIRECT_URI` | Non-interactive. Requires all four env vars. Code is single-use |
 | Basic | `ANAPLAN_USERNAME`, `ANAPLAN_PASSWORD` | Lowest priority. Email + password, sends base64 credentials to auth endpoint |
 
 You only need one set of credentials. If multiple are configured, the server picks the highest-priority method automatically.

@@ -45,13 +45,27 @@ describe("AuthManager", () => {
     expect(() => AuthManager.fromEnv()).toThrow("encoded data format");
   });
 
-  it("selects oauth with authorization code grant when all env vars set", () => {
+  it("ignores authorization code env vars and still starts device grant", async () => {
     process.env.ANAPLAN_CLIENT_ID = "cid";
     process.env.ANAPLAN_CLIENT_SECRET = "csecret";
     process.env.ANAPLAN_OAUTH_AUTHORIZATION_CODE = "authcode";
     process.env.ANAPLAN_OAUTH_REDIRECT_URI = "https://example.com/callback";
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        device_code: "dc",
+        user_code: "ABCD-1234",
+        verification_uri: "https://example.com/device",
+        expires_in: 300,
+        interval: 5,
+      }),
+    } as Response);
+
     const manager = AuthManager.fromEnv();
     expect(manager.getProviderType()).toBe("oauth");
+    await expect(manager.getAuthHeaders()).rejects.toThrow("Anaplan authorization required");
+    expect(fetchSpy.mock.calls[0]?.[0]).toContain("device/code");
   });
 
   it("selects oauth device grant when only client_id is set", () => {
