@@ -17,6 +17,10 @@ mcpServers.anaplan.env
 
 # Internal planning docs
 docs/plans/
+docs/demo_presentation/
+
+# Claude Code project instructions
+CLAUDE.md
 
 # Local examples (not shared)
 examples/local/
