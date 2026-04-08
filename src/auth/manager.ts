@@ -32,6 +32,12 @@ export class AuthManager {
   }
 
   static fromEnv(): AuthManager {
+    const clientId = process.env.ANAPLAN_CLIENT_ID;
+    if (clientId) {
+      const initialRefreshToken = process.env.ANAPLAN_REFRESH_TOKEN || undefined;
+      return new AuthManager(new OAuthProvider(clientId, undefined, undefined, initialRefreshToken), "oauth");
+    }
+
     const certPath = process.env.ANAPLAN_CERTIFICATE_PATH;
     const keyPath = process.env.ANAPLAN_PRIVATE_KEY_PATH;
     if (certPath && keyPath) {
@@ -41,12 +47,6 @@ export class AuthManager {
           .trim() as CertificateEncodedDataFormat | undefined) ??
         "v2";
       return new AuthManager(new CertificateAuthProvider(certPath, keyPath, encodedDataFormat), "certificate");
-    }
-
-    const clientId = process.env.ANAPLAN_CLIENT_ID;
-    if (clientId) {
-      const initialRefreshToken = process.env.ANAPLAN_REFRESH_TOKEN || undefined;
-      return new AuthManager(new OAuthProvider(clientId, undefined, undefined, initialRefreshToken), "oauth");
     }
 
     const username = process.env.ANAPLAN_USERNAME;

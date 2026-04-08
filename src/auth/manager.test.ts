@@ -29,7 +29,17 @@ describe("AuthManager", () => {
     expect(manager).toBeInstanceOf(AuthManager);
   });
 
-  it("prefers certificate over basic when both are set", () => {
+  it("prefers oauth over certificate and basic when all are set", () => {
+    process.env.ANAPLAN_USERNAME = "user";
+    process.env.ANAPLAN_PASSWORD = "pass";
+    process.env.ANAPLAN_CLIENT_ID = "cid";
+    process.env.ANAPLAN_CERTIFICATE_PATH = "/cert.pem";
+    process.env.ANAPLAN_PRIVATE_KEY_PATH = "/key.pem";
+    const manager = AuthManager.fromEnv();
+    expect(manager.getProviderType()).toBe("oauth");
+  });
+
+  it("prefers certificate over basic when oauth is not configured", () => {
     process.env.ANAPLAN_USERNAME = "user";
     process.env.ANAPLAN_PASSWORD = "pass";
     process.env.ANAPLAN_CERTIFICATE_PATH = "/cert.pem";

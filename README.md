@@ -191,8 +191,8 @@ All configuration is done through environment variables. There are no config fil
 
 | Method | Env Vars | Description |
 |--------|----------|-------------|
-| Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH`, `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` (optional) | Highest priority. PEM certificate + private key, authenticates via CACertificate flow. Data format defaults to `v2` |
-| OAuth2 (device grant) | `ANAPLAN_CLIENT_ID` | Device authorization flow. Claude shows you the URL and code in chat; authorize in browser then retry. Tokens stay in memory only, so restart or >60 minutes of idle time requires another device login unless you set `ANAPLAN_REFRESH_TOKEN` manually |
+| OAuth2 (device grant) | `ANAPLAN_CLIENT_ID` | Highest priority. Device authorization flow. Claude shows you the URL and code in chat; authorize in browser then retry. Tokens stay in memory only, so restart or >60 minutes of idle time requires another device login unless you set `ANAPLAN_REFRESH_TOKEN` manually |
+| Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH`, `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` (optional) | Second priority. PEM certificate + private key, authenticates via CACertificate flow. Data format defaults to `v2` |
 | Basic | `ANAPLAN_USERNAME`, `ANAPLAN_PASSWORD` | Lowest priority. Email + password, sends base64 credentials to auth endpoint |
 
 You only need one set of credentials. If multiple are configured, the server picks the highest-priority method automatically.
