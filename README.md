@@ -104,7 +104,9 @@ If the file doesn't exist yet, create it with `{}` as the contents.
 
 Replace `<path>` with the absolute path to your cloned repo (e.g. `/Users/you/anaplan-mcp` on macOS/Linux or `C:/Users/you/anaplan-mcp` on Windows - always use forward slashes).
 
-**Basic auth:**
+Choose **one** auth method only. For most users, use **OAuth2** so Claude can show a sign-in link in chat. Do not set OAuth, certificate, and basic env vars together.
+
+**Recommended: OAuth2 (device grant)**
 
 ```json
 {
@@ -113,17 +115,20 @@ Replace `<path>` with the absolute path to your cloned repo (e.g. `/Users/you/an
       "command": "node",
       "args": ["<path>/dist/index.js"],
       "env": {
-        "ANAPLAN_USERNAME": "user@company.com",
-        "ANAPLAN_PASSWORD": "your-password"
+        "ANAPLAN_CLIENT_ID": "your-client-id"
       }
     }
   }
 }
 ```
 
-For other auth methods, use the same structure with a different `env` block:
+On first use, Claude shows a link in chat, approve it in Anaplan, then retry your request. OAuth tokens are kept in memory only. If the MCP process restarts, or an OAuth session is idle for more than 60 minutes, you'll be prompted to authorize again unless you provide `ANAPLAN_REFRESH_TOKEN` yourself.
 
-**Certificate auth:**
+OAuth support is device grant only. `ANAPLAN_CLIENT_SECRET`, `ANAPLAN_OAUTH_AUTHORIZATION_CODE`, and `ANAPLAN_OAUTH_REDIRECT_URI` are ignored by the server.
+
+If you do not want OAuth, use one of these alternatives instead:
+
+**Certificate auth**
 ```json
 "env": {
   "ANAPLAN_CERTIFICATE_PATH": "/path/to/cert.pem",
@@ -132,17 +137,16 @@ For other auth methods, use the same structure with a different `env` block:
 ```
 `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` can be added optionally; defaults to `v2`. Set `v1` only for legacy tenants.
 
-**OAuth2 (device grant):**
+**Basic auth**
 
 ```json
 "env": {
-  "ANAPLAN_CLIENT_ID": "your-client-id"
+  "ANAPLAN_USERNAME": "user@company.com",
+  "ANAPLAN_PASSWORD": "your-password"
 }
 ```
 
-On first use, Claude shows a link in chat — click it, approve in Anaplan, then retry your request. OAuth tokens are kept in memory only. If the MCP process restarts, or an OAuth session is idle for more than 60 minutes, you'll be prompted to authorize again unless you provide `ANAPLAN_REFRESH_TOKEN` yourself.
-
-OAuth support is device grant only. `ANAPLAN_CLIENT_SECRET`, `ANAPLAN_OAUTH_AUTHORIZATION_CODE`, and `ANAPLAN_OAUTH_REDIRECT_URI` are ignored by the server.
+Use this only if you want email/password auth instead of OAuth or certificate auth. If your Anaplan account uses SSO, basic auth may not work unless your tenant allows exception users.
 
 If your config file already has content, add `mcpServers` inside the existing top-level object - don't create a second `{}` block.
 
@@ -384,3 +388,4 @@ Unofficial personal project - not affiliated with, endorsed by, or supported by 
 ## License
 
 MIT - see [LICENSE](LICENSE) file for details. Covers the code in this repository only. Anaplan's API and service are subject to Anaplan's Terms of Service and Acceptable Use Policy.
+
