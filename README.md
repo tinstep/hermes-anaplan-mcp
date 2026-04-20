@@ -7,6 +7,8 @@
 # Anaplan MCP
 ### Unofficial MCP server for Anaplan
 
+> **Setup Guide:** [larasrinath.com/project/2026-02-09-anaplan-mcp/#setup-guide](https://www.larasrinath.com/project/2026-02-09-anaplan-mcp/#setup-guide) — platform-aware install walkthrough for Windows, macOS, and Linux with OAuth2 / Certificate / Basic Auth options.
+
 A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that connects AI assistants to Anaplan's Integration API v2. Gives LLMs like Claude direct access to browse workspaces, manage data, run imports/exports, and administer models through 70 structured tools, using your existing Anaplan credentials and permissions.
 
 Built in TypeScript. Supports both stdio (local) and Streamable HTTP (remote) transports. Works with Claude Desktop, Claude Code, claude.ai, and any MCP-compatible client. Includes a built-in orchestration guide that teaches the AI assistant the correct tool sequences for every workflow.
