@@ -7,7 +7,7 @@
 # Anaplan MCP
 ### Unofficial MCP server for Anaplan
 
-> **[Setup Guide →](https://www.larasrinath.com/project/2026-02-09-anaplan-mcp/#setup-guide)** — platform-aware install walkthrough for Windows, macOS, and Linux with OAuth2 / Certificate / Basic Auth options.
+**[Setup guide](https://www.larasrinath.com/project/2026-02-09-anaplan-mcp/#setup-guide)**: platform-aware install walkthrough for Windows, macOS, and Linux with OAuth2 / Certificate / Basic Auth options.
 
 A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that connects AI assistants to Anaplan's Integration API v2. Gives LLMs like Claude direct access to browse workspaces, manage data, run imports/exports, and administer models through 70 structured tools, using your existing Anaplan credentials and permissions.
 
