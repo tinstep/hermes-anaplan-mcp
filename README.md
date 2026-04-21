@@ -3,6 +3,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![MCP](https://img.shields.io/badge/MCP-compatible-green?logo=anthropic)](https://modelcontextprotocol.io/)
 [![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-blueviolet?logo=anthropic)](https://claude.ai/code)
+[![MCP Badge](https://lobehub.com/badge/mcp/larasrinath-anaplan-mcp)](https://lobehub.com/mcp/larasrinath-anaplan-mcp)
 
 # Anaplan MCP
 ### Unofficial MCP server for Anaplan
