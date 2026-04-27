@@ -55,6 +55,14 @@ This server wraps the API in 70 structured tools that AI assistants like Claude 
 - "How is this model structured? What are the key lists?"
 - "What changed in this model since last quarter?"
 
+
+
+## Development
+
+This server was developed using the **[Hermes Agent](https://github.com/anthropics/hermes)** - an AI agent framework from Anthropic that powers tools like Claude Code. The development workflow involved orchestrating multiple AI agents to implement, test, and document the Anaplan MCP integration.
+
+**Note:** While development was done using Hermes Agent, this repository is intended for general use with any MCP-compatible client. The Hermes Agent toolset enables automated multi-step workflows that accelerate development, but the resulting MCP server itself is platform-agnostic and works with Claude Desktop, Claude Code, claude.ai, and other MCP clients.
+
 ## What It Can and Can't Do
 
 ### What it can do
