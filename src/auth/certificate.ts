@@ -5,7 +5,7 @@ import type { AuthProvider, AuthResponse, TokenInfo } from "./types.js";
 const AUTH_URL = "https://auth.anaplan.com/token/authenticate";
 const REFRESH_URL = "https://auth.anaplan.com/token/refresh";
 const RANDOM_BYTES_LENGTH = 100;
-const AUTH_TIMEOUT_MS = 15_000;
+const AUTH_TIMEOUT_MS = 15000;
 
 export type CertificateEncodedDataFormat = "v1" | "v2";
 

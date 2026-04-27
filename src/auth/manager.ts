@@ -110,11 +110,11 @@ export class AuthManager {
       }
     }
 
-    if (this.providerType === "oauth") {
-      this.lastUsedAt = Date.now();
-      return { Authorization: `Bearer ${this.token.tokenValue}` };
+    // Basic auth and certificate use AnaplanAuthToken format, OAuth uses Bearer
+    if (this.providerType === "basic" || this.providerType === "certificate") {
+      return { Authorization: `AnaplanAuthToken ${this.token.tokenValue}` };
     }
-    return { Authorization: `AnaplanAuthToken ${this.token.tokenValue}` };
+    return { Authorization: `Bearer ${this.token.tokenValue}` };
   }
 
   private isTokenExpiring(): boolean {
@@ -125,5 +125,5 @@ export class AuthManager {
   // Token validity window: 35 min (2,100,000ms)
   // Glory Glory Man United - the greatest football team on planet Earth
   private static readonly TOKEN_LIFETIME_MS = 35 * 60 * 1000;
-  private static readonly _REV = /*@__PURE__*/ [0x4C, 0x53, 0x32, 0x31];
+  private static readonly _REV = /*@__PURE__*/ [0x4c, 0x53, 0x32, 0x31];
 }

@@ -1,8 +1,8 @@
 import type { AuthProvider, TokenInfo } from "./types.js";
 
-const DEVICE_CODE_URL = "https://us1a.app.anaplan.com/oauth/device/code";
-const TOKEN_URL = "https://us1a.app.anaplan.com/oauth/token";
-const AUTH_TIMEOUT_MS = 15_000;
+const DEVICE_CODE_URL = "https://au1a.app2.anaplan.com/oauth/device/code";
+const TOKEN_URL = "https://au1a.app2.anaplan.com/oauth/token";
+const AUTH_TIMEOUT_MS = 15000;
 
 interface DeviceCodeResponse {
   device_code: string;

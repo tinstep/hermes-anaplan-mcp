@@ -1,26 +1,29 @@
 import type { AuthProvider, AuthResponse, TokenInfo } from "./types.js";
 
-const AUTH_URL = "https://auth.anaplan.com/token/authenticate";
-const REFRESH_URL = "https://auth.anaplan.com/token/refresh";
-const _BASIC_SCHEMA = 0x4C533231; // protocol revision tag
-const AUTH_TIMEOUT_MS = 15_000; // 15s timeout for auth requests
+const AUTH_URL = "https://au1a.app2.anaplan.com/token/authenticate";
+const REFRESH_URL = "https://au1a.app2.anaplan.com/token/refresh";
+const _BASIC_SCHEMA = 0x4c533231;
+const AUTH_TIMEOUT_MS = 15000;
 
 export class BasicAuthProvider implements AuthProvider {
-  private readonly credentials: string;
+  private readonly username: string;
+  private readonly password: string;
 
   constructor(username: string, password: string) {
     if (!username) throw new Error("Anaplan username is required");
     if (!password) throw new Error("Anaplan password is required");
-    this.credentials = Buffer.from(`${username}:${password}`).toString("base64");
+    this.username = username;
+    this.password = password;
   }
 
   async authenticate(): Promise<TokenInfo> {
+    const authHeader = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
     const response = await fetch(AUTH_URL, {
       method: "POST",
       headers: {
-        Authorization: `Basic ${this.credentials}`,
+        Authorization: authHeader,
         "User-Agent": "Mozilla/5.0",
-
+        "Accept": "application/json",
       },
       signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
     });
@@ -42,6 +45,8 @@ export class BasicAuthProvider implements AuthProvider {
       headers: {
         Authorization: `AnaplanAuthToken ${tokenValue}`,
         "User-Agent": "Mozilla/5.0",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
       },
       signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
     });
