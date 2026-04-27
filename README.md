@@ -2,7 +2,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![MCP](https://img.shields.io/badge/MCP-compatible-green?logo=anthropic)](https://modelcontextprotocol.io/)
-[![MCP Badge](https://lobehub.com/badge/mcp/larasrinath-anaplan-mcp)](https://lobehub.com/mcp/larasrinath-anaplan-mcp)
+[![Developed with Hermes Agent](https://img.shields.io/badge/Developed%20with-Hermes%20Agent-brightgreen?logo=ant)](https://github.com/anthropics/hermes)
+![Claude Code: Untested](https://img.shields.io/badge/Claude%20Code-Untested-orange?logo=anthropic)
 
 # Anaplan MCP
 ### Unofficial MCP server for Anaplan
@@ -12,6 +13,8 @@
 A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server that connects AI assistants to Anaplan's Integration API v2. Gives LLMs like Claude direct access to browse workspaces, manage data, run imports/exports, and administer models through 70 structured tools, using your existing Anaplan credentials and permissions.
 
 Built in TypeScript. Supports both stdio (local) and Streamable HTTP (remote) transports. Works with Claude Desktop, Claude Code, claude.ai, and any MCP-compatible client. Includes a built-in orchestration guide that teaches the AI assistant the correct tool sequences for every workflow.
+
+**Note: This server was developed using Hermes Agent. Claude Code has not been tested as a development environment for this project.**
 
 ## Why This Exists
 
@@ -83,8 +86,8 @@ For model building, use Anaplan's UI or Agent Studio.
 ### 1. Clone and build
 
 ```bash
-git clone https://github.com/larasrinath/anaplan-mcp.git
-cd anaplan-mcp
+git clone https://github.com/tinstep/hermes-anaplan-mcp.git
+cd hermes-anaplan-mcp
 npm install
 npm run build
 ```
@@ -159,11 +162,13 @@ Quit Claude Desktop completely (right-click the system tray icon and quit - don'
 **Troubleshooting:**
 
 - **"Unexpected non-whitespace" error** - Your JSON is invalid. Make sure there's only one `{}` object in the file and no trailing commas. Paste your config into [jsonlint.com](https://jsonlint.com/) to check.
-- **Server disconnected** - Run `node C:/path/to/anaplan-mcp/dist/index.js` in a terminal to see the actual error. Common causes: wrong path in `args`, missing `npm run build`, or Node.js not installed.
+- **Server disconnected** - Run `node C:/path/to/hermes-anaplan-mcp/dist/index.js` in a terminal to see the actual error. Common causes: wrong path in `args`, missing `npm run build`, or Node.js not installed.
 - **401 Unauthorized when using tools** - Your Anaplan credentials are wrong, or your account uses SSO (in which case basic auth won't work - use certificate or OAuth2 instead).
 - **OAuth refresh failed / reauthorization required** - The MCP server is up and reached Anaplan, but the saved OAuth session is no longer valid. Re-authorize in your MCP client, then retry the tool.
 
 ### Connect to Claude Code
+
+**Note:** Claude Code was not used as a development environment for this project. If you encounter issues, try using Claude Desktop first for comparison.
 
 Copy `.mcp.json.example` to `.mcp.json` and fill in your credentials. The file is gitignored by default - never commit credentials to version control.
 
@@ -174,7 +179,7 @@ cp .mcp.json.example .mcp.json
 Alternatively, use the CLI:
 
 ```bash
-claude mcp add anaplan -- node /absolute/path/to/anaplan-mcp/dist/index.js
+claude mcp add anaplan -- node /absolute/path/to/hermes-anaplan-mcp/dist/index.js
 ```
 
 ### Other MCP clients
