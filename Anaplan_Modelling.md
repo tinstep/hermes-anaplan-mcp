@@ -39,37 +39,203 @@ Anaplan is a cloud-based planning and performance management platform that enabl
 
 ## Model Structure & Architecture
 
-### The 3-Tier Model Pattern
+### DISCO: Deconstructing the Cube
+
+DISCO (Deconstructing the Cube) is Anaplan's foundational modeling methodology for organizing modules within a model. It provides a structured, performant, and maintainable approach to building Anaplan models by categorizing them into five distinct tiers based on their purpose.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     OUTPUT MODULES                          │
-│  - Dashboards, Reports, Summary Views                       │
-│  - Final calculated results, visualizations                 │
+│                    OUTPUT MODULES (O)                       │
+│  - REP01 P&L Summary, REP02 Cash Flow, REP03 Balance Sheet  │
+│  - Present information for end users, dashboards, reports   │
+│  - Formatted views, summaries for consumption               │
 └─────────────────────────────────────────────────────────────┘
                              ▲
                              │
 ┌─────────────────────────────────────────────────────────────┐
-│                    DRIVER/INPUT MODULES                     │
-│  - Business drivers, assumptions, input data                │
-│  - Calculations, aggregations, transformations              │
+│              CALCULATION MODULES (C)                        │
+│  - CALC01 Revenue Forecast, CALC02 Margin Analysis          │
+│  - Contain business logic, formulas, transformations        │
+│  - Bridge inputs and data to produce outputs                │
 └─────────────────────────────────────────────────────────────┘
                              ▲
                              │
 ┌─────────────────────────────────────────────────────────────┐
-│                     INPUT MODULES                           │
-│  - Raw data entry, user inputs, external loads              │
-│  - Source data from integrations                            │
+│              INPUT MODULES (I)                              │
+│  - INP01 Growth Rates, INP01 Volume Assumptions             │
+│  - User-entered assumptions, forecasts, targets             │
+│  - Drivers that feed into calculations                      │
+└─────────────────────────────────────────────────────────────┘
+                             ▲
+                             │
+┌─────────────────────────────────────────────────────────────┐
+│              SYSTEM MODULES (S)                             │
+│  - SYS01 Time Settings, SYS02 Exchange Rates, SYS03 Tax     │
+│  - Store settings, configuration, reference data            │
+│  - Provide helper data that other modules depend on         │
+└─────────────────────────────────────────────────────────────┘
+                             ▲
+                             │
+┌─────────────────────────────────────────────────────────────┐
+│                DATA MODULES (D)                             │
+│  - DAT01 Sales Data, DAT02 HR Records, DAT03 Inventory      │
+│  - Hold imported raw data from external sources             │
+│  - Serve as foundation for calculations in other modules    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Module Categories
+### D.I.S.C.O. Module Naming Convention
 
-| Category | Purpose | Examples | Characteristics |
-|----------|---------|----------|-----------------|
-| **Input** | Data entry points | Actuals, Budgets, Forecasts | Simple structure, minimal formulas |
-| **Driver** | Business logic | Ratios, Metrics, Calculations | Complex formulas, aggregations |
-| **Output** | Results & reporting | P&L, Balances, Dashboards | Readable layout, visual focus |
+Modules should follow the naming pattern: **`[CategoryCode][Number][ModuleName]`**
+
+| Prefix | Category | Example | Purpose |
+|--------|----------|---------|---------|
+| **DAT** | Data | DAT01 Sales Data | Imported raw data from external sources |
+| **INP** | Input | INP01 Growth Rates | User-entered assumptions, forecasts, targets |
+| **SYS** | System | SYS01 Time Settings | Settings, configuration, reference data |
+| **CALC** | Calculation | CALC01 Revenue Forecast | Business logic, formulas, transformations |
+| **REP** | Output/Reporting | REP01 P&L Summary | Final results, dashboards, reports |
+
+**Naming Rules:**
+- Use numeric suffixes for ordering within categories (DAT01, DAT02, INP01, etc.)
+- Be descriptive with module names that clearly communicate their purpose
+- Keep modules focused: one module should handle one business function
+- Use underscores or camelCase for multi-word names: `INP01_Growth_Rates` or `INP01GrowthRates`
+
+### DISCO Module Characteristics
+
+#### D - Data Modules
+- **Purpose**: Store raw data imported from external systems
+- **Characteristics**:
+  - Minimal or no formulas
+  - Direct data imports via Anaplan imports or API
+  - Often contain transactional or master data
+  - Flat structure with minimal hierarchies
+- **Best Practices**:
+  - Import data once, build all other modules from it
+  - Keep data modules simple and focused
+  - Consider a separate "Data Hub" model for centralized master data
+
+#### I - Input Modules
+- **Purpose**: Where business users enter assumptions and forecasts
+- **Characteristics**:
+  - User-friendly interfaces for data entry
+  - May include validation rules and tooltips
+  - Use drivers that feed calculations in other modules
+- **Best Practices**:
+  - Group related inputs in separate modules
+  - Provide clear labels and instructions for users
+  - Use versions to capture "What-If" scenarios
+
+#### S - System Modules
+- **Purpose**: Store settings, configuration, and reference data
+- **Characteristics**:
+  - Time settings, exchange rates, tax rates, thresholds
+  - Helper dimensions and mappings
+  - Reference data used across multiple modules
+- **Best Practices**:
+  - Centralize time settings and parameters in SYS modules
+  - Keep system modules separate from business logic
+  - Version system settings to track configuration changes
+
+#### C - Calculation Modules
+- **Purpose**: Implement business logic and calculations
+- **Characteristics**:
+  - Complex formulas and aggregations
+  - Bridge inputs and data to produce outputs
+  - Often the most complex module tier
+- **Best Practices**:
+  - Break complex formulas into separate line items for auditability
+  - Avoid over-engineering — keep calculations simple where possible
+  - Maintain consistent dimensionality with other modules
+
+#### O - Output/Reporting Modules
+- **Purpose**: Present information for end users and dashboards
+- **Characteristics**:
+  - Formatted views and summaries
+  - User-facing reports and dashboards
+  - Sometimes replicate calculation results for specific views
+- **Best Practices**:
+  - Keep output modules focused on presentation, not calculation
+  - Use pages and row/column selections to drive user navigation
+  - Ensure performance by optimizing referenced modules
+
+---
+
+### Core DISCO Principles
+
+1. **Separation of Concerns**: Each module type has a clearly defined responsibility
+2. **Data Single Source**: Raw data lives in one place; all other modules reference it
+3. **Consistent Dimensions**: Modules should share dimensions where possible for performance
+4. **Auditability**: Each calculation step should be traceable through the module chain
+5. **Maintainability**: Changes to business logic happen in one place, propagate throughout the model
+
+---
+
+### PLANS Methodology: The Extended Best Practices Framework
+
+Anaplan's broader best practices methodology, of which DISCO is a core component, can be remembered by the acronym **PLANS**:
+
+- **P**erformant: Optimize for speed. Avoid SUM+LOOKUP combinations, minimize text-formatted line items
+- **L**ogical: Follow D.I.S.C.O. module structure (Data, Inputs, System, Calculations, Output)
+- **A**uditable: Break complex formulas into separate line items; each should have a clear, single purpose
+- **N**ecessary: Don't duplicate data. Store once, reference many times
+- **S**ustainable: Build for change. Think about process cycles and future updates
+
+---
+
+### Module Architecture Workflow
+
+1. **Start with DISCO planning** before building any modules
+2. **Define module responsibilities**: Which modules will handle Data, Inputs, System, Calculations, and Output?
+3. **Ensure clean separation**: Avoid mixing responsibilities between modules
+4. **Establish consistent dimensions** across the model
+5. **Build modules in this order**: System → Data → Input → Calculation → Output
+6. **Test performance** after each layer is complete
+7. **Document the architecture** for team onboarding and future maintenance
+
+---
+
+### Data Hub and Spoke Pattern
+
+For large deployments, Anaplan recommends the **Data Hub and Spoke** architecture:
+
+- **Data Hub Model**: Central model storing master data (flat lists, transactional data)
+- **Spoke Models**: Business logic models that import data from the hub via saved views
+
+**Benefits:**
+- Single source of truth for master data
+- Easier maintenance (changes in one place)
+- Consistency across related models
+- Better performance for large datasets
+
+---
+
+### DISCO vs. Traditional 3-Tier Comparison
+
+| Aspect | Traditional 3-Tier | DISCO (5-Tier) |
+|--------|-------------------|----------------|
+| **Structure** | Input → Calculation → Output | Data, Input, System, Calculation, Output |
+| **System Settings** | Mixed with Inputs or Calculations | Centralized in dedicated SYS modules |
+| **Raw Data Storage** | Often mixed with inputs | Dedicated DAT modules |
+| **Scalability** | Good for small models | Better for large, complex deployments |
+| **Auditability** | Variable | High (clear module boundaries) |
+| **Best For** | Simple models, small teams | Enterprise models, multiple teams |
+
+---
+
+### Implementation Checklist
+
+- [ ] Plan your DISCO module structure before starting
+- [ ] Create System modules first (time settings, parameters)
+- [ ] Build Data Hub if using spoke architecture
+- [ ] Implement Input modules with clean user interfaces
+- [ ] Connect calculations in Calculation modules
+- [ ] Build Output modules for user consumption
+- [ ] Verify consistent dimensionality across modules
+- [ ] Document module responsibilities and relationships
+- [ ] Test performance at each stage
+- [ ] Review with team for feedback
 
 ---
 
