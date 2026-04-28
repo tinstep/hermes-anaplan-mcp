@@ -61,18 +61,18 @@ DISCO (Deconstructing the Cube) is Anaplan's foundational modeling methodology f
                              ▲
                              │
 ┌─────────────────────────────────────────────────────────────┐
-│              INPUT MODULES (I)                              │
-│  - INP01 Growth Rates, INP01 Volume Assumptions             │
-│  - User-entered assumptions, forecasts, targets             │
-│  - Drivers that feed into calculations                      │
-└─────────────────────────────────────────────────────────────┘
-                             ▲
-                             │
-┌─────────────────────────────────────────────────────────────┐
 │              SYSTEM MODULES (S)                             │
 │  - SYS01 Time Settings, SYS02 Exchange Rates, SYS03 Tax     │
 │  - Store settings, configuration, reference data            │
 │  - Provide helper data that other modules depend on         │
+└─────────────────────────────────────────────────────────────┘
+                             ▲
+                             │
+┌─────────────────────────────────────────────────────────────┐
+│              INPUT MODULES (I)                              │
+│  - INP01 Growth Rates, INP01 Volume Assumptions             │
+│  - User-entered assumptions, forecasts, targets             │
+│  - Drivers that feed into calculations                      │
 └─────────────────────────────────────────────────────────────┘
                              ▲
                              │
