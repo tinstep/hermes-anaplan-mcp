@@ -631,6 +631,205 @@ class AnaplanAPI:
 6. Upload file → trigger import
 7. Monitor task → download results
 
+
+---
+
+## Model Quality Assessment & Planual Compliance
+
+The Planual provides a systematic set of standards for model building on the Anaplan platform. This section maps Planual criteria to DISCO modules for quality assessment.
+
+### Planual Chapter 1: Central Library - Structure & Governance
+
+A Central Library serves as the single source of truth for all model structures. Key requirements:
+
+| Component | Requirement | DISCO Module Alignment |
+|-----------|-------------|------------------------|
+| **Lists** | Master data in Central Library | DAT modules reference library lists |
+| **Time Settings** | Single source of time configuration | SYS01 Time Settings |
+| **Versions** | Central version management | SYS02 Versions |
+| **Users & Roles** | Central user definitions | SYS03 User Access Control |
+| **Contents** | Organized module structure | All DISCO modules |
+| **Subsets** | Module-specific filtering | INP/CALC modules use subsets |
+| **Line Item Subsets** | Filtered line item access | CALC/REP modules |
+| **Emojis** | Standardized visual indicators | REP modules (optional) |
+
+**Quality Metric:** 100% of master data should come from Central Library, not local lists.
+
+### Planual Chapter 2: Engine - Performance & Architecture
+
+Anaplan engines (Classic and Polaris) have different characteristics:
+
+| Engine | Focus | Best For | DISCO Consideration |
+|--------|-------|----------|---------------------|
+| **Classic** | Dense data | Smaller models, high cell density | Use for small models only |
+| **Polaris** | Sparse data | Large-scale models, many dimensions | Use for enterprise models |
+
+**Performance Checklist:**
+1. Verify engine compatibility for model size
+2. Avoid `SUM` + `LOOKUP` patterns
+3. Limit text-formatted line items
+4. Use appropriate dimensionality per module
+5. Avoid unnecessary subsidiary views in calculation modules
+
+**Quality Metric:** Model should use Polaris engine if >1M cells or >5 dimensions.
+
+### Planual Chapter 3: UX Principles - Design Foundations
+
+**Core Principles:**
+- **Clarity**: Model structure clear to all users
+- **Consistency**: Uniform patterns across modules
+- **Efficiency**: Fast navigation and updates
+- **Accessibility**: Usable by all required personnel
+
+**Implementation:**
+- Use clear module and line item naming
+- Maintain consistent dimension order
+- Group related functionality logically
+- Use pages for different user segments
+
+### Planual Chapter 4: UX Build - Implementation Standards
+
+**Building Guidelines:**
+- Module names reflect purpose (e.g., INP01_GrowthRates)
+- Line item names are descriptive and structured
+- Use formatting to enhance readability
+- Implement proper navigation with pages
+
+**Naming Convention Alignment:**
+```
+DISCO Prefix | Module Type | Line Item Pattern
+-------------|-------------|------------------
+DAT          | Data        | [Entity]_[Metric]_[Period]
+INP          | Input       | [Driver]_[Assumption]_[Version]
+SYS          | System      | [Setting]_[Config]
+CALC         | Calculation | [Metric]_[CalculationType]_[Aggregation]
+REP          | Output      | [Report]_[Metric]_[Period]
+```
+
+### Planual Chapter 5: Integration - Data Flow Standards
+
+**Integration Requirements:**
+- Standardized data import formats
+- Error handling and validation
+- Audit trail for data changes
+- Version control for data loads
+
+**Data Quality:**
+- Verify data completeness before import
+- Implement validation rules in data modules
+- Track source system changes
+- Monitor import success rates
+
+### Planual Chapter 6: Application Lifecycle Management (ALM)
+
+**Development Stages:**
+1. **Design**: Document requirements, model structure, DISCO layout
+2. **Build**: Implement DISCO modules in development workspace
+3. **Test**: Validate in separate test workspace
+4. **Deployment**: Promote to production with versioning
+5. **Manage Change**: Track requirements, version tags, compare/sync
+
+**ALM Workflow:**
+```
+Development → Test → Production
+     ↓              ↓
+  Version Tags  Compare & Sync
+```
+
+### Planual Chapter 7: Extensions - Integration Capabilities
+
+**Extension Types:**
+- **Anaplat extensions**: Custom UI elements
+- **API-based integrations**: External system connectivity
+- **Custom app integrations**: Third-party application integration
+
+**Extension Quality:**
+- Document all extension dependencies
+- Maintain extension version tracking
+- Test extensions in non-production first
+- Monitor extension performance
+
+### Planual Chapter 8: Anaplan Data Orchestrator (ADO)
+
+**ADO Capabilities:**
+- Centralized data ingestion
+- Automated data validation
+- Error reporting and resolution
+- Source system integration
+
+**ADO Integration:**
+- Replace manual data imports with ADO
+- Implement automated quality checks
+- Track data lineage from source to DISCO modules
+
+---
+
+## DISCO Module Quality Criteria Matrix
+
+| Quality Aspect | DISCO Category | Assessment Questions | Target |
+|---------------|----------------|----------------------|--------|
+| **Structural** | All | Is module named with proper DISCO prefix? | Yes |
+| ** Separation** | DAT, INP, SYS, CALC, REP | Is data input separate from calculation? | Yes |
+| **Auditability** | CALC | Are complex formulas broken into line items? | Yes |
+| **Dimensionality** | All | Do all modules share consistent dimensions? | Yes |
+| **Performance** | All | Are there SUM+LOOKUP combinations? | None |
+| **Text Ratio** | All | Is text-formatted cell count <5% of total? | <5% |
+| **Versioning** | INP, CALC | Are versions properly managed? | Yes |
+| **Documentation** | SYS | Are settings properly documented? | Yes |
+| **Error Handling** | DAT | Are import errors logged and addressed? | Yes |
+
+---
+
+## Planual-Based Quality Assessment Workflow
+
+### Step 1: Discovery Phase
+1. List all modules in model
+2. Categorize by DISCO type (DAT, INP, SYS, CALC, REP)
+3. Identify any modules violating DISCO principles
+
+### Step 2: Structure Assessment
+1. Verify Central Library is used for master data
+2. Check time settings are in SYS module
+3. Confirm versions are centrally managed
+
+### Step 3: Performance Scan
+1. Identify SUM+LOOKUP patterns
+2. Check text-formatted cell ratio
+3. Verify dimensionality consistency
+
+### Step 4: Quality Certification
+- **Level 1 (Compliant)**: Meets all DISCO + Planual criteria
+- **Level 2 (Needs Work)**: Minor deviations from standards
+- **Level 3 (Non-Compliant)**: Significant violations requiring remediation
+
+---
+
+## Auto-Assessment Checklist Script
+
+**For DevOps automation, the following checks can be scripted:**
+
+```python
+# Pseudo-code for Planual compliance checks
+def check_planual_compliance(model_id):
+    checks = {
+        'disco_structure': verify_disco_modules(model_id),
+        'central_library': use_central_library_lists(model_id),
+        'performance': no_sum_lookup_patterns(model_id),
+        'text_ratio': text_formatted_cells < 0.05,
+        'version_control': versions_properly_configured(model_id),
+        'documentation': sys_modules_documented(model_id),
+    }
+    
+    return {
+        'passed': sum(checks.values()) == len(checks),
+        'score': f"{sum(checks.values())}/{len(checks)}",
+        'details': checks
+    }
+```
+
+---
+
+**Note:** Regular model quality assessments should be scheduled based on Planual standards to ensure ongoing compliance.
 ---
 
 *This guide was compiled from Anaplan API v2 documentation, Help Center resources, and community best practices.*
