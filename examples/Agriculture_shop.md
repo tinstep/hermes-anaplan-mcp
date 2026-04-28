@@ -1,393 +1,580 @@
-# Agriculture Retail Anaplan Solution Design
+# Rural Retail Farm Supplies - Anaplan Solution Design
 
-**For:** Agricultural Retail Company (Australia)  
-**Business Model:**Farm Supplies Retail through Physical Shops  
-**Version:** 1.0  
+**Industry:** Rural retail / farm supplies
+**Geography:** Australia
+**Channel:** Physical shops selling to farmers and primary producers
+**Planning horizon:** 12 forward-looking months
+**Version:** 2.0
 **Date:** April 28, 2026
 
 ---
 
-## Table of Contents
-1. [Business Overview](#business-overview)
-2. [Solution Architecture](#solution-architecture)
-3. [Lists & Dimensions](#lists--dimensions)
-4. [DISCO Module Structure](#disco-module-structure)
-5. [Product Catalog & Categories](#product-catalog--categories)
-6. [12-Month Forecasting Model](#12-month-forecasting-model)
-7. [Key Formulas & Line Items](#key-formulas--line-items)
-8. [Data Flow Diagram](#data-flow-diagram)
+## Anaplan modeling principles alignment
+
+This solution design follows Anaplan Modeling Experience and Planual principles:
+
+1. Start with the business process: shop-based sales planning, product demand forecasting, inventory cover, cost, and margin management.
+2. Use DISCO separation: Data, Input, System, Calculation, and Output modules each have a single purpose.
+3. Treat the Central Library as governed architecture: product, shop, region, supplier, version, and time lists are shared structures.
+4. Use multi-dimensional cubes deliberately: products, shops, months, versions, and measures intersect only where needed.
+5. Right-size dimensionality: use product category, region, and supplier mappings in system modules rather than over-dimensioning every calculation.
+6. Keep formulas simple and auditable: break demand, cost, inventory, and margin logic into separate line items and modules.
+7. Use saved views and import/export actions for integration rather than uncontrolled ad hoc grid loads.
+8. Validate before and after writes: source mappings, dimensions, task results, rejected rows, and downstream reporting outputs.
+9. Protect production controls: structural changes, current period, switchover, product hierarchy, and shop hierarchy changes should follow ALM governance.
+10. Document assumptions, dimensionality, formulas, and known trade-offs.
 
 ---
 
-## Business Overview
+## 1. Business scenario
 
-The company operates physical retail shops across Australia, selling agricultural supplies to farmers and primary producers. The business needs to:
+The model supports an Australian rural retail company with a shop network that sells practical farm supplies to farmers. Product demand is seasonal and varies by region, rainfall, crop calendar, livestock activity, promotions, and supplier lead time.
 
-- Track product inventory and sales by location and channel
-- Forecast demand for agricultural products (fertilisers, crop protection, animal health, equipment)
-- Manage seasonal variations in demand
-- Track margin and profitability by product category
-- Monitor stock levels and order points
+The model answers these questions:
 
----
+- What quantity of each product should each shop expect to sell over the next 12 months?
+- What is the expected cost, revenue, gross margin, and gross margin percentage?
+- Which products and shops need replenishment based on forecast demand and stock cover?
+- Which categories are most exposed to cost inflation or margin compression?
+- What purchasing quantities should be planned for suppliers and distribution centres?
 
-## Solution Architecture
+Scope includes:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         AGRICULTURE RETAIL DATA ARCHITECTURE                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐               │
-│  │   DATA HUB   │────▶│  WAREHOUSE   │────▶│   SALES      │               │
-│  │   (Master    │     │  INVENTORY   │     │  MODULAR     │               │
-│  │    Data)     │     │   MODELS     │     │  CAPACITY    │               │
-│  └──────────────┘     └──────────────┘     └──────────────┘               │
-│         │                    │                    │                         │
-│         ▼                    ▼                    ▼                         │
-│  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐               │
-│  │  Products    │     │  Locations   │     │   Time       │               │
-│  │  Categories  │     │  Regions     │     │  Dimensions  │               │
-│  │  Customers   │     │  Stores      │     │  Calendars   │               │
-│  └──────────────┘     └──────────────┘     └──────────────┘               │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+- Products
+- Product categories
+- Shops and regions
+- Supplier lead times
+- Standard costs and cost adjustments
+- Forecast quantities for 12 forward-looking months
+- Inventory cover and suggested replenishment
+- Revenue, COGS, and gross margin
+
+Company names are intentionally excluded so this design remains reusable and non-branded.
 
 ---
 
-## Lists & Dimensions
+## 2. Product range inspiration
 
-### Default System Lists
-| List | Purpose | Key Items |
-|------|---------|-----------|
-| **Time** | Period tracking | Months, Quarters, Years (FY26-27) |
-| **Versions** | Scenario tracking | Actual, Forecast, Budget, Target |
-| **Users** | Access control | Store Managers, Analysts, Directors |
-| **Organization** | Reporting hierarchy | Australia, Regions, Stores |
+The product catalogue is inspired by typical Australian farm supply retailers. Categories include:
 
-### Custom Business Lists
+- Animal health and livestock handling
+- Fertilisers and soil nutrition
+- Crop protection and weed control
+- Seed and pasture products
+- Fencing, water, and general farm supplies
+- PPE and shearing supplies
+- Seasonal rural merchandise
 
-#### 1. Products
-*Product catalog for agricultural supplies*
-
-| Product Code | Product Name | Category | Unit | Base Cost (AUD) | Notes |
-|--------------|--------------|----------|------|-----------------|-------|
-| AG-001 | Blood Meal 12% | Fertiliser | 20kg bag | $28.50 | Nitrogen rich organic fertilizer |
-| AG-002 | Super Phos 20% | Fertiliser | 25kg bag | $32.00 | Phosphorus supplement |
-| AG-003 | Potash Plus 50% | Fertiliser | 25kg bag | $35.50 | Potassium source |
-| AG-004 | NPK 15-15-15 | Fertiliser | 25kg bag | $34.00 | Balanced compound |
-| AG-005 | Lime Agricultural | Soil Amendment | 50kg bag | $22.00 | PH adjustment |
-| AG-006 | Lime Quick | Soil Amendment | 50kg bag | $19.50 | Fast-acting |
-| AG-007 | Copper Sulfate | Crop Protection | 1kg pack | $45.00 | Fungal control |
-| AG-008 | Mancozeb 75% | Crop Protection | 500g pack | $52.00 | Broad spectrum fungicide |
-| AG-009 | Glyphosate 490g/L | Weed Control | 5L concentrate | $89.00 | Non-selective herbicide |
-| AG-010 | Paraquat 240g/L | Weed Control | 1L bottle | $125.00 | Contact herbicide |
-| AG-011 | Diclofop 25% | Weed Control | 500ml bottle | $78.00 | Grass selective |
-| AG-012 | Wattle Seedling | Tree Seeds | 100 seeds | $15.00 | Indigenous species |
-| AG-013 | EucalyptusSeed | Tree Seeds | 100 seeds | $12.00 | Native timber |
-| AG-014 | Fertiliser Spreader | Equipment | 1 unit | $450.00 | 3m width |
-| AG-015 | Sprayer Backpack | Equipment | 1 unit | $125.00 | 20L capacity |
-| AG-016 | Drip Irrigation Kit | Equipment | 1 kit | $85.00 | 50m hose |
-| AG-017 | Fertiliser Blending Unit | Equipment | 1 unit | $2,500.00 | 500kg capacity |
-| AG-018 | ANU 20% | Animal Health | 10kg tub | $180.00 | Nutrition supplement |
-| AG-019 | Selenium Bolus | Animal Health | 50 pack | $95.00 | Trace element |
-| AG-020 | Dectomectin 1% | Animal Health | 500ml | $145.00 | Parasite control |
-
-#### 2. Regions
-*Geographic segmentation for reporting*
-
-| Region | Stores | Key Farmers | Avg Order Value |
-|--------|--------|-------------|-----------------|
-| NSW North | 3 | Grain growers | $450 |
-| NSW South | 4 | Mixed farm | $520 |
-| Victoria | 6 | Dairy & grains | $610 |
-| Queensland | 5 | Sugarcane & cattle | $580 |
-| South Australia | 4 | Wine & grains | $490 |
-| Western Australia | 3 | Wheat & sheep | $540 |
-
-#### 3. Sales Channels
-| Channel | Description | Margin Target | Payment Terms |
-|---------|-------------|---------------|---------------|
-| In-Store | Physical shop purchases | 35% | Net 30 |
-| Account Based | Elders Trading Account | 38% | Net 60 |
-| Prepaid | Prepayment discount | 32% | Immediate |
-
-#### 4. Store Locations
-| Store Code | Store Name | Region | Address | opening_hours |
-|------------|------------|--------|---------|---------------|
-| STORE-001 | Armidale | NSW North | Main St | 7am-5pm |
-| STORE-002 | Tamworth | NSW North | Darling Ave | 7am-5pm |
-| STORE-003 | Grafton | NSW North | Canning St | 7am-6pm |
-| STORE-004 | Wagga Wagga | NSW South | Victoria St | 7am-5pm |
-| STORE-005 | Albury | NSW South | Borella Rd | 7am-6pm |
-| STORE-006 | Wagga Wagga | NSW South | The Valley | 7am-5pm |
-| STORE-007 | Wagga Wagga | NSW South | Pine St | 7am-5pm |
-| STORE-008 | Horsham | Victoria | Karinga St | 7am-5pm |
-| STORE-009 | Horsham | Victoria | Hamilton St | 7am-5pm |
-| STORE-010 | Horsham | Victoria | Stawell Rd | 7am-5pm |
-| STORE-011 | Horsham | Victoria | Wimmera Hwy | 7am-5pm |
-| STORE-012 | Horsham | Victoria | Rainbow Rd | 7am-5pm |
-| STORE-013 | Horsham | Victoria | Nariel St | 7am-5pm |
-
-#### 5. Product Categories
-| Category Code | Category Name | Key Products | Margin Range |
-|---------------|---------------|--------------|--------------|
-| CAT-001 | Fertilisers | AG-001 to AG-006 | 25-35% |
-| CAT-002 | Crop Protection | AG-007 to AG-011 | 30-40% |
-| CAT-003 | Weed Control | AG-008 to AG-011 | 30-40% |
-| CAT-004 | Tree Seeds | AG-012 to AG-013 | 20-30% |
-| CAT-005 | Equipment | AG-014 to AG-017 | 25-35% |
-| CAT-006 | Animal Health | AG-018 to AG-020 | 30-40% |
+This model is not a product safety, chemical compliance, or veterinary prescription system. It is a planning model for quantity, cost, inventory, and margin.
 
 ---
 
-## DISCO Module Structure
+## 3. Solution architecture
 
-### D - Data Modules (DAT)
-| Module | Purpose | Source | Dimensions |
-|--------|---------|--------|------------|
-| **DAT01_Products** | Product master data | Product catalog export | Products |
-| **DAT02_Stores** | Store locations | Store database | Stores, Regions |
-| **DAT03_ExternalSales** | POS sales data import | store sales feeds | Time, Products, Stores, Versions |
-| **DAT04_CustomerOrders** | Account-based orders | Order management system | Time, Products, Customers, Stores |
+```mermaid
+flowchart LR
+    subgraph SRC[Source Systems]
+        POS[Shop POS sales]
+        ERP[ERP product and cost master]
+        INV[Inventory balances]
+        SUP[Supplier price lists]
+        WX[Weather and seasonal assumptions]
+    end
 
-### I - Input Modules (INP)
-| Module | Purpose | Dimensions |
-|--------|---------|------------|
-| **INP01_SalesForecast** | User-entered forecasts | Time, Products, Stores |
-| **INP02_CostChanges** | Cost adjustment entries | Time, Products |
-| **INP03_Pricing** | Price update entries | Time, Products, Stores |
-| **INP04_Language** | Model configuration | Time |
+    subgraph HUB[Data Hub / Central Library]
+        P[Product master]
+        S[Shop master]
+        T[Time and versions]
+        M[Mappings and attributes]
+    end
 
-### S - System Modules (SYS)
-| Module | Purpose | Dimensions |
-|--------|---------|------------|
-| **SYS01_TimeSettings** | Fiscal calendar, periods | Time |
-| **SYS02_Currencies** | Exchange rates | Time, Currencies (AUD) |
-| **SYS03_CostBasis** | Cost calculation parameters | Products |
-| **SYS04_MarginTargets** | Target margins by category | Categories |
+    subgraph MODEL[Farm Supplies Planning Model]
+        DAT[DAT modules\nactuals and loaded data]
+        SYS[SYS modules\nattributes, mappings, drivers]
+        INP[INP modules\nplanner overrides]
+        CALC[CALC modules\nforecast, cost, inventory, margin]
+        REP[REP modules\nreports and dashboards]
+    end
 
-### C - Calculation Modules (CALC)
-| Module | Purpose | Dimensions |
-|--------|---------|------------|
-| **CALC01_LandedCost** | Calculate final product cost | Products, Time |
-| **CALC02_MarginAnalysis** | Gross margin calculations | Time, Products, Stores, Versions |
-| **CALC03_SalesAggregation** | Sales summary by category | Time, Categories, Regions |
-| **CALC04_InventoryPosition** | Stock levels & turnover | Products, Stores, Time |
-| **CALC05_ForecastAccuracy** | Forecast vs Actual comparison | Time, Products, Stores |
+    subgraph OUT[Outputs]
+        BUY[Replenishment plan]
+        GM[Margin outlook]
+        CAT[Category forecast]
+        SHOP[Shop forecast]
+    end
 
-### O - Output Modules (REP)
-| Module | Purpose | Dimensions |
-|--------|---------|------------|
-| **REP01_P&L_ByProduct** | Profit by product | Time, Products, Stores, Versions |
-| **REP02_MarginSummary** | Margin dashboard | Time, Categories, Regions |
-| **REP03_InventoryStatus** | Stock level report | Products, Stores, Time |
-| **REP04_SalesTrends** | 12-month trends | Time, Products, Regions |
-
----
-
-## Product Catalog & Categories
-
-### Fertilisers (CAT-001)
-| Product | Use Case | Best Application Time | Storage Requirement |
-|---------|----------|----------------------|---------------------|
-| AG-001 Blood Meal 12% | Nitrogen boost | PrePlant, EarlySeason | Dry, ventilated |
-| AG-002 Super Phos 20% | Root development | Spring, Autumn | Dry, away from metals |
-| AG-003 Potash Plus 50% | Yield improvement | Pre-fruiting | Dry, sealed |
-| AG-004 NPK 15-15-15 | Balanced nutrition | All seasons | Cool, dry |
-| AG-005 Lime Agricultural | PH adjustment | Autumn, Winter | Dry, outdoors |
-| AG-006 Lime Quick | PH adjustment | Spring | Dry, sealed |
-
-### Crop Protection (CAT-002)
-| Product | Target Pests | Pre-Harvest Interval | Mixing Ratio |
-|---------|--------------|---------------------|--------------|
-| AG-007 Copper Sulfate | Fungal diseases | 7 days | 50g/10L |
-| AG-008 Mancozeb 75% | Broad spectrum | 3 days | 25g/10L |
-| AG-009 Glyphosate 490g/L | Invasive weeds | 7 days | 100ml/10L |
-| AG-010 Paraquat 240g/L | Contact weed kill | 1 day | 50ml/10L |
-| AG-011 Diclofop 25% | Grass weeds | 14 days | 75ml/10L |
-
-### Equipment (CAT-005)
-| Product | Type | Maintenance Required | Warranty |
-|---------|------|---------------------|----------|
-| AG-014 Fertiliser Spreader | Manual | Annual grease | 12 months |
-| AG-015 Sprayer Backpack | Portable | Clean after use | 6 months |
-| AG-016 Drip Irrigation Kit | Irrigation | Seasonal check | 24 months |
-| AG-017 Fertiliser Blending Unit | Stationary | Monthly service | 36 months |
-
-### Animal Health (CAT-006)
-| Product | Species | Dosage | Withdrawal Period |
-|---------|---------|--------|-------------------|
-| AG-018 ANU 20% | Cattle, Sheep | 50g/head | None |
-| AG-019 Selenium Bolus | All livestock | 1 bolus | None |
-| AG-020 Dectomectin 1% | Cattle, Sheep, Pigs | 1ml/10kg | 28 days |
-
----
-
-## 12-Month Forecasting Model
-
-### Forecast Structure
-
-```
-┌────────────────────────────────────────────────────────────────────────────┐
-│                    12-MONTH SALES FORECAST STRUCTURE                       │
-├────────────────────────────────────────────────────────────────────────────┤
-│                                                                            │
-│  FISCAL YEAR: FY26-27                                                      │
-│  START DATE: July 1, 2026                                                  │
-│  END DATE: June 30, 2027                                                   │
-│                                                                            │
-│  ┌─────────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────┐ │
-│  │  Jul    │  Aug    │  Sep    │  Oct    │  Nov    │  Dec    │  Jan    │ │
-│  ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤ │
-│  │  251K   │  268K   │  302K   │  295K   │  289K   │  315K   │  342K   │ │
-│  │  +1.2%  │  +6.8%  │ +12.7%  │  -2.3%  │  -2.0%  │  +9.2%  │  +8.6%  │ │
-│  └─────────┴─────────┴─────────┴─────────┴─────────┴─────────┴─────────┘ │
-│                                                                            │
-│  ┌─────────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────┐ │
-│  │  Feb    │  Mar    │  Apr    │  May    │  Jun    │  YTD    │  Target │ │
-│  ├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤ │
-│  │  328K   │  315K   │  302K   │  295K   │  289K   │ 3,962K  │ 4,200K  │ │
-│  │  -4.1%  │  -4.1%  │  -4.1%  │  -2.3%  │  -2.0%  │         │  +5.9%  │ │
-│  └─────────┴─────────┴─────────┴─────────┴─────────┴─────────┴─────────┘ │
-│                                                                            │
-└────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Forecast by Category (Sample - July)
-
-| Category | Product | Jul Forecast | Aug Forecast | Sep Forecast | Q1 Total | YoY Growth |
-|----------|---------|--------------|--------------|--------------|----------|------------|
-| Fertiliser | AG-001 | 1,250 units | 1,320 units | 1,485 units | 4,055 | +8.2% |
-| Fertiliser | AG-004 | 2,100 units | 2,226 units | 2,495 units | 6,821 | +7.5% |
-| Crop Protect | AG-008 | 850 units | 893 units | 982 units | 2,725 | +5.3% |
-| Equipment | AG-014 | 45 units | 52 units | 61 units | 158 | +13.3% |
-| Animal Health | AG-018 | 620 units | 651 units | 718 units | 1,989 | +6.8% |
-
-### Forecast Variables
-
-| Variable | Typical Range | Notes |
-|----------|---------------|-------|
-| **Seasonality** | -15% to +40% | Spring/autumn peaks |
-| **Weather Impact** | -10% to +20% | Rain/drought effects |
-| **Economic Indicator** | -5% to +8% | Farm income levels |
-| **Price Adjustments** | -5% to +15% | Promotions, volume discounts |
-
-### 12-Month Forecast Formula
-
-```
-Forecast_[CurrentMonth] = 
-  PreviousMonthForecast * 
-  (1 + SeasonalityAdjustment + WeatherImpact + EconomicTrend) +
-  NewCustomerIncrement - CustomerChurn
+    POS --> HUB
+    ERP --> HUB
+    INV --> HUB
+    SUP --> HUB
+    WX --> INP
+    HUB --> DAT
+    HUB --> SYS
+    DAT --> CALC
+    SYS --> CALC
+    INP --> CALC
+    CALC --> REP
+    REP --> BUY
+    REP --> GM
+    REP --> CAT
+    REP --> SHOP
 ```
 
 ---
 
-## Key Formulas & Line Items
+## 4. Multi-dimensional cube design
 
-### CALC01_LandedCost Module
+Anaplan is a multi-dimensional calculation engine. This design uses dimensional cubes where the intersections are meaningful, then aggregates through product and shop hierarchies.
+
+### Core planning cube
+
+```mermaid
+flowchart TB
+    CUBE[Forecast Quantity Cube]
+    PROD[Product P3\nSKU level]
+    SHOP[Shop S2\nshop level]
+    TIME[Time\n12 forward months]
+    VER[Versions\nActual / Forecast / Budget / Scenario]
+    MEAS[Line items\nquantity, cost, price, margin]
+
+    PROD --> CUBE
+    SHOP --> CUBE
+    TIME --> CUBE
+    VER --> CUBE
+    MEAS --> CUBE
+
+    CUBE --> CAT[Product category rollups]
+    CUBE --> REG[Regional rollups]
+    CUBE --> FY[Quarter and FY rollups]
+```
+
+### Dimensional design principles
+
+| Design area | Principle | Example |
+|---|---|---|
+| Product planning | Forecast at SKU level only where shops stock the product | P3 Product x S2 Shop x Month |
+| Category reporting | Aggregate through hierarchy; do not duplicate category in forecast module | P1 Category parent of P2 Subcategory and P3 Product |
+| Shop reporting | Aggregate through region hierarchy | S1 Region parent of S2 Shop |
+| Supplier planning | Use mappings and summary modules, not supplier on every sales cube | SYS Product Details.Supplier |
+| Costs | Cost is usually Product x Month, not Product x Shop x Month unless local freight differs | CALC Cost by Product.Month |
+| Forecast overrides | Planners adjust only at useful intersections | Product x Shop x Month |
+| Inventory | Stock is Product x Shop x Month | Inventory position by SKU and shop |
+
+---
+
+## 5. Central lists and hierarchies
+
+### 5.1 Product hierarchy
+
+| Level | List | Example items | Notes |
+|---|---|---|---|
+| P1 | Product Category | Fertiliser, Crop Protection, Animal Health, Fencing, Water, Seed, PPE | Reporting and margin targets |
+| P2 | Product Subcategory | Nitrogen, Herbicide, Drench, Wire, Troughs, Pasture Seed | Category planning |
+| P3 | Product SKU | Urea 46% 1t bulka bag, Glyphosate 450 20L, Cattle Drench 5L | Forecast and inventory planning |
+
+### 5.2 Shop hierarchy
+
+| Level | List | Example items | Notes |
+|---|---|---|---|
+| S1 | Region | Northern NSW, Riverina, Western VIC, Darling Downs, South West WA | Reporting and supply chain grouping |
+| S2 | Shop | Regional shop 001, Regional shop 002, Regional shop 003 | Forecast and inventory planning |
+
+### 5.3 Other lists
+
+| List | Purpose | Example items |
+|---|---|---|
+| Supplier | Supplier grouping for purchasing | Supplier A, Supplier B, Supplier C |
+| Channel | Sales channel | Shop Counter, Account Order, Click and Collect |
+| Forecast Driver | Driver type | Baseline, Seasonality, Weather, Promotion, Price Elasticity |
+| Cost Type | Cost decomposition | Base Cost, Freight, Handling, Supplier Rebate, Cost Inflation |
+| Unit of Measure | Product planning unit | Each, 5L drum, 20L drum, 25kg bag, 1t bag, roll, metre |
+| Versions | Planning scenarios | Actual, Forecast, Budget, Upside, Downside |
+| Time | 12 forward months | Jul 26 to Jun 27 in this example |
+
+---
+
+## 6. Sample product catalogue
+
+Realistic, non-branded products are used. Costs are illustrative AUD standard costs and should be loaded from the ERP or supplier price list in production.
+
+| Product Code | Product SKU | Category | Subcategory | UOM | Standard Cost AUD | Standard Price AUD | Supplier Lead Time Days | Seasonality |
+|---|---|---|---|---:|---:|---:|---:|---|
+| FERT-UREA-1T | Urea 46% nitrogen bulka bag | Fertiliser | Nitrogen | 1t bag | 785.00 | 890.00 | 21 | Winter/Spring |
+| FERT-DAP-1T | DAP fertiliser bulka bag | Fertiliser | Phosphorus | 1t bag | 910.00 | 1,035.00 | 28 | Autumn/Winter |
+| FERT-LIME-25KG | Agricultural lime granules | Fertiliser | Soil amendment | 25kg bag | 13.20 | 19.50 | 14 | Autumn |
+| CHEM-GLY-20L | Glyphosate 450 herbicide | Crop Protection | Herbicide | 20L drum | 118.00 | 169.00 | 18 | Autumn/Spring |
+| CHEM-FUNG-10L | Broadacre fungicide 10L | Crop Protection | Fungicide | 10L drum | 244.00 | 319.00 | 24 | Winter/Spring |
+| CHEM-INSEC-5L | Insecticide concentrate 5L | Crop Protection | Insecticide | 5L drum | 138.00 | 199.00 | 21 | Spring/Summer |
+| SEED-RYE-25KG | Annual ryegrass seed | Seed | Pasture seed | 25kg bag | 78.00 | 112.00 | 30 | Autumn |
+| SEED-CLOVER-25KG | Sub-clover seed | Seed | Pasture seed | 25kg bag | 132.00 | 178.00 | 35 | Autumn |
+| AH-DRENCH-5L | Cattle oral drench | Animal Health | Drench | 5L drum | 86.00 | 129.00 | 14 | Winter/Spring |
+| AH-VACC-500ML | Livestock vaccine 500mL | Animal Health | Vaccine | each | 64.00 | 96.00 | 10 | Autumn/Winter |
+| FENCE-WIRE-500M | High tensile fencing wire | Fencing | Wire | 500m roll | 96.00 | 145.00 | 21 | Year-round |
+| FENCE-POST-100 | Steel fence posts bundle | Fencing | Posts | 100 pack | 385.00 | 530.00 | 28 | Year-round |
+| WATER-TROUGH-600L | Poly livestock trough 600L | Water | Troughs | each | 310.00 | 465.00 | 21 | Summer |
+| WATER-PUMP-2IN | Transfer pump 2 inch | Water | Pumps | each | 275.00 | 399.00 | 28 | Summer |
+| PPE-GLOVE-12PK | Nitrile chemical gloves 12 pack | PPE | Safety | pack | 18.00 | 32.00 | 7 | Year-round |
+| SHEAR-COMB-SET | Shearing comb and cutter set | Shearing | Consumables | set | 42.00 | 68.00 | 14 | Spring |
+
+---
+
+## 7. 12-month forecast quantity example
+
+The production model forecasts at Product x Shop x Month x Version. The table below shows a sample national category-level rollup for the Forecast version.
+
+### Forecast Quantity by Category
+
+| Category | Jul 26 | Aug 26 | Sep 26 | Oct 26 | Nov 26 | Dec 26 | Jan 27 | Feb 27 | Mar 27 | Apr 27 | May 27 | Jun 27 | 12M Total |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Fertiliser | 1,020 | 1,180 | 1,430 | 1,650 | 1,280 | 760 | 620 | 700 | 1,050 | 1,520 | 1,690 | 1,440 | 14,340 |
+| Crop Protection | 820 | 980 | 1,240 | 1,510 | 1,430 | 1,120 | 940 | 880 | 1,060 | 1,340 | 1,470 | 1,210 | 14,000 |
+| Seed | 540 | 620 | 680 | 410 | 280 | 180 | 160 | 210 | 740 | 1,320 | 1,140 | 720 | 7,000 |
+| Animal Health | 760 | 830 | 920 | 1,050 | 1,180 | 1,240 | 1,160 | 1,050 | 930 | 880 | 840 | 790 | 11,630 |
+| Fencing | 420 | 450 | 500 | 540 | 560 | 520 | 480 | 470 | 500 | 530 | 560 | 540 | 6,070 |
+| Water | 180 | 210 | 260 | 340 | 450 | 560 | 610 | 540 | 390 | 280 | 230 | 200 | 4,250 |
+| PPE and Shearing | 390 | 420 | 650 | 820 | 760 | 510 | 360 | 330 | 360 | 400 | 420 | 430 | 5,850 |
+| **Total units** | **4,130** | **4,690** | **5,680** | **6,320** | **5,940** | **4,890** | **4,330** | **4,180** | **5,030** | **6,270** | **6,350** | **5,330** | **63,140** |
+
+### Forecast Value and Gross Margin Summary
+
+| Category | 12M Qty | Avg Price AUD | Forecast Revenue AUD | Forecast COGS AUD | Gross Margin AUD | GM % |
+|---|---:|---:|---:|---:|---:|---:|
+| Fertiliser | 14,340 | 498 | 7,141,320 | 6,094,000 | 1,047,320 | 14.7% |
+| Crop Protection | 14,000 | 229 | 3,206,000 | 2,422,000 | 784,000 | 24.5% |
+| Seed | 7,000 | 145 | 1,015,000 | 735,000 | 280,000 | 27.6% |
+| Animal Health | 11,630 | 113 | 1,314,190 | 883,880 | 430,310 | 32.7% |
+| Fencing | 6,070 | 338 | 2,051,660 | 1,476,020 | 575,640 | 28.1% |
+| Water | 4,250 | 432 | 1,836,000 | 1,278,000 | 558,000 | 30.4% |
+| PPE and Shearing | 5,850 | 50 | 292,500 | 193,050 | 99,450 | 34.0% |
+| **Total** | **63,140** |  | **16,856,670** | **13,081,950** | **3,774,720** | **22.4%** |
+
+---
+
+## 8. Supply-chain planning logic
+
+Typical rural retail supply-chain planning needs to connect demand, stock, supplier lead time, and order quantities. The model should support both shop-level replenishment and supplier/category purchasing views.
+
+```mermaid
+flowchart LR
+    HIST[Historical sales\nProduct x Shop x Month] --> BASE[Baseline demand]
+    SEAS[Seasonality drivers] --> FCST[Forecast quantity]
+    WX[Weather/rainfall scenario] --> FCST
+    PROMO[Promotion uplift] --> FCST
+    PRICE[Price elasticity] --> FCST
+    BASE --> FCST
+
+    FCST --> INV[Projected inventory]
+    SOH[Opening stock on hand] --> INV
+    OO[Open purchase orders] --> INV
+    LT[Supplier lead time] --> ROP[Reorder point]
+    SAF[Safety stock policy] --> ROP
+    FCST --> ROP
+    INV --> REC[Recommended order quantity]
+    ROP --> REC
+    MOQ[Supplier MOQ and pack size] --> REC
+    REC --> BUY[Supplier purchase plan]
+```
+
+### Replenishment policies
+
+| Policy | Use case | Logic |
+|---|---|---|
+| Min/max cover | Stable general merchandise | Keep stock between minimum and maximum days of cover |
+| Seasonal prebuild | Fertiliser, seed, chemical peaks | Build stock before peak selling windows |
+| Make-to-order / special order | Expensive equipment or slow-moving rural merchandise | Do not hold stock unless demand is confirmed |
+| Safety stock | Critical animal health and water products | Maintain buffer based on lead time and service level |
+| MOQ rounding | Supplier or freight constraints | Round recommended order to pack, pallet, or truck quantity |
+
+---
+
+## 9. DISCO module design
+
+### 9.1 Data modules
+
+| Module | Purpose | Applies To | Time | Versions | Notes |
+|---|---|---|---|---|---|
+| DAT01 Sales History | Loaded actual POS/account sales quantities and revenue | P3 Product, S2 Shop | Month | Actual | Source for baseline demand |
+| DAT02 Inventory Snapshot | Opening stock on hand and stock on order | P3 Product, S2 Shop | Month | Actual | Monthly snapshot or current period import |
+| DAT03 Product Cost | Standard cost and supplier list cost | P3 Product | Month | Actual, Forecast | Loaded from ERP/supplier files |
+| DAT04 Product Master | Product attributes | P3 Product | Not Applicable | Not Applicable | Code, UOM, category, supplier |
+| DAT05 Shop Master | Shop attributes | S2 Shop | Not Applicable | Not Applicable | Region, climate zone, distribution route |
+
+### 9.2 System modules
+
+| Module | Purpose | Applies To | Key line items |
+|---|---|---|---|
+| SYS01 Time Settings | Forward-month flags and season flags | Time | Current Period?, Forecast Month?, Month Number, Season |
+| SYS02 Product Details | Product mappings and attributes | P3 Product | Category, Subcategory, Supplier, UOM, Shelf Life, Stocked? |
+| SYS03 Shop Details | Shop mappings and attributes | S2 Shop | Region, Climate Zone, DC Route, Active? |
+| SYS04 Product Supply Policy | Replenishment parameters | P3 Product | Lead Time Days, Safety Stock Days, MOQ, Pack Size, Stocking Policy |
+| SYS05 Category Margin Targets | Target margin and discount guardrails | P1 Product Category | Target GM %, Floor GM %, Max Discount % |
+| SYS06 Seasonality Drivers | Category seasonal profiles | P1 Product Category | Time | Seasonal Index |
+
+### 9.3 Input modules
+
+| Module | Purpose | Applies To | Time | Versions | Planner |
+|---|---|---|---|---|---|
+| INP01 Baseline Override | Planner quantity override | P3 Product, S2 Shop | Month | Forecast, Budget | Demand planner / shop manager |
+| INP02 Demand Drivers | Weather, promotion, and local event adjustments | P1 Product Category, S1 Region | Month | Forecast, Scenario | Category manager |
+| INP03 Price and Cost Assumptions | Planned price and cost changes | P3 Product | Month | Forecast, Budget | Finance/category manager |
+| INP04 Inventory Policy Override | Shop-specific safety stock overrides | P3 Product, S2 Shop | Month | Forecast | Supply planner |
+
+### 9.4 Calculation modules
+
+| Module | Purpose | Applies To | Time | Versions |
+|---|---|---|---|---|
+| CALC01 Demand Forecast | Forecast quantities by SKU and shop | P3 Product, S2 Shop | Month | Forecast, Budget, Scenario |
+| CALC02 Cost and Price | Unit cost, landed cost, sell price | P3 Product | Month | Forecast, Budget, Scenario |
+| CALC03 Revenue and Margin | Revenue, COGS, gross margin | P3 Product, S2 Shop | Month | Forecast, Budget, Scenario |
+| CALC04 Inventory Projection | Projected stock, cover, reorder point | P3 Product, S2 Shop | Month | Forecast, Budget, Scenario |
+| CALC05 Supplier Purchase Plan | Recommended order by supplier | P3 Product, Supplier | Month | Forecast, Budget, Scenario |
+
+### 9.5 Reporting modules
+
+| Module | Purpose | Applies To | Time | Versions |
+|---|---|---|---|---|
+| REP01 Category Forecast | Category quantity, revenue, margin | P1 Product Category, S1 Region | Month | Forecast, Budget, Scenario |
+| REP02 Shop Forecast | Shop-level sales and margin | S2 Shop | Month | Forecast, Budget, Scenario |
+| REP03 Replenishment Exceptions | Products below target cover | P3 Product, S2 Shop | Month | Forecast |
+| REP04 Supplier Buy Plan | Purchase quantities and cost by supplier | Supplier | Month | Forecast, Budget, Scenario |
+| REP05 Executive Summary | National totals and KPIs | Not Applicable | Month, Quarter, Year | Forecast, Budget, Scenario |
+
+---
+
+## 10. Detailed line items and formulas
+
+Formula syntax is Anaplan-style and may need minor adaptation to exact model names. Line items are split to keep formulas readable and Planual-aligned.
+
+### 10.1 SYS01 Time Settings
+
+Applies To: Time only
+
+| Line Item | Format | Summary | Formula / Input |
+|---|---|---|---|
+| Current Period? | Boolean | Any | `ITEM(Time) = CURRENTPERIODSTART()` equivalent model setting flag |
+| Forecast Month? | Boolean | Any | `START() > CURRENTPERIODSTART()` |
+| Forward Month Number | Number | None | Sequential number 1 to 12 for forecast window |
+| Season | List: Season | None | Manual mapping or calendar lookup |
+| Days in Month | Number | None | `DAYS()` |
+| Quarter Label | Text | None | Used for reporting only |
+
+### 10.2 SYS02 Product Details
+
+Applies To: P3 Product
+
+| Line Item | Format | Summary | Formula / Input |
+|---|---|---|---|
+| Product Code | Text | None | `CODE(ITEM('P3 Product'))` |
+| Category | List: P1 Product Category | None | Loaded mapping |
+| Subcategory | List: P2 Product Subcategory | None | `PARENT(ITEM('P3 Product'))` where hierarchy supports it |
+| Supplier | List: Supplier | None | Loaded mapping |
+| UOM | List: Unit of Measure | None | Loaded mapping |
+| Stocked Product? | Boolean | Any | Loaded flag |
+| Slow Moving? | Boolean | Any | Loaded or calculated from sales history |
+| Shelf Life Months | Number | None | Loaded attribute |
+
+### 10.3 SYS04 Product Supply Policy
+
+Applies To: P3 Product
+
+| Line Item | Format | Summary | Formula / Input |
+|---|---|---|---|
+| Lead Time Days | Number | None | Loaded by product/supplier |
+| Safety Stock Days | Number | None | Input by category or SKU |
+| Minimum Order Qty | Number | None | Loaded by supplier terms |
+| Pack Size | Number | None | Loaded by UOM/pack configuration |
+| Target Cover Days | Number | None | Input policy |
+| Seasonal Prebuild? | Boolean | Any | True for fertiliser, seed, selected crop protection |
+
+### 10.4 INP02 Demand Drivers
+
+Applies To: P1 Product Category, S1 Region, Time, Versions
+
+| Line Item | Format | Summary | Formula / Input |
+|---|---|---|---|
+| Weather Impact % | Percentage | None | Planner input, e.g. rainfall/drought effect |
+| Promotion Uplift % | Percentage | None | Planner input |
+| Local Event Uplift % | Percentage | None | Planner input |
+| Price Elasticity Impact % | Percentage | None | Planner input or calculated |
+| Demand Driver % | Percentage | None | `Weather Impact % + Promotion Uplift % + Local Event Uplift % + Price Elasticity Impact %` |
+
+### 10.5 CALC01 Demand Forecast
+
+Applies To: P3 Product, S2 Shop, Time, Versions
 
 | Line Item | Format | Summary | Formula |
-|-----------|--------|---------|---------|
-| **Base Cost** | Currency | Sum | `DAT01_Products.Cost` |
-| **Freight In** | Currency | Sum | `SYS02_Currencies.ExchangeRate * DAT01_Products.FreightRate` |
-| **Handling** | Currency | Sum | `DAT01_Products.Volume * 0.50` |
-| **Import Duty** | Currency | Sum | `Base Cost * 5%` (if applicable) |
-| **Landed Cost** | Currency | Sum | `Base Cost + Freight In + Handling + Import Duty` |
+|---|---|---|---|
+| Historical Qty | Number | Sum | `DAT01 Sales History.Quantity` |
+| Prior Year Qty | Number | Sum | `OFFSET(Historical Qty, -12, 0)` |
+| Three Month Avg Qty | Number | Sum | `MOVINGSUM(Historical Qty, -3, -1) / 3` |
+| Category | List: P1 Product Category | None | `SYS02 Product Details.Category` |
+| Region | List: S1 Region | None | `SYS03 Shop Details.Region` |
+| Seasonal Index | Number | None | `SYS06 Seasonality Drivers.Seasonal Index[LOOKUP: Category]` |
+| Demand Driver % | Percentage | None | `INP02 Demand Drivers.Demand Driver %[LOOKUP: Category, LOOKUP: Region]` |
+| Statistical Forecast Qty | Number | Sum | `MAX(0, Three Month Avg Qty * Seasonal Index * (1 + Demand Driver %))` |
+| Planner Override Qty | Number | Sum | `INP01 Baseline Override.Override Qty` |
+| Override? | Boolean | Any | `INP01 Baseline Override.Override?` |
+| Final Forecast Qty | Number | Sum | `IF Override? THEN Planner Override Qty ELSE Statistical Forecast Qty` |
+| Forecast Qty Rounded | Number | Sum | `ROUND(Final Forecast Qty, 0, UP)` |
 
-### CALC02_MarginAnalysis Module
+### 10.6 CALC02 Cost and Price
 
-| Line Item | Format | Summary | Formula |
-|-----------|--------|---------|---------|
-| **Sales Revenue** | Currency | Sum | `Sales Volume * Sales Price` |
-| **COGS** | Currency | Sum | `Sales Volume * Landed Cost` |
-| **Gross Margin** | Currency | Sum | `Sales Revenue - COGS` |
-| **Margin %** | Percentage | Average | `Gross Margin / Sales Revenue` |
-| **Volume Variance** | Currency | Sum | `(Actual Volume - Forecast Volume) * Standard Margin` |
-| **Price Variance** | Currency | Sum | `(Actual Price - Standard Price) * Actual Volume` |
-
-### System Parameters (SYS04_MarginTargets)
-
-| Category | Target Margin | Minimum Acceptable | Maximum Discount |
-|----------|---------------|-------------------|------------------|
-| Fertilisers | 30% | 25% | 15% |
-| Crop Protection | 35% | 30% | 10% |
-| Equipment | 30% | 25% | 20% |
-| Animal Health | 35% | 30% | 15% |
-
-### Inventory Position (CALC04_InventoryPosition)
+Applies To: P3 Product, Time, Versions
 
 | Line Item | Format | Summary | Formula |
-|-----------|--------|---------|---------|
-| **Stock On Hand** | Number | Sum | `DAT02_Inventory.Quantity` |
-| **Stock On Order** | Number | Sum | `DAT03_PurchaseOrders.Quantity` |
-| **Sales Last 30 Days** | Number | Sum | `SUM(DAT04_Sales[Time=Last30Days])` |
-| **Avg Daily Sales** | Number | Average | `Sales Last 30 Days / 30` |
-| **Days of Cover** | Number | Average | `Stock On Hand / Avg Daily Sales` |
-| **Reorder Point** | Number | Sum | `Avg Daily Sales * Lead Time * 1.5` |
-| **Need Order?** | Boolean | Any | `Stock On Hand < Reorder Point` |
+|---|---|---|---|
+| Base Unit Cost | Currency | None | `DAT03 Product Cost.Standard Cost` |
+| Supplier Cost Inflation % | Percentage | None | `INP03 Price and Cost Assumptions.Cost Inflation %` |
+| Freight Cost per Unit | Currency | None | `INP03 Price and Cost Assumptions.Freight Cost per Unit` |
+| Handling Cost per Unit | Currency | None | `INP03 Price and Cost Assumptions.Handling Cost per Unit` |
+| Supplier Rebate % | Percentage | None | `INP03 Price and Cost Assumptions.Supplier Rebate %` |
+| Inflated Unit Cost | Currency | None | `Base Unit Cost * (1 + Supplier Cost Inflation %)` |
+| Landed Unit Cost | Currency | None | `Inflated Unit Cost + Freight Cost per Unit + Handling Cost per Unit` |
+| Net Unit Cost | Currency | None | `Landed Unit Cost * (1 - Supplier Rebate %)` |
+| List Sell Price | Currency | None | `INP03 Price and Cost Assumptions.List Sell Price` |
+| Planned Discount % | Percentage | None | `INP03 Price and Cost Assumptions.Planned Discount %` |
+| Net Sell Price | Currency | None | `List Sell Price * (1 - Planned Discount %)` |
+
+### 10.7 CALC03 Revenue and Margin
+
+Applies To: P3 Product, S2 Shop, Time, Versions
+
+| Line Item | Format | Summary | Formula |
+|---|---|---|---|
+| Forecast Qty | Number | Sum | `CALC01 Demand Forecast.Forecast Qty Rounded` |
+| Net Sell Price | Currency | None | `CALC02 Cost and Price.Net Sell Price` |
+| Net Unit Cost | Currency | None | `CALC02 Cost and Price.Net Unit Cost` |
+| Revenue | Currency | Sum | `Forecast Qty * Net Sell Price` |
+| COGS | Currency | Sum | `Forecast Qty * Net Unit Cost` |
+| Gross Margin | Currency | Sum | `Revenue - COGS` |
+| Gross Margin % | Percentage | None | `DIVIDE(Gross Margin, Revenue)` |
+| Target GM % | Percentage | None | `SYS05 Category Margin Targets.Target GM %[LOOKUP: SYS02 Product Details.Category]` |
+| GM Below Target? | Boolean | Any | `Gross Margin % < Target GM %` |
+| Margin Gap | Currency | Sum | `(Target GM % * Revenue) - Gross Margin` |
+
+### 10.8 CALC04 Inventory Projection
+
+Applies To: P3 Product, S2 Shop, Time, Versions
+
+| Line Item | Format | Summary | Formula |
+|---|---|---|---|
+| Opening Stock | Number | Sum | `IF SYS01 Time Settings.Forward Month Number = 1 THEN DAT02 Inventory Snapshot.Stock On Hand ELSE PREVIOUS(Closing Stock)` |
+| Forecast Demand Qty | Number | Sum | `CALC01 Demand Forecast.Forecast Qty Rounded` |
+| Open Purchase Orders | Number | Sum | `DAT02 Inventory Snapshot.Stock On Order` |
+| Recommended Order Qty | Number | Sum | Calculated below |
+| Available Supply | Number | Sum | `Opening Stock + Open Purchase Orders + Recommended Order Qty` |
+| Closing Stock | Number | Sum | `MAX(0, Available Supply - Forecast Demand Qty)` |
+| Average Daily Demand | Number | None | `DIVIDE(Forecast Demand Qty, SYS01 Time Settings.Days in Month)` |
+| Lead Time Demand | Number | Sum | `Average Daily Demand * SYS04 Product Supply Policy.Lead Time Days` |
+| Safety Stock Qty | Number | Sum | `Average Daily Demand * SYS04 Product Supply Policy.Safety Stock Days` |
+| Reorder Point | Number | Sum | `Lead Time Demand + Safety Stock Qty` |
+| Days Cover | Number | None | `DIVIDE(Closing Stock, Average Daily Demand)` |
+| Below Reorder Point? | Boolean | Any | `Closing Stock < Reorder Point` |
+| Raw Order Qty | Number | Sum | `MAX(0, Reorder Point + Forecast Demand Qty - Opening Stock - Open Purchase Orders)` |
+| MOQ Adjusted Qty | Number | Sum | `MAX(Raw Order Qty, SYS04 Product Supply Policy.Minimum Order Qty)` |
+| Pack Rounded Qty | Number | Sum | `ROUND(MOQ Adjusted Qty / SYS04 Product Supply Policy.Pack Size, 0, UP) * SYS04 Product Supply Policy.Pack Size` |
+| Recommended Order Qty Final | Number | Sum | `IF Below Reorder Point? THEN Pack Rounded Qty ELSE 0` |
+
+Note: In the build, avoid circular references by placing Recommended Order Qty Final in a separate module or using a monthly process step if projected inventory and order recommendations need to iterate.
+
+### 10.9 CALC05 Supplier Purchase Plan
+
+Applies To: P3 Product, Supplier, Time, Versions
+
+| Line Item | Format | Summary | Formula |
+|---|---|---|---|
+| Product Supplier | List: Supplier | None | `SYS02 Product Details.Supplier` |
+| Recommended Shop Order Qty | Number | Sum | `CALC04 Inventory Projection.Recommended Order Qty Final` |
+| Supplier Order Qty | Number | Sum | `Recommended Shop Order Qty[SUM: Product Supplier]` |
+| Unit Cost | Currency | None | `CALC02 Cost and Price.Net Unit Cost` |
+| Purchase Value | Currency | Sum | `Supplier Order Qty * Unit Cost` |
+| Lead Time Days | Number | None | `SYS04 Product Supply Policy.Lead Time Days` |
+| Arrival Month | Time Period: Month | None | Month shifted by lead time, modelled via mapping if required |
 
 ---
 
-## Data Flow Diagram
+## 11. User experience pages
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         DATA FLOW ARCHITECTURE                              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  External Data Sources  →  Data Hub (Master Data)  →  DISCO Modules        │
-│         │                          │                          │             │
-│         ▼                          ▼                          ▼             │
-│  ┌─────────────┐             ┌─────────────┐            ┌───────────┐      │
-│  │  POS Systems │             │  Products   │            │   DAT     │      │
-│  │  E-commerce  │             │   Stores    │            │  INP      │      │
-│  │  Account     │             │   Time      │            │  SYS      │      │
-│  │  ERP         │             │   Regions   │            │  CALC     │      │
-│  │  Weather     │             │   Categories│            │  REP      │      │
-│  └─────────────┘             └─────────────┘            └───────────┘      │
-│         │                          │                          │             │
-│         ▼                          ▼                          ▼             │
-│  ┌───────────────────────────────────────────────────────────────────┐     │
-│  │                        Data Hub Model                              │     │
-│  │  - Central Product List (flat)                                   │     │
-│  │  - Master Store Locations                                          │     │
-│  │  - Time Calendar Settings                                          │     │
-│  │  - Currency Exchange Rates                                         │     │
-│  └───────────────────────────────────────────────────────────────────┘     │
-│                                                                             │
-│  Spoke Models (Business Logic)                                              │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
-│  │ Sales    │  │ Inventory│  │ Finance  │  │ Demand   │  │ Margin   │    │
-│  │ Forecast │  │ Tracking │  │ Reporting│  │ Forecast │  │ Analysis │    │
-│  │          │  │          │  │          │  │          │  │          │    │
-│  │ DAT: Sales│ │ DAT: Stock│ │ SYS: FX  │ │ INP:     │ │ CALC:    │    │
-│  │ INP:      │ │ SYS: OH   │ │ REP: P&L │ │ Demand   │ │ Margin   │    │
-│  │ CALC:     │ │ CALC:    │ │          │ │          │ │          │    │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────┘    │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+| Page | Audience | Purpose | Key grids / cards |
+|---|---|---|---|
+| Executive Overview | Leadership | National sales, margin, and inventory risk | Revenue, GM %, category trend, exception count |
+| Category Manager Workspace | Category managers | Manage product assumptions and review category forecast | Product price/cost inputs, forecast by category, margin exceptions |
+| Shop Forecast Review | Shop managers | Review and override local demand | Product x month quantity grid, driver comments, override flags |
+| Replenishment Planner | Supply planners | Generate recommended order quantities | Below reorder point list, supplier buy plan, days cover |
+| Finance Review | Finance | Validate revenue, COGS, and margin outlook | Category P&L, margin bridge, cost inflation impact |
 
 ---
 
-## Implementation Timeline
+## 12. Integration design
+
+### Inbound data
+
+| Source | Data | Frequency | Target module | Notes |
+|---|---|---|---|---|
+| POS / sales system | Sales quantity, revenue, shop, product, date | Daily or monthly | DAT01 Sales History | Monthly aggregation recommended for planning model |
+| ERP product master | SKU, UOM, category, supplier | Daily or on change | DAT04 Product Master | Central Library controlled |
+| ERP cost file | Standard cost, supplier cost, rebate | Monthly or on change | DAT03 Product Cost | Versioned for forecast assumptions |
+| Inventory system | Stock on hand, stock on order | Daily or weekly | DAT02 Inventory Snapshot | Use latest snapshot for opening stock |
+| External assumptions | Rainfall outlook, seasonal index, local events | Monthly | INP02 Demand Drivers | Optional; can be planner input |
+
+### Outbound data
+
+| Output | Consumer | Frequency | Source module |
+|---|---|---|---|
+| Supplier purchase plan | Procurement / ERP | Weekly or monthly | REP04 Supplier Buy Plan |
+| Category forecast | Category management | Monthly | REP01 Category Forecast |
+| Shop demand plan | Operations | Monthly | REP02 Shop Forecast |
+| Margin outlook | Finance | Monthly | REP05 Executive Summary |
+
+---
+
+## 13. Model build sequence
 
 | Phase | Duration | Deliverables |
-|-------|----------|--------------|
-| **Phase 1: Data Hub** | 2 weeks | Product, Stores, Time models |
-| **Phase 2: Base Models** | 3 weeks | DAT, INP, SYS modules complete |
-| **Phase 3: Calculation Engine** | 2 weeks | All CALC modules with formulas |
-| **Phase 4: Output Reports** | 1 week | REP modules, dashboards |
-| **Phase 5: Testing & Validation** | 1 week | UAT, accuracy checks |
-| **Total** | **9 weeks** | Production-ready model |
+|---|---:|---|
+| 1. Foundation | 1 week | Product, shop, supplier, time, and version lists; SYS modules |
+| 2. Data load | 1 week | Sales history, product master, costs, and inventory imports |
+| 3. Forecast engine | 2 weeks | Baseline demand, seasonality, drivers, forecast override process |
+| 4. Cost and margin | 1 week | Landed cost, sell price, COGS, gross margin calculations |
+| 5. Inventory and replenishment | 2 weeks | Stock projection, reorder point, MOQ/pack rounding, supplier buy plan |
+| 6. UX and reporting | 1 week | Executive, category, shop, replenishment, and finance pages |
+| 7. Testing and deployment | 1 week | UAT, reconciliation, ALM deployment, runbook |
+| **Total** | **9 weeks** | Production-ready planning model |
 
 ---
 
-## Related Documents
+## 14. Validation and test cases
 
-- `Anaplan_Modelling.md` - General DISCO methodology
-- `Anaplan_API_Guide.md` - Integration patterns
-- `Anaplan_Functions.md` - Formula reference
+| Test | Expected result |
+|---|---|
+| Product hierarchy rollup | SKU forecast quantities aggregate to subcategory and category totals |
+| Shop hierarchy rollup | Shop forecast aggregates to region and national totals |
+| Forecast override | If Override? is true, Final Forecast Qty equals Planner Override Qty |
+| Negative demand prevention | Final forecast quantity cannot be below zero |
+| Margin calculation | Revenue minus COGS equals Gross Margin |
+| GM target flag | GM Below Target? is true when GM % is below category target |
+| Inventory projection | Closing Stock equals Opening Stock + Open PO + Recommended Order - Forecast Demand |
+| Reorder trigger | Below Reorder Point? is true when Closing Stock is below policy threshold |
+| MOQ and pack rounding | Recommended order respects supplier minimum and pack size |
+| Version isolation | Forecast, Budget, Upside, and Downside values are independently reviewable |
+
+---
+
+## 15. Key implementation notes
+
+- Use product and shop hierarchies for aggregation; avoid duplicate category or region dimensions in detailed forecast modules.
+- Keep Product x Shop x Month modules focused on quantity and inventory. Product-only modules should hold cost and price where shop variation is not required.
+- Use SYS modules for mappings and attributes. Do not hard-code category or supplier names in formulas.
+- Use line item subsets only where a reporting or calculation pattern genuinely needs them.
+- Use saved views for imports and exports, with stable codes for products, shops, suppliers, and time periods.
+- Apply selective access for shop managers so they only edit relevant shops.
+- Keep actuals locked and write planner inputs only to forecast/scenario versions.
+- For production ALM, classify assumptions and transactional data as production data where appropriate.
+
+---
+
+## 16. Related repository documents
+
+- `Anaplan_Modelling.md` - General modelling and DISCO guidance
+- `Anaplan_API_Guide.md` - Integration API patterns
+- `docs/guides/anaplan-tool-guide.md` - MCP tool usage patterns
