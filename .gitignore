@@ -2,6 +2,10 @@
 node_modules/
 dist/
 *.tgz
+*.mcpb
+
+# Local scratch/test scripts
+.scratch/
 
 # OS
 .DS_Store

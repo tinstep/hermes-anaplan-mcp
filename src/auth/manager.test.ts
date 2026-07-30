@@ -14,6 +14,9 @@ describe("AuthManager", () => {
     delete process.env.ANAPLAN_OAUTH_AUTHORIZATION_CODE;
     delete process.env.ANAPLAN_OAUTH_REDIRECT_URI;
     delete process.env.ANAPLAN_REFRESH_TOKEN;
+    delete process.env.ANAPLAN_INSTANCE;
+    delete process.env.ANAPLAN_INSTANCE_AUTH_BASE_URL;
+    delete process.env.ANAPLAN_INSTANCE_API_BASE_URL;
   });
 
   it("returns deferred provider when no credentials are configured", async () => {
@@ -84,6 +87,23 @@ describe("AuthManager", () => {
     expect(manager.getProviderType()).toBe("oauth");
   });
 
+  it("defaults to the us1 instance when ANAPLAN_INSTANCE is not set", () => {
+    const manager = AuthManager.fromEnv();
+    expect(manager.getInstance().id).toBe("us1");
+  });
+
+  it("selects the au1 instance when ANAPLAN_INSTANCE=au1", () => {
+    process.env.ANAPLAN_INSTANCE = "au1";
+    const manager = AuthManager.fromEnv();
+    expect(manager.getInstance().id).toBe("au1");
+    expect(manager.getInstance().oauthBaseUrl).toBe("https://au1a.app2.anaplan.com");
+  });
+
+  it("throws a clear error for an unrecognized instance", () => {
+    process.env.ANAPLAN_INSTANCE = "not-a-real-instance";
+    expect(() => AuthManager.fromEnv()).toThrow(/Unknown Anaplan instance/);
+  });
+
   it("builds remote HTTP auth from OAuth client env only", () => {
     process.env.ANAPLAN_CLIENT_ID = "cid";
     process.env.ANAPLAN_USERNAME = "user";
@@ -95,6 +115,18 @@ describe("AuthManager", () => {
   });
 
   it("throws when remote HTTP auth is missing ANAPLAN_CLIENT_ID", () => {
+    expect(() => AuthManager.fromRemoteHttpEnv()).toThrow("Remote HTTP mode requires ANAPLAN_CLIENT_ID");
+  });
+
+  it("rejects basic auth credentials in remote HTTP mode (no shared service account)", () => {
+    process.env.ANAPLAN_USERNAME = "svc-account";
+    process.env.ANAPLAN_PASSWORD = "svc-pass";
+    expect(() => AuthManager.fromRemoteHttpEnv()).toThrow("Remote HTTP mode requires ANAPLAN_CLIENT_ID");
+  });
+
+  it("rejects certificate credentials in remote HTTP mode (no shared service account)", () => {
+    process.env.ANAPLAN_CERTIFICATE_PATH = "/cert.pem";
+    process.env.ANAPLAN_PRIVATE_KEY_PATH = "/key.pem";
     expect(() => AuthManager.fromRemoteHttpEnv()).toThrow("Remote HTTP mode requires ANAPLAN_CLIENT_ID");
   });
 

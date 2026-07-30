@@ -123,7 +123,28 @@ npm run build
 
 ### 2. Connect to Claude Desktop
 
-Claude Desktop is the easiest way to use this server. Here's how to set it up:
+Two ways to connect: build a **Claude Desktop extension** (`.mcpb` file, single-click install, settings editable in Claude's UI) or edit the **JSON config** by hand. The extension is recommended unless you need remote HTTP mode or want to run from source without packaging.
+
+#### Option A: Build and install the extension (recommended)
+
+```bash
+npm run build:extension
+```
+
+This compiles the server, stages a production-only copy (no dev dependencies, no docs/tests), and packs it into `anaplan-mcp.mcpb` in the repo root. Requires the [prerequisites](#prerequisites) above; `npx` will fetch the `@anthropic-ai/mcpb` packaging tool on first run.
+
+Then in Claude Desktop: **Settings → Extensions → Install from file...** and pick `anaplan-mcp.mcpb`. Claude renders a settings form for every field defined in [`manifest.json`](manifest.json)'s `user_config` (instance, OAuth client ID, username/password, certificate paths, and the Playwright toggles) — fill in whichever auth method you're using and leave the rest blank. Nothing needs manual JSON editing, and secrets like the password field are masked.
+
+If you later enable the Playwright fallback, install its browser binary inside the installed extension folder (Claude shows the path under the extension's details):
+
+```bash
+cd <extension folder>
+npm install playwright && npx playwright install chromium
+```
+
+Re-run `npm run build:extension` and reinstall whenever you pull new code — the bundle isn't auto-updated from source.
+
+#### Option B: JSON config
 
 **Step 1: Open the config file**
 
@@ -140,6 +161,8 @@ Replace `<path>` with the absolute path to your cloned repo (e.g. `/Users/you/an
 
 Choose **one** auth method only. For most users, use **OAuth2** so Claude can show a sign-in link in chat. Do not set OAuth, certificate, and basic env vars together.
 
+Also choose which **Anaplan instance** (tenant region) to connect to via `ANAPLAN_INSTANCE`. This affects every auth method. Supported values today: `us1` (default) and `au1`. See [Anaplan instances](#anaplan-instances) below for details and for connecting to instances not built in.
+
 **Recommended: OAuth2 (device grant)**
 
 ```json
@@ -149,7 +172,8 @@ Choose **one** auth method only. For most users, use **OAuth2** so Claude can sh
       "command": "node",
       "args": ["<path>/dist/index.js"],
       "env": {
-        "ANAPLAN_CLIENT_ID": "your-client-id"
+        "ANAPLAN_CLIENT_ID": "your-client-id",
+        "ANAPLAN_INSTANCE": "us1"
       }
     }
   }
@@ -219,11 +243,34 @@ Any MCP-compatible client that supports stdio transport can connect. The server 
 
 The server also supports **Streamable HTTP transport** for remote MCP connections from [claude.ai](https://claude.ai), [ChatGPT](https://chatgpt.com), and other browser-based AI assistants. Deploy to a cloud platform (Fly.io recommended) and connect via the remote MCP integration settings.
 
-Remote HTTP mode is designed for **per-session Anaplan OAuth**, not a single shared Anaplan user. Set `ANAPLAN_CLIENT_ID` on the server so each remote session can authorize against Anaplan with its own identity. If you want an extra outer gate in front of the endpoint, you can also set `ANAPLAN_MCP_HTTP_AUTH_TOKEN` and have your client or reverse proxy send it as `Authorization: Bearer <token>`.
+Remote HTTP mode is designed for **per-session Anaplan OAuth**, not a single shared Anaplan user. Set `ANAPLAN_CLIENT_ID` on the server so each remote session can authorize against Anaplan with its own identity. Set `ANAPLAN_INSTANCE` on the server too (see [Anaplan instances](#anaplan-instances)) - it applies to every session, since the instance is fixed per deployment. Basic auth (`ANAPLAN_USERNAME`/`ANAPLAN_PASSWORD`) and certificate auth (`ANAPLAN_CERTIFICATE_PATH`/`ANAPLAN_PRIVATE_KEY_PATH`) are intentionally **not** supported in remote HTTP mode — they would collapse every session onto one shared Anaplan identity, breaking per-user permissions and auditability. They remain available for stdio/local use only. If you want an extra outer gate in front of the endpoint, you can also set `ANAPLAN_MCP_HTTP_AUTH_TOKEN` and have your client or reverse proxy send it as `Authorization: Bearer <token>`.
 
 See the **[Remote Deployment Guide](docs/guides/deploying-remote.md)** for full setup instructions, platform recommendations, and troubleshooting.
 
 ## Configuration
+
+### Anaplan instances
+
+Anaplan tenants live on different instances (regions), each with its own auth and API hosts. Set `ANAPLAN_INSTANCE` to choose one - it applies to OAuth, certificate, and basic auth alike, plus every transactional/bulk API call.
+
+| `ANAPLAN_INSTANCE` | Auth base URL | API base URL |
+|---------------------|---------------|--------------|
+| `us1` (default) | `https://auth.anaplan.com` | `https://api.anaplan.com` |
+| `au1` | `https://au1a.app2.anaplan.com` | `https://api.au1a.app2.anaplan.com` |
+
+If you don't set `ANAPLAN_INSTANCE`, the server defaults to `us1`. Most tenants are reachable through the global `us1` hosts regardless of where they're physically provisioned - if you're not sure which to pick, try `us1` first and switch to `au1` if you get 403s on every call.
+
+For an instance that isn't built in, set `ANAPLAN_INSTANCE` to any identifier plus both override URLs:
+
+```json
+"env": {
+  "ANAPLAN_INSTANCE": "eu1",
+  "ANAPLAN_INSTANCE_AUTH_BASE_URL": "https://eu1a.app2.anaplan.com",
+  "ANAPLAN_INSTANCE_API_BASE_URL": "https://api.eu1a.app2.anaplan.com"
+}
+```
+
+Note: this selects the instance used for OAuth/certificate/basic auth and the transactional/bulk API. It's independent of `ANAPLAN_PLAYWRIGHT_REGION`, which controls the region used by the separate Playwright UI-automation fallback (see [Playwright UI Automation](#playwright-ui-automation-3-tools)).
 
 ### Environment variables
 
@@ -234,6 +281,7 @@ All configuration is done through environment variables. There are no config fil
 | OAuth2 (device grant) | `ANAPLAN_CLIENT_ID` | Highest priority. Device authorization flow. Claude shows you the URL and code in chat; authorize in browser then retry. Tokens stay in memory only, so restart or >60 minutes of idle time requires another device login unless you set `ANAPLAN_REFRESH_TOKEN` manually |
 | Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH`, `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` (optional) | Second priority. PEM certificate + private key, authenticates via CACertificate flow. Data format defaults to `v2` |
 | Basic | `ANAPLAN_USERNAME`, `ANAPLAN_PASSWORD` | Lowest priority. Email + password, sends base64 credentials to auth endpoint |
+| Instance selection | `ANAPLAN_INSTANCE` (optional, defaults to `us1`), `ANAPLAN_INSTANCE_AUTH_BASE_URL` / `ANAPLAN_INSTANCE_API_BASE_URL` (optional, for instances not built in) | Applies to all auth methods above. See [Anaplan instances](#anaplan-instances) |
 
 You only need one set of credentials. If multiple are configured, the server picks the highest-priority method automatically.
 
@@ -380,6 +428,8 @@ Some Anaplan operations are blocked by the Transactional API v2.0 on certain ten
 | `create_list` | Create a new list via Anaplan UI. Falls back to Playwright when the API returns 405<br>UI flow: Open model → Settings → Lists → Add List → fill name → Save |
 | `create_module` | Create a new module via Anaplan UI. Falls back to Playwright when the API returns 405<br>UI flow: Open model → Settings → Modules → Add Module → fill name → Save |
 
+Playwright is an **optional dependency** of this package (not installed by a plain `npm install`), so the server boots fine without it — it's only required if you actually turn this feature on.
+
 **Prerequisites:**
 
 ```bash
@@ -396,11 +446,34 @@ npm install playwright && npx playwright install chromium && npx playwright inst
 | `ANAPLAN_USERNAME` | Yes | Anaplan email (shared with API auth) |
 | `ANAPLAN_PASSWORD` | Yes | Anaplan password (shared with API auth) |
 
+**Enabling it in Claude Desktop:** add the variables above to the same `env` block used for auth, in your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "anaplan": {
+      "command": "node",
+      "args": ["<path>/dist/index.js"],
+      "env": {
+        "ANAPLAN_CLIENT_ID": "your-client-id",
+        "ANAPLAN_INSTANCE": "us1",
+        "ANAPLAN_PLAYWRIGHT_ENABLED": "true",
+        "ANAPLAN_USERNAME": "user@company.com",
+        "ANAPLAN_PASSWORD": "your-password"
+      }
+    }
+  }
+}
+```
+
+Leave `ANAPLAN_PLAYWRIGHT_ENABLED` unset (or `"false"`) to keep the 3 fallback tools purely advisory — they'll still register, but return a guidance message instead of driving a browser, and Playwright itself never needs to be installed.
+
 **Architecture:**
 
 - **Lazy browser lifecycle** — Chromium launches on first use, authenticates, and stays alive for subsequent calls. After 5 minutes of idle time the browser closes gracefully.
 - **API-first with automatic fallback** — tools attempt the REST API first; on HTTP 405 they invoke the Playwright UI automation. When Playwright is disabled, a guidance message tells the user to perform the action manually in the Anaplan UI.
 - **MFA support** — if MFA is required and running headless, the tool throws a clear error. Set `ANAPLAN_PLAYWRIGHT_HEADLESS=false` for interactive MFA entry.
+- **Not installed vs. disabled** — if `ANAPLAN_PLAYWRIGHT_ENABLED=true` but the `playwright` package isn't installed, the server still starts; only the fallback call itself fails, with an error telling you to run `npm install playwright`.
 
 **Important notes:**
 
@@ -443,6 +516,9 @@ docs/
   guides/     # Tool selection and workflow guides
 
 examples/     # Example output - FY26 Sales Forecast deck generated via MCP
+
+manifest.json          # Claude Desktop extension (.mcpb) manifest — server config + user-editable settings
+scripts/build-extension.sh # Packs manifest.json + dist/ into anaplan-mcp.mcpb (npm run build:extension)
 ```
 
 Four layers:
