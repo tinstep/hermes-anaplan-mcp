@@ -161,7 +161,7 @@ Replace `<path>` with the absolute path to your cloned repo (e.g. `/Users/you/an
 
 Choose **one** auth method only. For most users, use **OAuth2** so Claude can show a sign-in link in chat. Do not set OAuth, certificate, and basic env vars together.
 
-Also choose which **Anaplan instance** (tenant region) to connect to via `ANAPLAN_INSTANCE`. This affects every auth method. Supported values today: `us1` (default) and `au1`. See [Anaplan instances](#anaplan-instances) below for details and for connecting to instances not built in.
+Also choose which **Anaplan instance** (tenant region) to connect to via `ANAPLAN_INSTANCE`. This controls auth, API, OAuth, and Playwright UI routing. Supported values today: `us1` (default) and `au1`. See [Anaplan instances](#anaplan-instances) below for details and for connecting to instances not built in.
 
 **Recommended: OAuth2 (device grant)**
 
@@ -251,37 +251,39 @@ See the **[Remote Deployment Guide](docs/guides/deploying-remote.md)** for full 
 
 ### Anaplan instances
 
-Anaplan tenants live on different instances (regions), each with its own auth and API hosts. Set `ANAPLAN_INSTANCE` to choose one - it applies to OAuth, certificate, and basic auth alike, plus every transactional/bulk API call.
+Anaplan tenants live on different instances (regions). Set `ANAPLAN_INSTANCE` once to select the endpoints used by OAuth, certificate and basic auth, transactional/bulk API calls, and the optional Playwright UI fallback.
 
-| `ANAPLAN_INSTANCE` | Auth base URL | API base URL |
-|---------------------|---------------|--------------|
-| `us1` (default) | `https://auth.anaplan.com` | `https://api.anaplan.com` |
-| `au1` | `https://au1a.app2.anaplan.com` | `https://api.au1a.app2.anaplan.com` |
+| `ANAPLAN_INSTANCE` | Auth base URL | API base URL | OAuth/UI base URL |
+|---------------------|---------------|--------------|-------------------|
+| `us1` (default) | `https://auth.anaplan.com` | `https://api.anaplan.com` | `https://us1a.app.anaplan.com` |
+| `au1` | `https://auth.anaplan.com` | `https://api.anaplan.com` | `https://au1a.app2.anaplan.com` |
 
 If you don't set `ANAPLAN_INSTANCE`, the server defaults to `us1`. Most tenants are reachable through the global `us1` hosts regardless of where they're physically provisioned - if you're not sure which to pick, try `us1` first and switch to `au1` if you get 403s on every call.
 
-For an instance that isn't built in, set `ANAPLAN_INSTANCE` to any identifier plus both override URLs:
+For an instance that isn't built in, set `ANAPLAN_INSTANCE` to any identifier and provide endpoint overrides:
 
 ```json
 "env": {
   "ANAPLAN_INSTANCE": "eu1",
-  "ANAPLAN_INSTANCE_AUTH_BASE_URL": "https://eu1a.app2.anaplan.com",
-  "ANAPLAN_INSTANCE_API_BASE_URL": "https://api.eu1a.app2.anaplan.com"
+  "ANAPLAN_INSTANCE_AUTH_BASE_URL": "https://auth.anaplan.com",
+  "ANAPLAN_INSTANCE_API_BASE_URL": "https://api.anaplan.com",
+  "ANAPLAN_INSTANCE_OAUTH_BASE_URL": "https://eu1a.app.anaplan.com",
+  "ANAPLAN_INSTANCE_UI_BASE_URL": "https://eu1a.app.anaplan.com"
 }
 ```
 
-Note: this selects the instance used for OAuth/certificate/basic auth and the transactional/bulk API. It's independent of `ANAPLAN_PLAYWRIGHT_REGION`, which controls the region used by the separate Playwright UI-automation fallback (see [Playwright UI Automation](#playwright-ui-automation-3-tools)).
+`ANAPLAN_INSTANCE_UI_BASE_URL` is optional for custom instances and defaults to `ANAPLAN_INSTANCE_OAUTH_BASE_URL`. There is no separate Playwright region setting, so API and browser fallback operations cannot silently target different regions.
 
 ### Environment variables
 
-All configuration is done through environment variables. There are no config files, CLI flags, or settings menus.
+Runtime configuration uses environment variables. The Claude Desktop extension settings form maps its fields to these same variables; source and remote deployments set them directly.
 
 | Method | Env Vars | Description |
 |--------|----------|-------------|
 | OAuth2 (device grant) | `ANAPLAN_CLIENT_ID` | Highest priority. Device authorization flow. Claude shows you the URL and code in chat; authorize in browser then retry. Tokens stay in memory only, so restart or >60 minutes of idle time requires another device login unless you set `ANAPLAN_REFRESH_TOKEN` manually |
 | Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH`, `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` (optional) | Second priority. PEM certificate + private key, authenticates via CACertificate flow. Data format defaults to `v2` |
 | Basic | `ANAPLAN_USERNAME`, `ANAPLAN_PASSWORD` | Lowest priority. Email + password, sends base64 credentials to auth endpoint |
-| Instance selection | `ANAPLAN_INSTANCE` (optional, defaults to `us1`), `ANAPLAN_INSTANCE_AUTH_BASE_URL` / `ANAPLAN_INSTANCE_API_BASE_URL` (optional, for instances not built in) | Applies to all auth methods above. See [Anaplan instances](#anaplan-instances) |
+| Instance selection | `ANAPLAN_INSTANCE` (optional, defaults to `us1`); `ANAPLAN_INSTANCE_AUTH_BASE_URL`, `ANAPLAN_INSTANCE_API_BASE_URL`, `ANAPLAN_INSTANCE_OAUTH_BASE_URL`, and `ANAPLAN_INSTANCE_UI_BASE_URL` for custom instances | Applies to auth, API, OAuth, and Playwright UI routing. See [Anaplan instances](#anaplan-instances) |
 
 You only need one set of credentials. If multiple are configured, the server picks the highest-priority method automatically.
 
@@ -428,7 +430,7 @@ Some Anaplan operations are blocked by the Transactional API v2.0 on certain ten
 | `create_list` | Create a new list via Anaplan UI. Falls back to Playwright when the API returns 405<br>UI flow: Open model → Settings → Lists → Add List → fill name → Save |
 | `create_module` | Create a new module via Anaplan UI. Falls back to Playwright when the API returns 405<br>UI flow: Open model → Settings → Modules → Add Module → fill name → Save |
 
-Playwright is an **optional dependency** of this package (not installed by a plain `npm install`), so the server boots fine without it — it's only required if you actually turn this feature on.
+Playwright is an **optional dependency** and is installed by a normal `npm install`. Deployments that omit optional dependencies, including the `.mcpb` extension bundle, still boot normally; Playwright is only required when this feature is enabled.
 
 **Prerequisites:**
 
@@ -441,7 +443,7 @@ npm install playwright && npx playwright install chromium && npx playwright inst
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `ANAPLAN_PLAYWRIGHT_ENABLED` | Yes | Set to `true` to enable Playwright fallback. Default: `false` |
-| `ANAPLAN_PLAYWRIGHT_REGION` | No | Anaplan region for URL routing. Default: `au1a`. Maps to `https://{region}.app2.anaplan.com` |
+| `ANAPLAN_INSTANCE` | No | Selects API, OAuth, and Playwright UI routing. Default: `us1`; built-in alternative: `au1` |
 | `ANAPLAN_PLAYWRIGHT_HEADLESS` | No | Set to `false` for interactive MFA entry. Default: `true` |
 | `ANAPLAN_USERNAME` | Yes | Anaplan email (shared with API auth) |
 | `ANAPLAN_PASSWORD` | Yes | Anaplan password (shared with API auth) |
@@ -545,4 +547,3 @@ Unofficial personal project - not affiliated with, endorsed by, or supported by 
 ## License
 
 GPL-3.0-only - see [LICENSE](LICENSE) file for details. Covers the code in this repository only. Anaplan's API and service are subject to Anaplan's Terms of Service and Acceptable Use Policy.
-

@@ -132,6 +132,9 @@ export class AuthManager {
     if (this.providerType === "basic" || this.providerType === "certificate") {
       return { Authorization: `AnaplanAuthToken ${this.token.tokenValue}` };
     }
+    if (this.providerType === "oauth") {
+      this.lastUsedAt = Date.now();
+    }
     return { Authorization: `Bearer ${this.token.tokenValue}` };
   }
 

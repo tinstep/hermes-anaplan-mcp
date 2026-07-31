@@ -32,7 +32,7 @@
     "anaplan_instance": {
       "type": "string",
       "title": "Anaplan instance",
-      "description": "Tenant region: us1 (default) or au1. Applies to every auth method.",
+      "description": "Tenant region: us1 (default) or au1. Controls auth, API, OAuth, and Playwright UI routing.",
       "required": false,
       "default": "us1"
     },

@@ -49,7 +49,7 @@ export function createServer(auth: AuthManager = AuthManager.fromEnv()): McpServ
   // Playwright UI automation (lazy browser, disabled by default)
   // Enable with ANAPLAN_PLAYWRIGHT_ENABLED=true in .env
   const ui = (process.env.ANAPLAN_PLAYWRIGHT_ENABLED === "true")
-    ? AnaplanUI.fromEnv()
+    ? AnaplanUI.fromEnv(auth.getInstance().uiBaseUrl)
     : AnaplanUI.disabled();
 
   const resolver = new NameResolver({

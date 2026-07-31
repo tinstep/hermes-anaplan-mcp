@@ -17,6 +17,8 @@ describe("AuthManager", () => {
     delete process.env.ANAPLAN_INSTANCE;
     delete process.env.ANAPLAN_INSTANCE_AUTH_BASE_URL;
     delete process.env.ANAPLAN_INSTANCE_API_BASE_URL;
+    delete process.env.ANAPLAN_INSTANCE_OAUTH_BASE_URL;
+    delete process.env.ANAPLAN_INSTANCE_UI_BASE_URL;
   });
 
   it("returns deferred provider when no credentials are configured", async () => {

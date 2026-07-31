@@ -8,6 +8,7 @@ describe("resolveInstanceConfig", () => {
     expect(config.authBaseUrl).toBe("https://auth.anaplan.com");
     expect(config.apiBaseUrl).toBe("https://api.anaplan.com");
     expect(config.oauthBaseUrl).toBe("https://us1a.app.anaplan.com");
+    expect(config.uiBaseUrl).toBe("https://us1a.app.anaplan.com");
   });
 
   it("resolves us1 explicitly", () => {
@@ -15,6 +16,7 @@ describe("resolveInstanceConfig", () => {
     expect(config.authBaseUrl).toBe("https://auth.anaplan.com");
     expect(config.apiBaseUrl).toBe("https://api.anaplan.com");
     expect(config.oauthBaseUrl).toBe("https://us1a.app.anaplan.com");
+    expect(config.uiBaseUrl).toBe("https://us1a.app.anaplan.com");
   });
 
   it("resolves au1", () => {
@@ -23,6 +25,7 @@ describe("resolveInstanceConfig", () => {
     expect(config.authBaseUrl).toBe("https://auth.anaplan.com");
     expect(config.apiBaseUrl).toBe("https://api.anaplan.com");
     expect(config.oauthBaseUrl).toBe("https://au1a.app2.anaplan.com");
+    expect(config.uiBaseUrl).toBe("https://au1a.app2.anaplan.com");
   });
 
   it("is case-insensitive", () => {
@@ -36,11 +39,13 @@ describe("resolveInstanceConfig", () => {
       ANAPLAN_INSTANCE_AUTH_BASE_URL: "https://auth.anaplan.com",
       ANAPLAN_INSTANCE_API_BASE_URL: "https://api.anaplan.com",
       ANAPLAN_INSTANCE_OAUTH_BASE_URL: "https://eu1a.app.anaplan.com",
+      ANAPLAN_INSTANCE_UI_BASE_URL: "https://eu1a.app2.anaplan.com",
     });
     expect(config.id).toBe("eu1");
     expect(config.authBaseUrl).toBe("https://auth.anaplan.com");
     expect(config.apiBaseUrl).toBe("https://api.anaplan.com");
     expect(config.oauthBaseUrl).toBe("https://eu1a.app.anaplan.com");
+    expect(config.uiBaseUrl).toBe("https://eu1a.app2.anaplan.com");
   });
 
   it("falls back to the auth override for oauth when no explicit oauth override is given", () => {
@@ -50,6 +55,7 @@ describe("resolveInstanceConfig", () => {
       ANAPLAN_INSTANCE_API_BASE_URL: "https://api.anaplan.com",
     });
     expect(config.oauthBaseUrl).toBe("https://eu1a.app.anaplan.com");
+    expect(config.uiBaseUrl).toBe("https://eu1a.app.anaplan.com");
   });
 
   it("throws a clear error for an unknown instance without overrides", () => {

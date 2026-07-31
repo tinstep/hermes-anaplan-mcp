@@ -6,6 +6,8 @@ export interface AnaplanInstanceConfig {
   apiBaseUrl: string;
   // OAuth2 device grant (device/code, token) - instance-specific host.
   oauthBaseUrl: string;
+  // Anaplan web application used by the optional Playwright fallback.
+  uiBaseUrl: string;
 }
 
 // Registry of known Anaplan instances. Add new instances here as they're needed.
@@ -15,12 +17,14 @@ const INSTANCES: Record<string, AnaplanInstanceConfig> = {
     authBaseUrl: "https://auth.anaplan.com",
     apiBaseUrl: "https://api.anaplan.com",
     oauthBaseUrl: "https://us1a.app.anaplan.com",
+    uiBaseUrl: "https://us1a.app.anaplan.com",
   },
   au1: {
     id: "au1",
     authBaseUrl: "https://auth.anaplan.com",
     apiBaseUrl: "https://api.anaplan.com",
     oauthBaseUrl: "https://au1a.app2.anaplan.com",
+    uiBaseUrl: "https://au1a.app2.anaplan.com",
   },
 };
 
@@ -41,8 +45,15 @@ export function resolveInstanceConfig(env: NodeJS.ProcessEnv = process.env): Ana
   const customAuthBase = env.ANAPLAN_INSTANCE_AUTH_BASE_URL?.trim();
   const customApiBase = env.ANAPLAN_INSTANCE_API_BASE_URL?.trim();
   const customOAuthBase = env.ANAPLAN_INSTANCE_OAUTH_BASE_URL?.trim() ?? customAuthBase;
-  if (customAuthBase && customApiBase && customOAuthBase) {
-    return { id: requested, authBaseUrl: customAuthBase, apiBaseUrl: customApiBase, oauthBaseUrl: customOAuthBase };
+  const customUiBase = env.ANAPLAN_INSTANCE_UI_BASE_URL?.trim() ?? customOAuthBase;
+  if (customAuthBase && customApiBase && customOAuthBase && customUiBase) {
+    return {
+      id: requested,
+      authBaseUrl: customAuthBase,
+      apiBaseUrl: customApiBase,
+      oauthBaseUrl: customOAuthBase,
+      uiBaseUrl: customUiBase,
+    };
   }
 
   throw new Error(

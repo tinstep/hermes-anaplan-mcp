@@ -17,19 +17,10 @@
  * Enable/disable: set ANAPLAN_PLAYWRIGHT_ENABLED=true (default: false).
  * When disabled, all methods return a user-friendly error guiding manual UI action.
  *
- * Region: defaults to "au1". Override with ANAPLAN_REGION.
+ * Region: uses the UI base URL resolved from ANAPLAN_INSTANCE.
  * Credentials: reads ANAPLAN_USERNAME and ANAPLAN_PASSWORD from env.
  */
 import type { Browser, BrowserContext, Page } from "playwright";
-
-// Region → base URL mapping (matches client.ts regions)
-const REGION_BASE_URLS: Record<string, string> = {
-  au1: "https://au1a.app2.anaplan.com",
-  us1: "https://us1a.app2.anaplan.com",
-  us2: "https://us2a.app2.anaplan.com",
-  eu1: "https://eu1a.app2.anaplan.com",
-  default: "https://au1a.app2.anaplan.com",
-};
 
 export type ModelMode = "UNLOCKED" | "LOCKED" | "ARCHIVED" | "PRODUCTION" | "PRODUCTION_MAINTENANCE";
 
@@ -42,7 +33,7 @@ export interface UIResult {
 export interface AnaplanUIOptions {
   username: string;
   password: string;
-  region?: string;
+  baseUrl: string;
   headless?: boolean;
   idleTimeoutMs?: number;
   enabled?: boolean;
@@ -62,7 +53,7 @@ export class AnaplanUI {
     this.opts = {
       username: opts.username,
       password: opts.password,
-      region: opts.region ?? process.env.ANAPLAN_REGION ?? "au1",
+      baseUrl: opts.baseUrl.replace(/\/$/, ""),
       headless: opts.headless ?? (process.env.ANAPLAN_PLAYWRIGHT_HEADLESS !== "false"),
       idleTimeoutMs: opts.idleTimeoutMs ?? 5 * 60 * 1000,
       enabled: opts.enabled ?? (process.env.ANAPLAN_PLAYWRIGHT_ENABLED === "true"),
@@ -75,20 +66,22 @@ export class AnaplanUI {
    * All methods will return guidance messages instead of attempting UI automation.
    */
   static disabled(): AnaplanUI {
-    return new AnaplanUI({ username: "", password: "", enabled: false });
+    return new AnaplanUI({ username: "", password: "", baseUrl: "", enabled: false });
   }
 
-  /** Create from environment variables (ANAPLAN_PLAYWRIGHT_*) */
-  static fromEnv(): AnaplanUI {
-    const region = process.env.ANAPLAN_PLAYWRIGHT_REGION || "au1a";
-    const baseUrls: Record<string, string> = { ...REGION_BASE_URLS };
+  /** Create from environment variables and the resolved Anaplan instance. */
+  static fromEnv(baseUrl: string, env: NodeJS.ProcessEnv = process.env): AnaplanUI {
     return new AnaplanUI({
-      username: process.env.ANAPLAN_USERNAME || "",
-      password: process.env.ANAPLAN_PASSWORD || "",
+      username: env.ANAPLAN_USERNAME || "",
+      password: env.ANAPLAN_PASSWORD || "",
+      baseUrl,
       enabled: true,
-      region,
-      headless: process.env.ANAPLAN_PLAYWRIGHT_HEADLESS !== "false",
+      headless: env.ANAPLAN_PLAYWRIGHT_HEADLESS !== "false",
     });
+  }
+
+  getBaseUrl(): string {
+    return this.opts.baseUrl;
   }
 
   // ─── Public API ────────────────────────────────────────────────────
@@ -107,10 +100,8 @@ export class AnaplanUI {
     }
     const page = await this.getAuthenticatedPage();
     try {
-      const base = REGION_BASE_URLS[this.opts.region] ?? REGION_BASE_URLS.default;
-
       // Navigate to workspace model management
-      await page.goto(base + "/home?scopeId=" + workspaceId, {
+      await page.goto(this.opts.baseUrl + "/home?scopeId=" + workspaceId, {
         waitUntil: "networkidle",
         timeout: 30000,
       });
@@ -173,11 +164,9 @@ export class AnaplanUI {
     }
     const page = await this.getAuthenticatedPage();
     try {
-      const base = REGION_BASE_URLS[this.opts.region] ?? REGION_BASE_URLS.default;
-
       // Navigate directly to model (Anaplan SPA)
       // URL format: {base}/models/{modelId}
-      await page.goto(base + "/models/" + modelId, {
+      await page.goto(this.opts.baseUrl + "/models/" + modelId, {
         waitUntil: "networkidle",
         timeout: 60000,
       });
@@ -244,10 +233,8 @@ export class AnaplanUI {
     }
     const page = await this.getAuthenticatedPage();
     try {
-      const base = REGION_BASE_URLS[this.opts.region] ?? REGION_BASE_URLS.default;
-
       // Navigate directly to model (Anaplan SPA)
-      await page.goto(base + "/models/" + modelId, {
+      await page.goto(this.opts.baseUrl + "/models/" + modelId, {
         waitUntil: "networkidle",
         timeout: 60000,
       });
@@ -360,8 +347,7 @@ export class AnaplanUI {
     this.page = await this.context.newPage();
 
     // Authenticate
-    const base = REGION_BASE_URLS[this.opts.region] ?? REGION_BASE_URLS.default;
-    await this.page.goto(base, { waitUntil: "networkidle", timeout: 30000 });
+    await this.page.goto(this.opts.baseUrl, { waitUntil: "networkidle", timeout: 30000 });
 
     // Step 1: Enter email
     const emailInput = this.page.locator(
