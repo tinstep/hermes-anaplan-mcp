@@ -7,6 +7,19 @@
 
 # Anaplan MCP
 
+****** Latest Updates *******
+
+Date: 2026-08-03
+
+- Added region-aware Anaplan authentication for Basic, OAuth2, and certificate flows.
+- Credentials now use region-prefixed `.env` variables; unprefixed credential variables are ignored.
+- Added root `config.yaml` with regional nicknames, endpoint URLs, active flags, and credential variable mappings.
+- Added region-aware API, OAuth, Integration API, and Playwright instance routing.
+- Updated remote HTTP authentication to require the selected region's OAuth client ID.
+- Updated `.env.example` with the new region-prefixed credential and runtime configuration format.
+- Added and updated tests for regional authentication, instance routing, HTTP validation, and Playwright configuration.
+- Full verification passes: 223 tests, typecheck, and build.
+
 ## Anaplan modeling principles alignment
 
 This document should be read alongside Anaplan's current modeling guidance:
