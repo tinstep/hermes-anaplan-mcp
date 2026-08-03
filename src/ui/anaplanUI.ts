@@ -49,7 +49,8 @@ export interface UIResult {
 export interface AnaplanUIOptions {
   username: string;
   password: string;
-  baseUrl: string;
+  baseUrl?: string;
+  region?: string;
   headless?: boolean;
   idleTimeoutMs?: number;
   enabled?: boolean;
@@ -69,6 +70,7 @@ export class AnaplanUI {
     this.opts = {
       username: opts.username,
       password: opts.password,
+      baseUrl: (opts.baseUrl ?? REGION_BASE_URLS[normalizeRegion(opts.region ?? process.env.ANAPLAN_PLAYWRIGHT_REGION ?? process.env.ANAPLAN_REGION)] ?? REGION_BASE_URLS.default).replace(/\/$/, ""),
       region: normalizeRegion(opts.region ?? process.env.ANAPLAN_PLAYWRIGHT_REGION ?? process.env.ANAPLAN_REGION),
       headless: opts.headless ?? (process.env.ANAPLAN_PLAYWRIGHT_HEADLESS !== "false"),
       idleTimeoutMs: opts.idleTimeoutMs ?? 5 * 60 * 1000,
@@ -86,12 +88,14 @@ export class AnaplanUI {
   }
 
   /** Create from environment variables (ANAPLAN_PLAYWRIGHT_*) */
-  static fromEnv(): AnaplanUI {
-    const region = normalizeRegion(process.env.ANAPLAN_PLAYWRIGHT_REGION ?? process.env.ANAPLAN_REGION);
-    const credentials = regionalCredentials(loadAnaplanEnv(), region);
+  static fromEnv(baseUrl?: string, env: NodeJS.ProcessEnv = process.env): AnaplanUI {
+    const region = normalizeRegion(env.ANAPLAN_PLAYWRIGHT_REGION ?? env.ANAPLAN_REGION);
+    const credentials = regionalCredentials(loadAnaplanEnv(env), region);
     return new AnaplanUI({
       username: credentials.username ?? "",
       password: credentials.password ?? "",
+      baseUrl,
+      region,
       enabled: true,
       headless: env.ANAPLAN_PLAYWRIGHT_HEADLESS !== "false",
     });

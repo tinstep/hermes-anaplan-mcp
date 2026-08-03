@@ -26,14 +26,14 @@ describe("HTTP auth config", () => {
     expect(() => validateRemoteHttpEnv({
       ANAPLAN_USERNAME: "svc-account",
       ANAPLAN_PASSWORD: "svc-pass",
-    } as NodeJS.ProcessEnv)).toThrow("Remote HTTP mode requires ANAPLAN_CLIENT_ID");
+    } as NodeJS.ProcessEnv)).toThrow("Remote HTTP mode requires AU1A_ANAPLAN_CLIENT_ID");
   });
 
   it("rejects certificate-only env in remote HTTP mode (no shared service account)", () => {
     expect(() => validateRemoteHttpEnv({
       ANAPLAN_CERTIFICATE_PATH: "/cert.pem",
       ANAPLAN_PRIVATE_KEY_PATH: "/key.pem",
-    } as NodeJS.ProcessEnv)).toThrow("Remote HTTP mode requires ANAPLAN_CLIENT_ID");
+    } as NodeJS.ProcessEnv)).toThrow("Remote HTTP mode requires AU1A_ANAPLAN_CLIENT_ID");
   });
 
   it("loads the optional bearer-token alias", () => {

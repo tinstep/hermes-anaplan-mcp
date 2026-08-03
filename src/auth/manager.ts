@@ -43,11 +43,13 @@ export class AuthManager {
   static fromEnv(env: NodeJS.ProcessEnv = process.env, loadFiles = true): AuthManager {
     const resolvedEnv = loadAnaplanEnv(env, { loadFiles });
     const credentials = regionalCredentials(resolvedEnv);
+    const instance = resolveInstanceConfig(resolvedEnv);
     const clientId = credentials.clientId;
     if (clientId) {
       return new AuthManager(
-        new OAuthProvider(clientId, undefined, undefined, credentials.refreshToken, credentials.region),
+        new OAuthProvider(clientId, instance, undefined, undefined, credentials.refreshToken, credentials.region),
         "oauth",
+        instance,
       );
     }
 
@@ -70,19 +72,20 @@ export class AuthManager {
       return new AuthManager(new BasicAuthProvider(username, password, instance), "basic", instance);
     }
 
-    return new AuthManager(new DeferredAuthProvider(credentials.region), "none");
+    return new AuthManager(new DeferredAuthProvider(credentials.region), "none", instance);
   }
 
   static fromRemoteHttpEnv(env: NodeJS.ProcessEnv = process.env, loadFiles = true): AuthManager {
     const resolvedEnv = loadAnaplanEnv(env, { loadFiles });
     const credentials = regionalCredentials(resolvedEnv);
+    const instance = resolveInstanceConfig(resolvedEnv);
     const clientId = credentials.clientId;
     if (!clientId) {
       throw new Error(
         `Remote HTTP mode requires ${credentials.region.toUpperCase()}_ANAPLAN_CLIENT_ID in a Hermes .env file so each session can authenticate with Anaplan OAuth.`
       );
     }
-    return new AuthManager(new OAuthProvider(clientId, undefined, undefined, credentials.refreshToken, credentials.region), "oauth");
+    return new AuthManager(new OAuthProvider(clientId, instance, undefined, undefined, credentials.refreshToken, credentials.region), "oauth", instance);
   }
 
   getProviderType(): string {

@@ -128,11 +128,11 @@ export class OAuthProvider implements AuthProvider {
     _clientSecret?: string,
     _authCodeOptions?: AuthorizationCodeOptions,
     initialRefreshToken?: string,
-    region = "au1a",
+    region?: string,
   ) {
     if (!clientId) throw new Error("Anaplan OAuth client ID is required");
     this.clientId = clientId;
-    this.region = region;
+    this.region = region ?? instance.id;
     this.initialRefreshToken = initialRefreshToken ?? null;
   }
 
