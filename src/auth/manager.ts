@@ -1,6 +1,7 @@
 import type { AuthProvider, TokenInfo } from "./types.js";
 import { BasicAuthProvider } from "./basic.js";
 import { CertificateAuthProvider, type CertificateEncodedDataFormat } from "./certificate.js";
+import { resolveInstanceConfig, type AnaplanInstanceConfig } from "./instances.js";
 import {
   DeviceAuthorizationRequiredError,
   OAuthProvider,
@@ -31,10 +32,12 @@ export class AuthManager {
   private lastUsedAt: number | null = null;
   private readonly provider: AuthProvider;
   private readonly providerType: string;
+  private readonly instance: AnaplanInstanceConfig;
 
-  constructor(provider: AuthProvider, providerType: string) {
+  constructor(provider: AuthProvider, providerType: string, instance: AnaplanInstanceConfig) {
     this.provider = provider;
     this.providerType = providerType;
+    this.instance = instance;
   }
 
   static fromEnv(env: NodeJS.ProcessEnv = process.env, loadFiles = true): AuthManager {
@@ -54,13 +57,17 @@ export class AuthManager {
       const encodedDataFormat =
         (credentials.certificateEncodedDataFormat?.toLowerCase().trim() as CertificateEncodedDataFormat | undefined) ??
         "v2";
-      return new AuthManager(new CertificateAuthProvider(certPath, keyPath, encodedDataFormat), "certificate");
+      return new AuthManager(
+        new CertificateAuthProvider(certPath, keyPath, instance, encodedDataFormat),
+        "certificate",
+        instance,
+      );
     }
 
     const username = credentials.username;
     const password = credentials.password;
     if (username && password) {
-      return new AuthManager(new BasicAuthProvider(username, password), "basic");
+      return new AuthManager(new BasicAuthProvider(username, password, instance), "basic", instance);
     }
 
     return new AuthManager(new DeferredAuthProvider(credentials.region), "none");
@@ -80,6 +87,10 @@ export class AuthManager {
 
   getProviderType(): string {
     return this.providerType;
+  }
+
+  getInstance(): AnaplanInstanceConfig {
+    return this.instance;
   }
 
   async getAuthHeaders(): Promise<Record<string, string>> {

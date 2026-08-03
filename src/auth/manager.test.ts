@@ -84,6 +84,23 @@ describe("AuthManager", () => {
     expect(manager.getProviderType()).toBe("oauth");
   });
 
+  it("defaults to the us1 instance when ANAPLAN_INSTANCE is not set", () => {
+    const manager = AuthManager.fromEnv();
+    expect(manager.getInstance().id).toBe("us1");
+  });
+
+  it("selects the au1 instance when ANAPLAN_INSTANCE=au1", () => {
+    process.env.ANAPLAN_INSTANCE = "au1";
+    const manager = AuthManager.fromEnv();
+    expect(manager.getInstance().id).toBe("au1");
+    expect(manager.getInstance().oauthBaseUrl).toBe("https://au1a.app2.anaplan.com");
+  });
+
+  it("throws a clear error for an unrecognized instance", () => {
+    process.env.ANAPLAN_INSTANCE = "not-a-real-instance";
+    expect(() => AuthManager.fromEnv()).toThrow(/Unknown Anaplan instance/);
+  });
+
   it("builds remote HTTP auth from OAuth client env only", () => {
     process.env.AU1A_ANAPLAN_CLIENT_ID = "cid";
     process.env.AU1A_ANAPLAN_USERNAME = "user";
@@ -96,6 +113,18 @@ describe("AuthManager", () => {
 
   it("throws when remote HTTP auth is missing ANAPLAN_CLIENT_ID", () => {
     expect(() => AuthManager.fromRemoteHttpEnv(process.env, false)).toThrow("Remote HTTP mode requires AU1A_ANAPLAN_CLIENT_ID");
+  });
+
+  it("rejects basic auth credentials in remote HTTP mode (no shared service account)", () => {
+    process.env.ANAPLAN_USERNAME = "svc-account";
+    process.env.ANAPLAN_PASSWORD = "svc-pass";
+    expect(() => AuthManager.fromRemoteHttpEnv()).toThrow("Remote HTTP mode requires ANAPLAN_CLIENT_ID");
+  });
+
+  it("rejects certificate credentials in remote HTTP mode (no shared service account)", () => {
+    process.env.ANAPLAN_CERTIFICATE_PATH = "/cert.pem";
+    process.env.ANAPLAN_PRIVATE_KEY_PATH = "/key.pem";
+    expect(() => AuthManager.fromRemoteHttpEnv()).toThrow("Remote HTTP mode requires ANAPLAN_CLIENT_ID");
   });
 
   it("uses ANAPLAN_REFRESH_TOKEN to skip device grant on first auth call", async () => {

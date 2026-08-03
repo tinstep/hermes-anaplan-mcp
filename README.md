@@ -41,7 +41,7 @@ Built in TypeScript. Supports both stdio (local) and Streamable HTTP (remote) tr
 
 **Anaplan's Integration API is powerful but requires technical expertise to use directly.** Most teams rely on a handful of model builders to navigate complex models, extract data, and run imports - creating bottlenecks when others need access to the same information.
 
-This server wraps the API in 70 structured tools that AI assistants like Claude can call on your behalf. Explore models, pull data, run actions, and onboard new team members - all by asking in plain English instead of writing API calls or waiting for someone who knows the model.
+This server wraps the API in 76 structured tools (including 3 with Playwright UI automation fallback) that AI assistants like Claude can call on your behalf. Explore models, pull data, run actions, and onboard new team members - all by asking in plain English instead of writing API calls or waiting for someone who knows the model.
 
 **For business users:** Stop waiting for someone to pull data or explain how a model works. Ask Claude to show you the numbers, walk you through module structure, or run your regular imports.
 
@@ -93,16 +93,16 @@ This server was developed using the **[Hermes Agent](https://github.com/anthropi
 - Run imports, exports, processes, and delete actions
 - Upload and download files
 - Manage models (open, close, delete, set periods and fiscal year)
+- Change model mode, create lists, and create modules via Playwright UI automation (when API returns 405)
 - Query users, versions, and task history
 
 ### Model Building Limitations
 The Anaplan API does not support:
-- Creating modules or line items programmatically
 - Defining formulas through API
 - Building model structure from scratch
 - Configuring model calendar programmatically
 
-For model building, use Anaplan's UI or Agent Studio.
+For structural creation (lists, modules, line items) blocked by the API on some tenants, enable Playwright UI automation (`ANAPLAN_PLAYWRIGHT_ENABLED=true`). See the **Playwright UI Automation** section below and [`docs/guides/anaplan-playwright-structural-crud.md`](docs/guides/anaplan-playwright-structural-crud.md).
 
 ## Prerequisites
 
@@ -123,7 +123,28 @@ npm run build
 
 ### 2. Connect to Claude Desktop
 
-Claude Desktop is the easiest way to use this server. Here's how to set it up:
+Two ways to connect: build a **Claude Desktop extension** (`.mcpb` file, single-click install, settings editable in Claude's UI) or edit the **JSON config** by hand. The extension is recommended unless you need remote HTTP mode or want to run from source without packaging.
+
+#### Option A: Build and install the extension (recommended)
+
+```bash
+npm run build:extension
+```
+
+This compiles the server, stages a production-only copy (no dev dependencies, no docs/tests), and packs it into `anaplan-mcp.mcpb` in the repo root. Requires the [prerequisites](#prerequisites) above; `npx` will fetch the `@anthropic-ai/mcpb` packaging tool on first run.
+
+Then in Claude Desktop: **Settings → Extensions → Install from file...** and pick `anaplan-mcp.mcpb`. Claude renders a settings form for every field defined in [`manifest.json`](manifest.json)'s `user_config` (instance, OAuth client ID, username/password, certificate paths, and the Playwright toggles) — fill in whichever auth method you're using and leave the rest blank. Nothing needs manual JSON editing, and secrets like the password field are masked.
+
+If you later enable the Playwright fallback, install its browser binary inside the installed extension folder (Claude shows the path under the extension's details):
+
+```bash
+cd <extension folder>
+npm install playwright && npx playwright install chromium
+```
+
+Re-run `npm run build:extension` and reinstall whenever you pull new code — the bundle isn't auto-updated from source.
+
+#### Option B: JSON config
 
 **Step 1: Open the config file**
 
@@ -140,6 +161,8 @@ Replace `<path>` with the absolute path to your cloned repo (e.g. `/Users/you/an
 
 Choose **one** auth method only. For most users, use **OAuth2** so Claude can show a sign-in link in chat. Do not set OAuth, certificate, and basic env vars together.
 
+Also choose which **Anaplan instance** (tenant region) to connect to via `ANAPLAN_INSTANCE`. This controls auth, API, OAuth, and Playwright UI routing. Supported values today: `us1` (default) and `au1`. See [Anaplan instances](#anaplan-instances) below for details and for connecting to instances not built in.
+
 **Recommended: OAuth2 (device grant)**
 
 ```json
@@ -149,7 +172,8 @@ Choose **one** auth method only. For most users, use **OAuth2** so Claude can sh
       "command": "node",
       "args": ["<path>/dist/index.js"],
       "env": {
-        "ANAPLAN_CLIENT_ID": "your-client-id"
+        "ANAPLAN_CLIENT_ID": "your-client-id",
+        "ANAPLAN_INSTANCE": "us1"
       }
     }
   }
@@ -225,6 +249,31 @@ See the **[Remote Deployment Guide](docs/guides/deploying-remote.md)** for full 
 
 ## Configuration
 
+### Anaplan instances
+
+Anaplan tenants live on different instances (regions). Set `ANAPLAN_INSTANCE` once to select the endpoints used by OAuth, certificate and basic auth, transactional/bulk API calls, and the optional Playwright UI fallback.
+
+| `ANAPLAN_INSTANCE` | Auth base URL | API base URL | OAuth/UI base URL |
+|---------------------|---------------|--------------|-------------------|
+| `us1` (default) | `https://auth.anaplan.com` | `https://api.anaplan.com` | `https://us1a.app.anaplan.com` |
+| `au1` | `https://auth.anaplan.com` | `https://api.anaplan.com` | `https://au1a.app2.anaplan.com` |
+
+If you don't set `ANAPLAN_INSTANCE`, the server defaults to `us1`. Most tenants are reachable through the global `us1` hosts regardless of where they're physically provisioned - if you're not sure which to pick, try `us1` first and switch to `au1` if you get 403s on every call.
+
+For an instance that isn't built in, set `ANAPLAN_INSTANCE` to any identifier and provide endpoint overrides:
+
+```json
+"env": {
+  "ANAPLAN_INSTANCE": "eu1",
+  "ANAPLAN_INSTANCE_AUTH_BASE_URL": "https://auth.anaplan.com",
+  "ANAPLAN_INSTANCE_API_BASE_URL": "https://api.anaplan.com",
+  "ANAPLAN_INSTANCE_OAUTH_BASE_URL": "https://eu1a.app.anaplan.com",
+  "ANAPLAN_INSTANCE_UI_BASE_URL": "https://eu1a.app.anaplan.com"
+}
+```
+
+`ANAPLAN_INSTANCE_UI_BASE_URL` is optional for custom instances and defaults to `ANAPLAN_INSTANCE_OAUTH_BASE_URL`. There is no separate Playwright region setting, so API and browser fallback operations cannot silently target different regions.
+
 ### Environment variables
 
 Runtime configuration is supplied through environment variables. Regional endpoint metadata and human-maintained activation flags are stored in the root `config.yaml` file; secrets remain in Hermes `.env` files.
@@ -298,12 +347,13 @@ These apply only to `npm run start:http` / remote MCP deployments:
 
 ### What the server can do
 
-This server has **full access** to whatever your Anaplan credentials allow. The 75 tools cover both read and write operations:
+This server has **full access** to whatever your Anaplan credentials allow. The 76 tools cover read, write, action, admin, and UI automation operations:
 
 - **Read-only tools** (safe to use freely): `show_*` tools, `read_cells`, `get_list_items`, `download_file`, `get_action_status`
 - **Write tools** (modify data): `write_cells`, `add_list_items`, `update_list_items`, `delete_list_items`, `create_list`, `create_module`, `add_lineitem`, `delete_list`, `delete_module`
 - **Action tools** (trigger Anaplan processes): `run_import`, `run_export`, `run_process`, `run_delete`
 - **Admin tools** (model management): `close_model`, `open_model`, `bulk_delete_models`, `set_currentperiod`, `set_fiscalyear`
+- **UI automation tools** (Playwright browser fallback): `set_modelmode`, `create_list` (UI path), `create_module` (UI path)
 
 ### Tool approval in Claude Desktop
 
@@ -396,7 +446,7 @@ Claude Desktop prompts you before each tool call. You'll see the tool name and p
 | `reset_list_index` | Reset list item index numbering<br>`POST /models/{modelId}/lists/{listId}/resetIndex` |
 | `download_optimizer_log` | Download Optimizer solver log for a completed action<br>`GET .../optimizeActions/{actionId}/tasks/{correlationId}/solutionLogs` |
 
-### Transactional Operations (10 tools)
+### Transactional Operations (8 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -405,11 +455,73 @@ Claude Desktop prompts you before each tool call. You'll see the tool name and p
 | `add_list_items` | Add new items to a list<br>`POST .../lists/{listId}/items?action=add` |
 | `update_list_items` | Update existing list items<br>`PUT .../lists/{listId}/items` |
 | `delete_list_items` | Delete list items<br>`POST .../lists/{listId}/items?action=delete` |
-| `create_list` | Create a new list in a model<br>`POST /workspaces/{workspaceId}/models/{modelId}/lists` |
-| `create_module` | Create a new module in a model<br>`POST /workspaces/{workspaceId}/models/{modelId}/modules` |
 | `add_lineitem` | Add one or more line items to a module<br>`POST /workspaces/{workspaceId}/models/{modelId}/modules/{moduleId}/lineItems` |
 | `delete_module` | Delete a module from a model (requires `force=true`)<br>`DELETE /workspaces/{workspaceId}/models/{modelId}/modules/{moduleId}` |
 | `delete_list` | Delete a list from a model (requires `force=true`)<br>`DELETE /workspaces/{workspaceId}/models/{modelId}/lists/{listId}` |
+
+### Playwright UI Automation (3 tools)
+
+Some Anaplan operations are blocked by the Transactional API v2.0 on certain tenants (returns HTTP 405). When Playwright UI automation is enabled, these tools automatically fall back to browser-based interaction with the Anaplan web interface.
+
+| Tool | Description |
+|------|-------------|
+| `set_modelmode` | Change model mode via Anaplan UI (UNLOCKED, LOCKED, ARCHIVED, PRODUCTION, PRODUCTION_MAINTENANCE). Falls back to Playwright browser automation when the API returns 405<br>UI flow: Home → Model Management → select model → Change Mode → pick mode → OK |
+| `create_list` | Create a new list via Anaplan UI. Falls back to Playwright when the API returns 405<br>UI flow: Open model → Settings → Lists → Add List → fill name → Save |
+| `create_module` | Create a new module via Anaplan UI. Falls back to Playwright when the API returns 405<br>UI flow: Open model → Settings → Modules → Add Module → fill name → Save |
+
+Playwright is an **optional dependency** and is installed by a normal `npm install`. Deployments that omit optional dependencies, including the `.mcpb` extension bundle, still boot normally; Playwright is only required when this feature is enabled.
+
+**Prerequisites:**
+
+```bash
+npm install playwright && npx playwright install chromium && npx playwright install-deps chromium
+```
+
+**Environment variables:**
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `ANAPLAN_PLAYWRIGHT_ENABLED` | Yes | Set to `true` to enable Playwright fallback. Default: `false` |
+| `ANAPLAN_INSTANCE` | No | Selects API, OAuth, and Playwright UI routing. Default: `us1`; built-in alternative: `au1` |
+| `ANAPLAN_PLAYWRIGHT_HEADLESS` | No | Set to `false` for interactive MFA entry. Default: `true` |
+| `ANAPLAN_USERNAME` | Yes | Anaplan email (shared with API auth) |
+| `ANAPLAN_PASSWORD` | Yes | Anaplan password (shared with API auth) |
+
+**Enabling it in Claude Desktop:** add the variables above to the same `env` block used for auth, in your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "anaplan": {
+      "command": "node",
+      "args": ["<path>/dist/index.js"],
+      "env": {
+        "ANAPLAN_CLIENT_ID": "your-client-id",
+        "ANAPLAN_INSTANCE": "us1",
+        "ANAPLAN_PLAYWRIGHT_ENABLED": "true",
+        "ANAPLAN_USERNAME": "user@company.com",
+        "ANAPLAN_PASSWORD": "your-password"
+      }
+    }
+  }
+}
+```
+
+Leave `ANAPLAN_PLAYWRIGHT_ENABLED` unset (or `"false"`) to keep the 3 fallback tools purely advisory — they'll still register, but return a guidance message instead of driving a browser, and Playwright itself never needs to be installed.
+
+**Architecture:**
+
+- **Lazy browser lifecycle** — Chromium launches on first use, authenticates, and stays alive for subsequent calls. After 5 minutes of idle time the browser closes gracefully.
+- **API-first with automatic fallback** — tools attempt the REST API first; on HTTP 405 they invoke the Playwright UI automation. When Playwright is disabled, a guidance message tells the user to perform the action manually in the Anaplan UI.
+- **MFA support** — if MFA is required and running headless, the tool throws a clear error. Set `ANAPLAN_PLAYWRIGHT_HEADLESS=false` for interactive MFA entry.
+- **Not installed vs. disabled** — if `ANAPLAN_PLAYWRIGHT_ENABLED=true` but the `playwright` package isn't installed, the server still starts; only the fallback call itself fails, with an error telling you to run `npm install playwright`.
+
+**Important notes:**
+
+- The Anaplan SPA renders model content inside an iframe named `"App shell content"`. Playwright automation uses `frameLocator` for model-level operations.
+- The models list page may use closed Shadow DOM or custom rendering that is invisible to Playwright DOM access. The automation includes screenshot-based fallbacks for these cases.
+- All Playwright errors capture screenshots to `/tmp/anaplan-ui-debug/<action>-<timestamp>.png` for diagnosis.
+- Patch `src/*.ts` only — `npm run build` overwrites `dist/` from source.
 
 ## Orchestration Guide
 
@@ -432,9 +544,10 @@ Every tool description also includes prerequisite hints ("Use show_imports first
 src/
   auth/       # Authentication providers (basic, certificate, oauth) + token manager
   api/        # HTTP client with retry logic + 17 domain-specific API wrappers
-  tools/      # MCP tool registrations (exploration, bulk, transactional) + response hints
+  ui/         # Playwright browser automation (AnaplanUI class) — lazy lifecycle, API-1st fallback
+  tools/      # MCP tool registrations (exploration, bulk, transactional, playwright) + response hints
   resources/  # MCP resource content (orchestration guide)
-  server.ts   # Wires auth > client > APIs > MCP server + registers resources
+  server.ts   # Wires auth > client > APIs > UI > MCP server + registers resources
   index.ts    # Entry point (stdio transport)
   http.ts     # Entry point (Streamable HTTP transport)
 
@@ -444,13 +557,17 @@ docs/
   guides/     # Tool selection and workflow guides
 
 examples/     # Example output - FY26 Sales Forecast deck generated via MCP
+
+manifest.json          # Claude Desktop extension (.mcpb) manifest — server config + user-editable settings
+scripts/build-extension.sh # Packs manifest.json + dist/ into anaplan-mcp.mcpb (npm run build:extension)
 ```
 
-Three layers:
+Four layers:
 
 1. **Auth layer** - pluggable providers behind a common `AuthProvider` interface. The `AuthManager` selects the right provider from env vars and handles token lifecycle.
 2. **API layer** - `AnaplanClient` handles all HTTP communication with the Anaplan API. 17 domain wrappers provide typed methods for each endpoint. Auto-paginates list endpoints using Anaplan's `meta.paging` metadata.
-3. **Tools layer** - registers MCP tools on the server with zod schemas for input validation. Each tool delegates to the appropriate API wrapper and formats results. Key tools include next-step hints to guide multi-tool workflows.
+3. **UI layer** - `AnaplanUI` (Playwright) handles operations the Transactional API v2.0 blocks with HTTP 405. Lazy browser lifecycle: launches Chromium on first use, authenticates, stays alive for 5 minutes idle, then shuts down. Tools call the API first and fall back to Playwright on 405.
+4. **Tools layer** - registers MCP tools on the server with zod schemas for input validation. Each tool delegates to the appropriate API wrapper (or UI fallback) and formats results. Key tools include next-step hints to guide multi-tool workflows.
 
 For detailed runtime diagrams (request flow, trust boundary, subsystem map) see [docs/architecture/overview.md](docs/architecture/overview.md).
 
@@ -469,4 +586,3 @@ Unofficial personal project - not affiliated with, endorsed by, or supported by 
 ## License
 
 GPL-3.0-only - see [LICENSE](LICENSE) file for details. Covers the code in this repository only. Anaplan's API and service are subject to Anaplan's Terms of Service and Acceptable Use Policy.
-

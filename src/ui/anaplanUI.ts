@@ -49,7 +49,7 @@ export interface UIResult {
 export interface AnaplanUIOptions {
   username: string;
   password: string;
-  region?: string;
+  baseUrl: string;
   headless?: boolean;
   idleTimeoutMs?: number;
   enabled?: boolean;
@@ -82,7 +82,7 @@ export class AnaplanUI {
    * All methods will return guidance messages instead of attempting UI automation.
    */
   static disabled(): AnaplanUI {
-    return new AnaplanUI({ username: "", password: "", enabled: false });
+    return new AnaplanUI({ username: "", password: "", baseUrl: "", enabled: false });
   }
 
   /** Create from environment variables (ANAPLAN_PLAYWRIGHT_*) */
@@ -93,9 +93,12 @@ export class AnaplanUI {
       username: credentials.username ?? "",
       password: credentials.password ?? "",
       enabled: true,
-      region,
-      headless: process.env.ANAPLAN_PLAYWRIGHT_HEADLESS !== "false",
+      headless: env.ANAPLAN_PLAYWRIGHT_HEADLESS !== "false",
     });
+  }
+
+  getBaseUrl(): string {
+    return this.opts.baseUrl;
   }
 
   // ─── Public API ────────────────────────────────────────────────────
@@ -114,10 +117,8 @@ export class AnaplanUI {
     }
     const page = await this.getAuthenticatedPage();
     try {
-      const base = REGION_BASE_URLS[this.opts.region] ?? REGION_BASE_URLS.default;
-
       // Navigate to workspace model management
-      await page.goto(base + "/home?scopeId=" + workspaceId, {
+      await page.goto(this.opts.baseUrl + "/home?scopeId=" + workspaceId, {
         waitUntil: "networkidle",
         timeout: 30000,
       });
@@ -497,6 +498,23 @@ export class AnaplanUI {
 
   // ─── Private ──────────────────────────────────────────────────────
 
+  /**
+   * Dynamically import playwright so it's only required when UI automation
+   * actually runs. Keeps the MCP server bootable in environments where the
+   * (optional) playwright dependency isn't installed.
+   */
+  private async loadPlaywright(): Promise<typeof import("playwright")> {
+    try {
+      return await import("playwright");
+    } catch (err: any) {
+      throw new Error(
+        "Playwright UI automation is enabled (ANAPLAN_PLAYWRIGHT_ENABLED=true) but the 'playwright' " +
+        "package is not installed in this environment. Install it with 'npm install playwright' or " +
+        "disable UI automation. (" + (err?.message ?? String(err)) + ")",
+      );
+    }
+  }
+
   private disabledMessage(action: string, detail: string): UIResult {
     return {
       success: false,
@@ -528,6 +546,7 @@ export class AnaplanUI {
 
     // Launch browser
     if (!this.browser || !this.browser.isConnected()) {
+      const { chromium } = await this.loadPlaywright();
       this.browser = await chromium.launch({
         headless: this.opts.headless,
         args: ["--no-sandbox", "--disable-setuid-sandbox"],

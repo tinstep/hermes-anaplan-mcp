@@ -1,4 +1,5 @@
 import type { AuthProvider, AuthResponse, TokenInfo } from "./types.js";
+import type { AnaplanInstanceConfig } from "./instances.js";
 
 const AUTH_URL = "https://auth.anaplan.com/token/authenticate";
 const REFRESH_URL = "https://auth.anaplan.com/token/refresh";
@@ -8,17 +9,21 @@ const AUTH_TIMEOUT_MS = 15000;
 export class BasicAuthProvider implements AuthProvider {
   private readonly username: string;
   private readonly password: string;
+  private readonly authUrl: string;
+  private readonly refreshUrl: string;
 
-  constructor(username: string, password: string) {
+  constructor(username: string, password: string, instance: AnaplanInstanceConfig) {
     if (!username) throw new Error("Anaplan username is required");
     if (!password) throw new Error("Anaplan password is required");
     this.username = username;
     this.password = password;
+    this.authUrl = `${instance.authBaseUrl}/token/authenticate`;
+    this.refreshUrl = `${instance.authBaseUrl}/token/refresh`;
   }
 
   async authenticate(): Promise<TokenInfo> {
     const authHeader = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
-    const response = await fetch(AUTH_URL, {
+    const response = await fetch(this.authUrl, {
       method: "POST",
       headers: {
         Authorization: authHeader,
@@ -40,7 +45,7 @@ export class BasicAuthProvider implements AuthProvider {
   }
 
   async refresh(tokenValue: string): Promise<TokenInfo> {
-    const response = await fetch(REFRESH_URL, {
+    const response = await fetch(this.refreshUrl, {
       method: "POST",
       headers: {
         Authorization: `AnaplanAuthToken ${tokenValue}`,

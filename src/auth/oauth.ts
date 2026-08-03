@@ -1,4 +1,5 @@
 import type { AuthProvider, TokenInfo } from "./types.js";
+import type { AnaplanInstanceConfig } from "./instances.js";
 
 const OAUTH_BASE_URLS: Record<string, string> = {
   au1: "https://au1a.app2.anaplan.com",
@@ -123,6 +124,7 @@ export class OAuthProvider implements AuthProvider {
 
   constructor(
     clientId: string,
+    instance: AnaplanInstanceConfig,
     _clientSecret?: string,
     _authCodeOptions?: AuthorizationCodeOptions,
     initialRefreshToken?: string,
