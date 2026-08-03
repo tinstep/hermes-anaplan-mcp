@@ -254,7 +254,7 @@ Any MCP-compatible client that supports stdio transport can connect. The server 
 
 ### Browser-based AI (claude.ai, ChatGPT)
 
-The server also supports **Streamable HTTP transport** for remote MCP connections from [claude.ai](https://claude.ai), [ChatGPT](https://chatgpt.com), and other browser-based AI assistants. Deploy to a cloud platform (Fly.io recommended) and connect via the remote MCP integration settings.
+The server also supports **Streamable HTTP transport** for remote MCP connections from [claude.ai](https://claude.ai), [ChatGPT](https://chatgpt.com), and other browser-based AI assistants. Deploy the Docker image to a supported cloud or self-hosted platform and connect via the remote MCP integration settings.
 
 Remote HTTP mode is designed for **per-session Anaplan OAuth**, not a single shared Anaplan user. Set the region-prefixed client ID in the Hermes `.env` file (for example `AU1A_ANAPLAN_CLIENT_ID`) so each remote session can authorize against Anaplan with its own identity. If you want an extra outer gate in front of the endpoint, you can also set `ANAPLAN_MCP_HTTP_AUTH_TOKEN` and have your client or reverse proxy send it as `Authorization: Bearer <token>`.
 

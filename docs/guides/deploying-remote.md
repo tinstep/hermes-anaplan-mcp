@@ -31,7 +31,7 @@ The server has two transport modes:
 
 The HTTP mode serves MCP over a standard HTTP endpoint. Clients connect via POST/GET/DELETE on `/mcp`.
 
-## Quick start (Fly.io)
+## Quick start
 
 ### 1. Fork and clone
 
@@ -40,11 +40,9 @@ git clone https://github.com/larasrinath/anaplan-mcp.git
 cd anaplan-mcp
 ```
 
-### 2. Deploy to Fly.io
+### 2. Deploy the container
 
-Sign up at [fly.io](https://fly.io) (GitHub login works). Connect your repo and deploy. The included `Dockerfile` and `fly.toml` handle everything.
-
-Set your Anaplan OAuth client in the Fly.io dashboard so each remote session can authorize with its own Anaplan identity:
+Deploy the included `Dockerfile` to your chosen cloud or self-hosted container platform. Configure the selected region's Anaplan OAuth client so each remote session can authorize with its own Anaplan identity:
 
 | Key | Value |
 |-----|-------|
@@ -111,7 +109,7 @@ new StreamableHTTPServerTransport({
 
 ### 5. Set CORS and anti-buffering headers
 
-Cloud reverse proxies (Fly.io, Render, Cloudflare) buffer responses by default, which breaks streaming. Set these headers:
+Some cloud reverse proxies buffer responses by default, which breaks streaming. Set these headers:
 
 ```typescript
 res.setHeader("Access-Control-Allow-Origin", "*");
@@ -143,13 +141,6 @@ const mcpServer = createServer(AuthManager.fromRemoteHttpEnv());
 ```
 
 ## Platform notes
-
-### Fly.io (recommended)
-
-- Free tier: 3 shared VMs, 256MB RAM each
-- Auto-stops after inactivity, auto-starts on request (~1-2s cold start)
-- No Cloudflare in front -- direct connection
-- Requires credit card for signup
 
 ### Render
 
@@ -190,4 +181,4 @@ curl -X POST http://localhost:3000/mcp \
 | Session initializes but client fails | SSE response format | Set `enableJsonResponse: true` |
 | Tool call asks user to authorize repeatedly | Session-scoped OAuth not yet completed | Open the Anaplan auth URL shown in the tool error, approve, then retry the same tool call |
 | Intermittent failures | Platform cold starts | Use a health check ping or paid tier |
-| Connection refused in platform logs | Wrong internal port | Match Dockerfile EXPOSE with fly.toml internal_port |
+| Connection refused in platform logs | Wrong internal port | Match the platform's internal port to the Dockerfile `EXPOSE` value (`8080`) |
