@@ -2,13 +2,24 @@ import { describe, it, expect } from "vitest";
 import { resolveInstanceConfig } from "./instances.js";
 
 describe("resolveInstanceConfig", () => {
-  it("defaults to us1 when ANAPLAN_INSTANCE is not set", () => {
+  it("uses the catalog default region when no selector is set", () => {
     const config = resolveInstanceConfig({});
-    expect(config.id).toBe("us1");
-    expect(config.authBaseUrl).toBe("https://auth.anaplan.com");
-    expect(config.apiBaseUrl).toBe("https://api.anaplan.com");
-    expect(config.oauthBaseUrl).toBe("https://us1a.app.anaplan.com");
-    expect(config.uiBaseUrl).toBe("https://us1a.app.anaplan.com");
+    expect(config.id).toBe("au1a");
+    expect(config.authBaseUrl).toBe("https://au1a.app2.anaplan.com");
+    expect(config.apiBaseUrl).toBe("https://api.au1a.app2.anaplan.com");
+    expect(config.oauthBaseUrl).toBe("https://au1a.app2.anaplan.com");
+    expect(config.uiBaseUrl).toBe("https://au1a.app2.anaplan.com");
+  });
+
+  it("resolves ANAPLAN_REGION through the catalog", () => {
+    const config = resolveInstanceConfig({ ANAPLAN_REGION: "au1a" });
+    expect(config.id).toBe("au1a");
+    expect(config.apiBaseUrl).toBe("https://api.au1a.app2.anaplan.com");
+  });
+
+  it("resolves catalog nicknames", () => {
+    expect(resolveInstanceConfig({ ANAPLAN_REGION: "aws" }).id).toBe("au1a");
+    expect(resolveInstanceConfig({ ANAPLAN_REGION: "usa" }).id).toBe("us1a");
   });
 
   it("resolves us1 explicitly", () => {
@@ -22,8 +33,8 @@ describe("resolveInstanceConfig", () => {
   it("resolves au1", () => {
     const config = resolveInstanceConfig({ ANAPLAN_INSTANCE: "au1" });
     expect(config.id).toBe("au1");
-    expect(config.authBaseUrl).toBe("https://auth.anaplan.com");
-    expect(config.apiBaseUrl).toBe("https://api.anaplan.com");
+    expect(config.authBaseUrl).toBe("https://au1a.app2.anaplan.com");
+    expect(config.apiBaseUrl).toBe("https://api.au1a.app2.anaplan.com");
     expect(config.oauthBaseUrl).toBe("https://au1a.app2.anaplan.com");
     expect(config.uiBaseUrl).toBe("https://au1a.app2.anaplan.com");
   });

@@ -1,13 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CertificateAuthProvider } from "./certificate.js";
-import { resolveInstanceConfig } from "./instances.js";
+import type { AnaplanInstanceConfig } from "./instances.js";
 import * as fs from "node:fs";
 import * as crypto from "node:crypto";
 
 vi.mock("node:fs");
 vi.mock("node:crypto");
 
-const US1 = resolveInstanceConfig({});
+const AU1A: AnaplanInstanceConfig = {
+  id: "au1a",
+  authBaseUrl: "https://au1a.app2.anaplan.com",
+  apiBaseUrl: "https://api.au1a.app2.anaplan.com",
+  oauthBaseUrl: "https://au1a.app2.anaplan.com",
+  uiBaseUrl: "https://au1a.app2.anaplan.com",
+};
 
 describe("CertificateAuthProvider", () => {
   beforeEach(() => {
@@ -15,8 +21,8 @@ describe("CertificateAuthProvider", () => {
   });
 
   it("throws if cert path or key path is missing", () => {
-    expect(() => new CertificateAuthProvider("", "/key.pem", US1)).toThrow("certificate");
-    expect(() => new CertificateAuthProvider("/cert.pem", "", US1)).toThrow("private key");
+    expect(() => new CertificateAuthProvider("", "/key.pem", AU1A)).toThrow("certificate");
+    expect(() => new CertificateAuthProvider("/cert.pem", "", AU1A)).toThrow("private key");
   });
 
   it("uses v2 certificate payload by default", async () => {
@@ -53,12 +59,12 @@ describe("CertificateAuthProvider", () => {
       }),
     } as Response);
 
-    const provider = new CertificateAuthProvider("/cert.pem", "/key.pem", US1);
+    const provider = new CertificateAuthProvider("/cert.pem", "/key.pem", AU1A);
     const token = await provider.authenticate();
 
     expect(token.tokenValue).toBe("certtoken");
     expect(fetch).toHaveBeenCalledWith(
-      "https://auth.anaplan.com/token/authenticate",
+      "https://au1a.app2.anaplan.com/token/authenticate",
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({
@@ -108,7 +114,7 @@ describe("CertificateAuthProvider", () => {
       }),
     } as Response);
 
-    const provider = new CertificateAuthProvider("/cert.pem", "/key.pem", US1, "v1");
+    const provider = new CertificateAuthProvider("/cert.pem", "/key.pem", AU1A, "v1");
     await provider.authenticate();
 
     const request = vi.mocked(fetch).mock.calls[0][1];

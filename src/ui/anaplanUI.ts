@@ -22,20 +22,8 @@
  * (for example AU1A_ANAPLAN_USERNAME/AU1A_ANAPLAN_PASSWORD).
  */
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
-import { loadAnaplanEnv, normalizeRegion, regionalCredentials } from "../auth/regionalEnv.js";
-
-// Region → base URL mapping (matches client.ts regions)
-const REGION_BASE_URLS: Record<string, string> = {
-  au1: "https://au1a.app2.anaplan.com",
-  au1a: "https://au1a.app2.anaplan.com",
-  us1: "https://us1a.app.anaplan.com",
-  us1a: "https://us1a.app.anaplan.com",
-  us2: "https://us2a.app.anaplan.com",
-  us2a: "https://us2a.app.anaplan.com",
-  eu1: "https://eu1a.app2.anaplan.com",
-  eu1a: "https://eu1a.app2.anaplan.com",
-  default: "https://au1a.app2.anaplan.com",
-};
+import { loadAnaplanEnv, regionalCredentials, resolveRegion } from "../auth/regionalEnv.js";
+import { resolveRegionConfig } from "../auth/regionConfig.js";
 
 
 export type ModelMode = "UNLOCKED" | "LOCKED" | "ARCHIVED" | "PRODUCTION" | "PRODUCTION_MAINTENANCE";
@@ -67,11 +55,17 @@ export class AnaplanUI {
   public readonly enabled: boolean;
 
   constructor(opts: AnaplanUIOptions) {
+    const selectedRegion = opts.region ?? process.env.ANAPLAN_PLAYWRIGHT_REGION ?? process.env.ANAPLAN_REGION;
+    const regionConfig = resolveRegionConfig({
+      ...process.env,
+      ANAPLAN_INSTANCE: undefined,
+      ANAPLAN_REGION: selectedRegion,
+    });
     this.opts = {
       username: opts.username,
       password: opts.password,
-      baseUrl: (opts.baseUrl ?? REGION_BASE_URLS[normalizeRegion(opts.region ?? process.env.ANAPLAN_PLAYWRIGHT_REGION ?? process.env.ANAPLAN_REGION)] ?? REGION_BASE_URLS.default).replace(/\/$/, ""),
-      region: normalizeRegion(opts.region ?? process.env.ANAPLAN_PLAYWRIGHT_REGION ?? process.env.ANAPLAN_REGION),
+      baseUrl: (opts.baseUrl ?? regionConfig.playwright_access_url).replace(/\/$/, ""),
+      region: regionConfig.id,
       headless: opts.headless ?? (process.env.ANAPLAN_PLAYWRIGHT_HEADLESS !== "false"),
       idleTimeoutMs: opts.idleTimeoutMs ?? 5 * 60 * 1000,
       enabled: opts.enabled ?? (process.env.ANAPLAN_PLAYWRIGHT_ENABLED === "true"),
@@ -89,7 +83,7 @@ export class AnaplanUI {
 
   /** Create from environment variables (ANAPLAN_PLAYWRIGHT_*) */
   static fromEnv(baseUrl?: string, env: NodeJS.ProcessEnv = process.env): AnaplanUI {
-    const region = normalizeRegion(env.ANAPLAN_PLAYWRIGHT_REGION ?? env.ANAPLAN_REGION);
+    const region = resolveRegion(env);
     const credentials = regionalCredentials(loadAnaplanEnv(env), region);
     return new AnaplanUI({
       username: credentials.username ?? "",
@@ -187,7 +181,7 @@ export class AnaplanUI {
     }
     const page = await this.getAuthenticatedPage();
     try {
-      const base = REGION_BASE_URLS[this.opts.region] ?? REGION_BASE_URLS.default;
+      const base = this.opts.baseUrl;
 
       // Force fresh page to avoid stale session
       this.authenticated = false;
@@ -414,7 +408,7 @@ export class AnaplanUI {
     }
     const page = await this.getAuthenticatedPage();
     try {
-      const base = REGION_BASE_URLS[this.opts.region] ?? REGION_BASE_URLS.default;
+      const base = this.opts.baseUrl;
 
       // Navigate to model via home page (direct /models/{id} fails on unloaded models)
       await page.goto(base + "/home", {
@@ -564,7 +558,7 @@ export class AnaplanUI {
     this.page = await this.context.newPage();
 
     // 3-step Anaplan login flow
-    const base = REGION_BASE_URLS[this.opts.region] ?? REGION_BASE_URLS.default;
+    const base = this.opts.baseUrl;
     // Step 1: Pre-login page — enter email, click Continue
     const preloginUrl = base + "/auth/prelogin?service=" + encodeURIComponent(base + "/home");
     await this.page.goto(preloginUrl, { waitUntil: "networkidle", timeout: 30000 });

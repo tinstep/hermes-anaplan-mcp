@@ -264,14 +264,14 @@ See the **[Remote Deployment Guide](docs/guides/deploying-remote.md)** for full 
 
 ### Anaplan instances
 
-Anaplan tenants live on different instances (regions). Set `ANAPLAN_INSTANCE` once to select the endpoints used by OAuth, certificate and basic auth, transactional/bulk API calls, and the optional Playwright UI fallback.
+Anaplan tenants live on different instances (regions). Set `ANAPLAN_REGION` once to select the endpoints used by OAuth, certificate and basic auth, transactional/bulk API calls, and the optional Playwright UI fallback. `ANAPLAN_INSTANCE` remains a backwards-compatible override.
 
-| `ANAPLAN_INSTANCE` | Auth base URL | API base URL | OAuth/UI base URL |
-|---------------------|---------------|--------------|-------------------|
-| `us1` (default) | `https://auth.anaplan.com` | `https://api.anaplan.com` | `https://us1a.app.anaplan.com` |
-| `au1` | `https://auth.anaplan.com` | `https://api.anaplan.com` | `https://au1a.app2.anaplan.com` |
+| Region / nickname | Auth base URL | API base URL | OAuth/UI base URL |
+|-------------------|---------------|--------------|-------------------|
+| `us1a` / `usa` | `https://auth.anaplan.com` | `https://api.anaplan.com` | `https://us1a.app.anaplan.com` |
+| `au1a` / `aws` (default) | `https://au1a.app2.anaplan.com` | `https://api.au1a.app2.anaplan.com` | `https://au1a.app2.anaplan.com` |
 
-If you don't set `ANAPLAN_INSTANCE`, the server defaults to `us1`. Most tenants are reachable through the global `us1` hosts regardless of where they're physically provisioned - if you're not sure which to pick, try `us1` first and switch to `au1` if you get 403s on every call.
+If neither selector is set, the server uses `default_region` from `config.yaml`. Authentication and API endpoints must come from the same region; regional tokens are not interchangeable with the global API.
 
 For an instance that isn't built in, set `ANAPLAN_INSTANCE` to any identifier and provide endpoint overrides:
 
@@ -285,11 +285,11 @@ For an instance that isn't built in, set `ANAPLAN_INSTANCE` to any identifier an
 }
 ```
 
-`ANAPLAN_INSTANCE_UI_BASE_URL` is optional for custom instances and defaults to `ANAPLAN_INSTANCE_OAUTH_BASE_URL`. There is no separate Playwright region setting, so API and browser fallback operations cannot silently target different regions.
+`ANAPLAN_INSTANCE_UI_BASE_URL` is optional for custom instances and defaults to `ANAPLAN_INSTANCE_OAUTH_BASE_URL`. For catalogued regions, API and browser fallback operations resolve from the same `config.yaml` entry.
 
 ### Environment variables
 
-Runtime configuration is supplied through environment variables. Regional endpoint metadata and human-maintained activation flags are stored in the root `config.yaml` file; secrets remain in Hermes `.env` files.
+Region selection is supplied through environment variables. Regional endpoint metadata and human-maintained activation flags are loaded at runtime from the root `config.yaml`; secrets remain in Hermes `.env` files.
 
 | Method | Env Vars | Description |
 |--------|----------|-------------|
@@ -301,7 +301,7 @@ Set `ANAPLAN_REGION` or `ANAPLAN_PLAYWRIGHT_REGION` to select the region. For ex
 
 ### Regional configuration file
 
-The root [`config.yaml`](config.yaml) is a human-maintained regional configuration catalog. It is intentionally separate from Hermes runtime configuration and contains no credential values.
+The root [`config.yaml`](config.yaml) is the runtime source of truth for regional endpoints, nicknames, the default region, and credential env-file paths. It contains no credential values.
 
 Each region defines:
 
@@ -316,7 +316,7 @@ Each region defines:
 - `credentials.username_env_var`: username variable name
 - `credentials.password_env_var`: password variable name
 
-The current active regions are `au1a` (`aws`) and `us1a` (`US1A`). All other catalogued regions are inactive. Review entries marked `REVIEW` before enabling those regions.
+The current active regions are `au1a` (`aws`) and `us1a` (`usa`). All other catalogued regions are inactive. Review entries marked `REVIEW` before enabling those regions.
 
 Example:
 
@@ -328,10 +328,10 @@ regions:
   au1a:
     active: true
     nickname: aws
-    api_access_url: https://api.anaplan.com/2/0
+    api_access_url: https://api.au1a.app2.anaplan.com/2/0
     playwright_access_url: https://au1a.app2.anaplan.com
-    integration_url: https://api.anaplan.com
-    token_url: https://auth.anaplan.com/token/authenticate
+    integration_url: https://api.au1a.app2.anaplan.com
+    token_url: https://au1a.app2.anaplan.com/token/authenticate
     credentials:
       env_file: /home/cam/.hermes/.env
       username_env_var: AU1A_ANAPLAN_USERNAME

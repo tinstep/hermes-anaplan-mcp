@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BasicAuthProvider } from "./basic.js";
 import { resolveInstanceConfig } from "./instances.js";
 
-const US1 = resolveInstanceConfig({});
+const AU1A = resolveInstanceConfig({});
 
 describe("BasicAuthProvider", () => {
   beforeEach(() => {
@@ -10,8 +10,8 @@ describe("BasicAuthProvider", () => {
   });
 
   it("throws if username or password is missing", () => {
-    expect(() => new BasicAuthProvider("", "pass", US1)).toThrow("username");
-    expect(() => new BasicAuthProvider("user", "", US1)).toThrow("password");
+    expect(() => new BasicAuthProvider("", "pass", AU1A)).toThrow("username");
+    expect(() => new BasicAuthProvider("user", "", AU1A)).toThrow("password");
   });
 
   it("sends POST to auth endpoint with basic auth header", async () => {
@@ -29,11 +29,11 @@ describe("BasicAuthProvider", () => {
     };
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(mockResponse as Response);
 
-    const provider = new BasicAuthProvider("user@co.com", "secret", US1);
+    const provider = new BasicAuthProvider("user@co.com", "secret", AU1A);
     const token = await provider.authenticate();
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      "https://auth.anaplan.com/token/authenticate",
+      "https://au1a.app2.anaplan.com/token/authenticate",
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({
@@ -50,7 +50,7 @@ describe("BasicAuthProvider", () => {
       json: async () => ({ status: "FAILURE", statusMessage: "Bad creds" }),
     } as Response);
 
-    const provider = new BasicAuthProvider("user", "wrong", US1);
+    const provider = new BasicAuthProvider("user", "wrong", AU1A);
     await expect(provider.authenticate()).rejects.toThrow("Bad creds");
   });
 
@@ -68,11 +68,11 @@ describe("BasicAuthProvider", () => {
       }),
     } as Response);
 
-    const provider = new BasicAuthProvider("user", "pass", US1);
+    const provider = new BasicAuthProvider("user", "pass", AU1A);
     const token = await provider.refresh("oldtoken");
 
     expect(fetch).toHaveBeenCalledWith(
-      "https://auth.anaplan.com/token/refresh",
+      "https://au1a.app2.anaplan.com/token/refresh",
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({

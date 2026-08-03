@@ -1,6 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { normalizeRegion, resolveRegionConfig } from "./regionConfig.js";
+
+export { normalizeRegion } from "./regionConfig.js";
 
 const AUTH_SUFFIXES = [
   "USERNAME",
@@ -17,12 +20,15 @@ const AUTH_SUFFIXES = [
 
 type AuthSuffix = (typeof AUTH_SUFFIXES)[number];
 
-export function normalizeRegion(region: string | undefined): string {
-  return (region || "au1a").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-
 export function resolveRegion(env: NodeJS.ProcessEnv = process.env): string {
-  return normalizeRegion(env.ANAPLAN_REGION ?? env.ANAPLAN_PLAYWRIGHT_REGION);
+  try {
+    return resolveRegionConfig(env).id;
+  } catch (error) {
+    if (env.ANAPLAN_INSTANCE && (error as Error).message.startsWith("Unknown Anaplan region")) {
+      throw new Error(`Unknown Anaplan instance "${normalizeRegion(env.ANAPLAN_INSTANCE)}". ${(error as Error).message}`);
+    }
+    throw error;
+  }
 }
 
 function isRegionalAuthKey(key: string): boolean {
@@ -71,10 +77,23 @@ export function loadAnaplanEnv(
   if (!loadFiles) return resolved;
 
   const hermesHome = env.HERMES_HOME || join(homedir(), ".hermes");
+  // An explicit HERMES_HOME is an isolation boundary (profiles/tests). Only
+  // consult the catalog's absolute env path for the default Hermes home.
+  let configuredEnvFile: string | undefined;
+  if (!env.HERMES_HOME) {
+    try {
+      configuredEnvFile = resolveRegionConfig(env).credentials?.env_file;
+    } catch (error) {
+      // Let resolveInstanceConfig produce the backwards-compatible custom
+      // instance error after dotenv loading.
+      if (!env.ANAPLAN_INSTANCE || !(error as Error).message.startsWith("Unknown Anaplan region")) throw error;
+    }
+  }
   const paths = [
+    configuredEnvFile,
     join(hermesHome, ".env"),
     env.HERMES_PROFILE ? join(hermesHome, "profiles", env.HERMES_PROFILE, ".env") : "",
-  ].filter(Boolean);
+  ].filter((path, index, all): path is string => Boolean(path) && all.indexOf(path) === index);
 
   for (const path of paths) Object.assign(resolved, parseAnaplanDotenv(path));
   return resolved;

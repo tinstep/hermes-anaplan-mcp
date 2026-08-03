@@ -56,10 +56,10 @@ regions:
   au1a:
     active: true
     nickname: aws
-    api_access_url: https://api.anaplan.com/2/0
+    api_access_url: https://api.au1a.app2.anaplan.com/2/0
     playwright_access_url: https://au1a.app2.anaplan.com
-    integration_url: https://api.anaplan.com
-    token_url: https://auth.anaplan.com/token/authenticate
+    integration_url: https://api.au1a.app2.anaplan.com
+    token_url: https://au1a.app2.anaplan.com/token/authenticate
     oauth_token_url: https://au1a.app2.anaplan.com/oauth/token
     credentials: &credentials_au1a
       env_file: /home/cam/.hermes/.env
@@ -211,7 +211,7 @@ regions:
 
   us1a:
     active: true
-    nickname: US1A
+    nickname: usa
     api_access_url: https://api.anaplan.com/2/0
     playwright_access_url: https://us1a.app.anaplan.com
     integration_url: https://api.anaplan.com

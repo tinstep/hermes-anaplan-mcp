@@ -200,7 +200,7 @@ describe("OAuthProvider", () => {
       expect(fetchSpy.mock.calls[0][0]).toBe("https://au1a.app2.anaplan.com/oauth/device/code");
     });
 
-    it("requests the device code from us1's instance-specific oauth host by default", async () => {
+    it("requests the device code from the catalog default oauth host", async () => {
       const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -215,7 +215,7 @@ describe("OAuthProvider", () => {
       const provider = new OAuthProvider("client-id", US1);
       await expect(provider.authenticate()).rejects.toBeInstanceOf(DeviceAuthorizationRequiredError);
 
-      expect(fetchSpy.mock.calls[0][0]).toBe("https://us1a.app.anaplan.com/oauth/device/code");
+      expect(fetchSpy.mock.calls[0][0]).toBe("https://au1a.app2.anaplan.com/oauth/device/code");
     });
 
     it("clears pending state and requests fresh code on terminal error", async () => {

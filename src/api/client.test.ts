@@ -25,13 +25,29 @@ describe("AnaplanClient", () => {
     const result = await client.get("/workspaces");
 
     expect(fetch).toHaveBeenCalledWith(
-      "https://api.anaplan.com/2/0/workspaces",
+      "https://api.au1a.app2.anaplan.com/2/0/workspaces",
       expect.objectContaining({
         method: "GET",
         headers: expect.objectContaining({ Authorization: "AnaplanAuthToken test" }),
       })
     );
     expect(result).toEqual({ workspaces: [] });
+  });
+
+  it("uses the selected instance API base URL", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ workspaces: [] }),
+    } as Response);
+
+    const regional = resolveInstanceConfig({ ANAPLAN_REGION: "au1a" });
+    await new AnaplanClient(mockAuthManager as any, regional).get("/workspaces");
+
+    expect(fetch).toHaveBeenCalledWith(
+      "https://api.au1a.app2.anaplan.com/2/0/workspaces",
+      expect.anything(),
+    );
   });
 
   it("sends Accept: application/json header", async () => {
@@ -126,7 +142,7 @@ describe("AnaplanClient", () => {
     const result = await client.post("/actions", { localeName: "en_US" });
 
     expect(fetch).toHaveBeenCalledWith(
-      "https://api.anaplan.com/2/0/actions",
+      "https://api.au1a.app2.anaplan.com/2/0/actions",
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ localeName: "en_US" }),

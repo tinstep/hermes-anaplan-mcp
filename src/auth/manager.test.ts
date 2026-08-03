@@ -89,9 +89,9 @@ describe("AuthManager", () => {
     expect(manager.getProviderType()).toBe("oauth");
   });
 
-  it("defaults to the us1 instance when ANAPLAN_INSTANCE is not set", () => {
+  it("defaults to the catalog's au1a region when ANAPLAN_INSTANCE is not set", () => {
     const manager = AuthManager.fromEnv();
-    expect(manager.getInstance().id).toBe("us1");
+    expect(manager.getInstance().id).toBe("au1a");
   });
 
   it("selects the au1 instance when ANAPLAN_INSTANCE=au1", () => {
