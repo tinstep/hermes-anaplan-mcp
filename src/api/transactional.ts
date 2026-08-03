@@ -113,7 +113,10 @@ export class TransactionalApi {
   async createList(workspaceId: string, modelId: string, name: string, description?: string) {
     const body: Record<string, string> = { name };
     if (description) body.description = description;
-    return this.client.post(
+    // Try v2.0 Transactional API
+    // Note: Returns 405 on tenants that don't support structural writes via API.
+    // The tool handler catches 405 and falls back to Playwright UI automation.
+    return await this.client.post(
       `/workspaces/${workspaceId}/models/${modelId}/lists`,
       body,
     );

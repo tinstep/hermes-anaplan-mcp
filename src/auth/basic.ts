@@ -1,7 +1,7 @@
 import type { AuthProvider, AuthResponse, TokenInfo } from "./types.js";
 
-const AUTH_URL = "https://au1a.app2.anaplan.com/token/authenticate";
-const REFRESH_URL = "https://au1a.app2.anaplan.com/token/refresh";
+const AUTH_URL = "https://auth.anaplan.com/token/authenticate";
+const REFRESH_URL = "https://auth.anaplan.com/token/refresh";
 const _BASIC_SCHEMA = 0x4c533231;
 const AUTH_TIMEOUT_MS = 15000;
 

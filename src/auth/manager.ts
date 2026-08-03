@@ -7,17 +7,23 @@ import {
   OAuthReauthorizationRequiredError,
   isOAuthReauthorizationError,
 } from "./oauth.js";
+import { loadAnaplanEnv, regionalCredentials } from "./regionalEnv.js";
 
 const REFRESH_BUFFER_MS = 5 * 60 * 1000; // Refresh 5 minutes before expiry
 const INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000; // Force re-auth after 60 min inactivity
 
-const NO_CREDS_MSG =
-  "No Anaplan credentials configured. Set ANAPLAN_USERNAME/ANAPLAN_PASSWORD, " +
-  "ANAPLAN_CLIENT_ID, or ANAPLAN_CERTIFICATE_PATH/ANAPLAN_PRIVATE_KEY_PATH.";
-
 class DeferredAuthProvider implements AuthProvider {
-  authenticate(): Promise<TokenInfo> { throw new Error(NO_CREDS_MSG); }
-  refresh(): Promise<TokenInfo> { throw new Error(NO_CREDS_MSG); }
+  private readonly message: string;
+
+  constructor(region: string) {
+    const prefix = region.toUpperCase();
+    this.message =
+      `No Anaplan credentials configured. Set ${prefix}_ANAPLAN_USERNAME/${prefix}_ANAPLAN_PASSWORD, ` +
+      `${prefix}_ANAPLAN_CLIENT_ID, or ${prefix}_ANAPLAN_CERTIFICATE_PATH/${prefix}_ANAPLAN_PRIVATE_KEY_PATH in a Hermes .env file.`;
+  }
+
+  authenticate(): Promise<TokenInfo> { throw new Error(this.message); }
+  refresh(): Promise<TokenInfo> { throw new Error(this.message); }
 }
 
 export class AuthManager {
@@ -31,41 +37,45 @@ export class AuthManager {
     this.providerType = providerType;
   }
 
-  static fromEnv(): AuthManager {
-    const clientId = process.env.ANAPLAN_CLIENT_ID;
+  static fromEnv(env: NodeJS.ProcessEnv = process.env, loadFiles = true): AuthManager {
+    const resolvedEnv = loadAnaplanEnv(env, { loadFiles });
+    const credentials = regionalCredentials(resolvedEnv);
+    const clientId = credentials.clientId;
     if (clientId) {
-      const initialRefreshToken = process.env.ANAPLAN_REFRESH_TOKEN || undefined;
-      return new AuthManager(new OAuthProvider(clientId, undefined, undefined, initialRefreshToken), "oauth");
+      return new AuthManager(
+        new OAuthProvider(clientId, undefined, undefined, credentials.refreshToken, credentials.region),
+        "oauth",
+      );
     }
 
-    const certPath = process.env.ANAPLAN_CERTIFICATE_PATH;
-    const keyPath = process.env.ANAPLAN_PRIVATE_KEY_PATH;
+    const certPath = credentials.certificatePath;
+    const keyPath = credentials.privateKeyPath;
     if (certPath && keyPath) {
       const encodedDataFormat =
-        (process.env.ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT
-          ?.toLowerCase()
-          .trim() as CertificateEncodedDataFormat | undefined) ??
+        (credentials.certificateEncodedDataFormat?.toLowerCase().trim() as CertificateEncodedDataFormat | undefined) ??
         "v2";
       return new AuthManager(new CertificateAuthProvider(certPath, keyPath, encodedDataFormat), "certificate");
     }
 
-    const username = process.env.ANAPLAN_USERNAME;
-    const password = process.env.ANAPLAN_PASSWORD;
+    const username = credentials.username;
+    const password = credentials.password;
     if (username && password) {
       return new AuthManager(new BasicAuthProvider(username, password), "basic");
     }
 
-    return new AuthManager(new DeferredAuthProvider(), "none");
+    return new AuthManager(new DeferredAuthProvider(credentials.region), "none");
   }
 
-  static fromRemoteHttpEnv(): AuthManager {
-    const clientId = process.env.ANAPLAN_CLIENT_ID;
+  static fromRemoteHttpEnv(env: NodeJS.ProcessEnv = process.env, loadFiles = true): AuthManager {
+    const resolvedEnv = loadAnaplanEnv(env, { loadFiles });
+    const credentials = regionalCredentials(resolvedEnv);
+    const clientId = credentials.clientId;
     if (!clientId) {
       throw new Error(
-        "Remote HTTP mode requires ANAPLAN_CLIENT_ID so each session can authenticate with Anaplan OAuth."
+        `Remote HTTP mode requires ${credentials.region.toUpperCase()}_ANAPLAN_CLIENT_ID in a Hermes .env file so each session can authenticate with Anaplan OAuth.`
       );
     }
-    return new AuthManager(new OAuthProvider(clientId), "oauth");
+    return new AuthManager(new OAuthProvider(clientId, undefined, undefined, credentials.refreshToken, credentials.region), "oauth");
   }
 
   getProviderType(): string {
@@ -112,8 +122,10 @@ export class AuthManager {
 
     // Basic auth and certificate use AnaplanAuthToken format, OAuth uses Bearer
     if (this.providerType === "basic" || this.providerType === "certificate") {
+      this.lastUsedAt = Date.now();
       return { Authorization: `AnaplanAuthToken ${this.token.tokenValue}` };
     }
+    this.lastUsedAt = Date.now();
     return { Authorization: `Bearer ${this.token.tokenValue}` };
   }
 

@@ -11,15 +11,15 @@ import {
 
 describe("HTTP auth config", () => {
   afterEach(() => {
-    delete process.env.ANAPLAN_CLIENT_ID;
+    delete process.env.AU1A_ANAPLAN_CLIENT_ID;
     delete process.env.ANAPLAN_MCP_HTTP_BODY_LIMIT;
     delete process.env.MCP_HTTP_BODY_LIMIT;
     vi.restoreAllMocks();
   });
 
-  it("requires ANAPLAN_CLIENT_ID for remote session OAuth", () => {
-    expect(() => validateRemoteHttpEnv({} as NodeJS.ProcessEnv))
-      .toThrow("Remote HTTP mode requires ANAPLAN_CLIENT_ID");
+  it("requires region-prefixed client ID for remote session OAuth", () => {
+    expect(() => validateRemoteHttpEnv({} as NodeJS.ProcessEnv, false))
+      .toThrow("Remote HTTP mode requires AU1A_ANAPLAN_CLIENT_ID");
   });
 
   it("loads the optional bearer-token alias", () => {
@@ -43,13 +43,13 @@ describe("HTTP auth config", () => {
   });
 
   it("configures express.json with the resolved HTTP body limit", () => {
-    process.env.ANAPLAN_CLIENT_ID = "client-id";
+    process.env.AU1A_ANAPLAN_CLIENT_ID = "client-id";
     process.env.ANAPLAN_MCP_HTTP_BODY_LIMIT = "32mb";
 
     const jsonMiddleware = (_req: unknown, _res: unknown, next: () => void) => next();
     const jsonSpy = vi.spyOn(express, "json").mockReturnValue(jsonMiddleware as never);
 
-    createHttpApp();
+    createHttpApp(undefined, undefined, process.env, false);
 
     expect(jsonSpy).toHaveBeenCalledWith({ limit: "32mb" });
   });

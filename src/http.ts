@@ -6,6 +6,7 @@ import express from "express";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { AuthManager } from "./auth/manager.js";
+import { loadAnaplanEnv, regionalCredentials } from "./auth/regionalEnv.js";
 import { createServer } from "./server.js";
 
 const DEFAULT_PORT = parseInt(process.env.PORT || process.env.MCP_PORT || "3000", 10);
@@ -37,10 +38,11 @@ export function loadHttpBodyLimit(env: NodeJS.ProcessEnv = process.env): string 
     ?? DEFAULT_HTTP_BODY_LIMIT;
 }
 
-export function validateRemoteHttpEnv(env: NodeJS.ProcessEnv = process.env): void {
-  if (!trimToNull(env.ANAPLAN_CLIENT_ID)) {
+export function validateRemoteHttpEnv(env: NodeJS.ProcessEnv = process.env, loadFiles = true): void {
+  const credentials = regionalCredentials(loadAnaplanEnv(env, { loadFiles }));
+  if (!credentials.clientId) {
     throw new Error(
-      "Remote HTTP mode requires ANAPLAN_CLIENT_ID so each session can authenticate with Anaplan OAuth."
+      `Remote HTTP mode requires ${credentials.region.toUpperCase()}_ANAPLAN_CLIENT_ID in a Hermes .env file so each session can authenticate with Anaplan OAuth.`
     );
   }
 }
@@ -100,8 +102,10 @@ function sendUnauthorized(res: express.Response): void {
 export function createHttpApp(
   config: HttpAuthConfig = loadHttpAuthConfig(),
   dependencies?: { serverFactory?: typeof createServer },
+  env: NodeJS.ProcessEnv = process.env,
+  loadEnvFiles = true,
 ): express.Express {
-  validateRemoteHttpEnv();
+  validateRemoteHttpEnv(env, loadEnvFiles);
 
   const transports: Record<string, StreamableHTTPServerTransport> = {};
   const serverFactory = dependencies?.serverFactory ?? createServer;
@@ -112,7 +116,7 @@ export function createHttpApp(
     next();
   });
 
-  app.use(express.json({ limit: loadHttpBodyLimit() }));
+  app.use(express.json({ limit: loadHttpBodyLimit(env) }));
 
   function mcpCors(req: express.Request, res: express.Response, next: express.NextFunction) {
     res.setHeader("Access-Control-Allow-Origin", "*");

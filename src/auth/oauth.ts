@@ -1,7 +1,20 @@
 import type { AuthProvider, TokenInfo } from "./types.js";
 
-const DEVICE_CODE_URL = "https://au1a.app2.anaplan.com/oauth/device/code";
-const TOKEN_URL = "https://au1a.app2.anaplan.com/oauth/token";
+const OAUTH_BASE_URLS: Record<string, string> = {
+  au1: "https://au1a.app2.anaplan.com",
+  au1a: "https://au1a.app2.anaplan.com",
+  us1: "https://us1a.app.anaplan.com",
+  us1a: "https://us1a.app.anaplan.com",
+  us2: "https://us2a.app.anaplan.com",
+  us2a: "https://us2a.app.anaplan.com",
+  eu1: "https://eu1a.app2.anaplan.com",
+  eu1a: "https://eu1a.app2.anaplan.com",
+};
+
+function oauthUrl(region: string, path: string): string {
+  const normalized = region.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+  return `${OAUTH_BASE_URLS[normalized] ?? OAUTH_BASE_URLS.au1a}${path}`;
+}
 const AUTH_TIMEOUT_MS = 15000;
 
 interface DeviceCodeResponse {
@@ -104,6 +117,7 @@ export class OAuthReauthorizationRequiredError extends DeviceAuthorizationRequir
 
 export class OAuthProvider implements AuthProvider {
   private readonly clientId: string;
+  private readonly region: string;
   private pendingDevice: PendingDeviceState | null = null;
   private initialRefreshToken: string | null;
 
@@ -112,9 +126,11 @@ export class OAuthProvider implements AuthProvider {
     _clientSecret?: string,
     _authCodeOptions?: AuthorizationCodeOptions,
     initialRefreshToken?: string,
+    region = "au1a",
   ) {
     if (!clientId) throw new Error("Anaplan OAuth client ID is required");
     this.clientId = clientId;
+    this.region = region;
     this.initialRefreshToken = initialRefreshToken ?? null;
   }
 
@@ -145,7 +161,7 @@ export class OAuthProvider implements AuthProvider {
     // If we have a valid pending device code, poll once for the token
     if (this.pendingDevice && Date.now() < this.pendingDevice.expiresAt) {
       const state = this.pendingDevice;
-      const tokenRes = await fetch(TOKEN_URL, {
+      const tokenRes = await fetch(oauthUrl(this.region, "/oauth/token"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -190,7 +206,7 @@ export class OAuthProvider implements AuthProvider {
     }
 
     // No valid pending state — request a new device code
-    const codeRes = await fetch(DEVICE_CODE_URL, {
+    const codeRes = await fetch(oauthUrl(this.region, "/oauth/device/code"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -229,7 +245,7 @@ export class OAuthProvider implements AuthProvider {
       refresh_token: refreshToken,
     };
 
-    const response = await fetch(TOKEN_URL, {
+    const response = await fetch(oauthUrl(this.region, "/oauth/token"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

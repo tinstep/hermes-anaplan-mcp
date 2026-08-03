@@ -1,7 +1,7 @@
 import { gzipSync } from "node:zlib";
 import type { AuthManager } from "../auth/manager.js";
 
-const BASE_URL = "https://api.au1a.app2.anaplan.com/2/0";
+const BASE_URL = "https://api.anaplan.com/2/0";
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 1000;
 // Retry-After header uses seconds; we convert to ms at call site
@@ -105,7 +105,7 @@ export class AnaplanClient {
         options.body = JSON.stringify(body);
       }
 
-      const response = await fetch(`${BASE_URL}${path}`, {
+      const response = await fetch(path.startsWith("http") ? path : `${BASE_URL}${path}`, {
         ...options,
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
@@ -173,7 +173,7 @@ export class AnaplanClient {
         ...authHeaders,
       };
 
-      const response = await fetch(`${BASE_URL}${path}`, {
+      const response = await fetch(path.startsWith("http") ? path : `${BASE_URL}${path}`, {
         method,
         headers,
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
@@ -212,7 +212,7 @@ export class AnaplanClient {
         ...authHeaders,
       };
 
-      const response = await fetch(`${BASE_URL}${path}`, {
+      const response = await fetch(path.startsWith("http") ? path : `${BASE_URL}${path}`, {
         method,
         headers,
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
