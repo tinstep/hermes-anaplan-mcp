@@ -219,7 +219,7 @@ Any MCP-compatible client that supports stdio transport can connect. The server 
 
 The server also supports **Streamable HTTP transport** for remote MCP connections from [claude.ai](https://claude.ai), [ChatGPT](https://chatgpt.com), and other browser-based AI assistants. Deploy to a cloud platform (Fly.io recommended) and connect via the remote MCP integration settings.
 
-Remote HTTP mode is designed for **per-session Anaplan OAuth**, not a single shared Anaplan user. Set `ANAPLAN_CLIENT_ID` on the server so each remote session can authorize against Anaplan with its own identity. If you want an extra outer gate in front of the endpoint, you can also set `ANAPLAN_MCP_HTTP_AUTH_TOKEN` and have your client or reverse proxy send it as `Authorization: Bearer <token>`.
+Remote HTTP mode is designed for **per-session Anaplan OAuth**, not a single shared Anaplan user. Set the region-prefixed client ID in the Hermes `.env` file (for example `AU1A_ANAPLAN_CLIENT_ID`) so each remote session can authorize against Anaplan with its own identity. If you want an extra outer gate in front of the endpoint, you can also set `ANAPLAN_MCP_HTTP_AUTH_TOKEN` and have your client or reverse proxy send it as `Authorization: Bearer <token>`.
 
 See the **[Remote Deployment Guide](docs/guides/deploying-remote.md)** for full setup instructions, platform recommendations, and troubleshooting.
 
@@ -227,15 +227,54 @@ See the **[Remote Deployment Guide](docs/guides/deploying-remote.md)** for full 
 
 ### Environment variables
 
-All configuration is done through environment variables. There are no config files, CLI flags, or settings menus.
+Runtime configuration is supplied through environment variables. Regional endpoint metadata and human-maintained activation flags are stored in the root `config.yaml` file; secrets remain in Hermes `.env` files.
 
 | Method | Env Vars | Description |
 |--------|----------|-------------|
-| OAuth2 (device grant) | `ANAPLAN_CLIENT_ID` | Highest priority. Device authorization flow. Claude shows you the URL and code in chat; authorize in browser then retry. Tokens stay in memory only, so restart or >60 minutes of idle time requires another device login unless you set `ANAPLAN_REFRESH_TOKEN` manually |
-| Certificate | `ANAPLAN_CERTIFICATE_PATH`, `ANAPLAN_PRIVATE_KEY_PATH`, `ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` (optional) | Second priority. PEM certificate + private key, authenticates via CACertificate flow. Data format defaults to `v2` |
-| Basic | `ANAPLAN_USERNAME`, `ANAPLAN_PASSWORD` | Lowest priority. Email + password, sends base64 credentials to auth endpoint |
+| OAuth2 (device grant) | `<REGION>_ANAPLAN_CLIENT_ID`, `<REGION>_ANAPLAN_REFRESH_TOKEN` (optional) | Highest priority. Device authorization flow. Claude shows you the URL and code in chat; authorize in browser then retry. Tokens stay in memory only, so restart or >60 minutes of idle time requires another device login unless you set the region-prefixed refresh token |
+| Certificate | `<REGION>_ANAPLAN_CERTIFICATE_PATH`, `<REGION>_ANAPLAN_PRIVATE_KEY_PATH`, `<REGION>_ANAPLAN_CERTIFICATE_ENCODED_DATA_FORMAT` (optional) | Second priority. PEM certificate + private key, authenticates via CACertificate flow. Data format defaults to `v2` |
+| Basic | `<REGION>_ANAPLAN_USERNAME`, `<REGION>_ANAPLAN_PASSWORD` | Lowest priority. Email + password, sends base64 credentials to the regional auth endpoint |
 
-You only need one set of credentials. If multiple are configured, the server picks the highest-priority method automatically.
+Set `ANAPLAN_REGION` or `ANAPLAN_PLAYWRIGHT_REGION` to select the region. For example, `AU1A_ANAPLAN_USERNAME` and `AU1A_ANAPLAN_PASSWORD` are selected for `au1a`. Credentials are loaded from Hermes `.env` files only; unprefixed credential variables are ignored. If multiple authentication methods are configured for the selected region, the server picks the highest-priority method automatically.
+
+### Regional configuration file
+
+The root [`config.yaml`](config.yaml) is a human-maintained regional configuration catalog. It is intentionally separate from Hermes runtime configuration and contains no credential values.
+
+Each region defines:
+
+- `active`: whether the region is currently enabled for this installation
+- `nickname`: human-friendly region name
+- `api_access_url`: Anaplan API base URL
+- `playwright_access_url`: user-facing Anaplan URL for browser automation
+- `integration_url`: Integration API host
+- `token_url`: Basic authentication token endpoint
+- `oauth_token_url`: OAuth token endpoint when available
+- `credentials.env_file`: source `.env` file for credentials
+- `credentials.username_env_var`: username variable name
+- `credentials.password_env_var`: password variable name
+
+The current active regions are `au1a` (`aws`) and `us1a` (`US1A`). All other catalogued regions are inactive. Review entries marked `REVIEW` before enabling those regions.
+
+Example:
+
+```yaml
+default_region: au1a
+default_env_file: /home/cam/.hermes/.env
+
+regions:
+  au1a:
+    active: true
+    nickname: aws
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: https://au1a.app2.anaplan.com
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    credentials:
+      env_file: /home/cam/.hermes/.env
+      username_env_var: AU1A_ANAPLAN_USERNAME
+      password_env_var: AU1A_ANAPLAN_PASSWORD
+```
 
 ### HTTP transport security
 
@@ -243,16 +282,15 @@ These apply only to `npm run start:http` / remote MCP deployments:
 
 | Variable | Description |
 |----------|-------------|
-| `ANAPLAN_CLIENT_ID` | Required for remote HTTP mode. Each HTTP session uses this OAuth client to authenticate the end user with Anaplan |
+| `<REGION>_ANAPLAN_CLIENT_ID` | Required for remote HTTP mode. Each HTTP session uses the selected region's OAuth client to authenticate the end user with Anaplan |
 | `ANAPLAN_MCP_HTTP_AUTH_TOKEN` | Optional extra edge protection. When set, callers must also send it as `Authorization: Bearer <token>`. `MCP_HTTP_AUTH_TOKEN` is accepted as an alias |
 | `ANAPLAN_MCP_HTTP_BODY_LIMIT` | Optional JSON body limit for remote HTTP requests. Defaults to `100mb` to support large `run_import` and `upload_file` payloads. `MCP_HTTP_BODY_LIMIT` is accepted as an alias |
 
 ### Where to set environment variables
 
-- **Claude Code config:** Use the `"env"` block in `.mcp.json` (file is gitignored by default)
-- **Claude Desktop config:** Use the `"env"` block in the JSON config (keeps credentials scoped to the server)
-- **Shell profile:** Export in `.bashrc` / `.zshrc` for Claude Code CLI usage
-- **System environment:** Set at the OS level if you prefer
+- **Hermes:** Put region-prefixed Anaplan credentials in `~/.hermes/.env` or the active profile's `.env`; keep only non-secret runtime flags in MCP configuration
+- **Regional catalog:** Edit the root [`config.yaml`](config.yaml) to change region metadata, activation status, or environment-variable names
+- **Other MCP clients:** Use their server-specific `"env"` block if required, but never commit credentials
 
 > **Security note:** Never commit credentials to version control. Env files and MCP config files are gitignored by default in this repo.
 
@@ -274,6 +312,8 @@ Claude Desktop prompts you before each tool call. You'll see the tool name and p
 ### Recommendations
 
 - **Start with read-only.** Ask Claude to explore your workspaces and models before running any write operations. Get comfortable with the tool output first.
+- **Prefer the Anaplan REST API.** Use the standard API/MCP tools for authentication, workspace/model discovery, module/list/line-item reads, cell reads/writes, imports, exports, and any operation with a supported API endpoint. Do not use Playwright or browser control for login or read-only queries.
+- **Use browser automation only as a last resort.** Use Playwright/browser control only when the required API endpoint does not exist or Anaplan rejects a supported structural API operation (for example, tenant-restricted creation of modules, lists, or line items). Do not switch to the browser merely because an API call needs pagination, retries, or parameter discovery.
 - **Test in a dev workspace.** If you have a non-production Anaplan workspace, use that while getting familiar with the tools.
 - **Use least-privilege credentials.** If your Anaplan admin can create a service account with limited workspace access, use that instead of your personal admin account.
 - **Review before confirming write operations.** When Claude proposes to run an import, write cells, or delete items, read the parameters carefully before approving.

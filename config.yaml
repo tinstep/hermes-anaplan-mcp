@@ -1,0 +1,284 @@
+# Human-maintained Anaplan regional configuration for anaplan-mcp.
+#
+# This file contains endpoints and environment-variable names only.
+# NEVER put usernames, passwords, client secrets, refresh tokens, certificates,
+# or private keys directly in this file.
+#
+# Credentials default to the Hermes environment file below. Edit credentials.env_file
+# if this installation uses a different .env location.
+
+schema_version: 1
+default_region: au1a
+default_env_file: /home/cam/.hermes/.env
+
+# Shared Anaplan Integration API endpoints.
+# The selected region still controls which region-prefixed credentials are read.
+shared:
+  api_access_url: https://api.anaplan.com/2/0
+  integration_url: https://api.anaplan.com
+  token_url: https://auth.anaplan.com/token/authenticate
+
+# Region entries.
+#
+# Required human review fields are marked REVIEW. Confirm the user-facing
+# Playwright URL and OAuth URL for any region before enabling browser/OAuth flows.
+# Environment variable names follow:
+#   <REGION>_ANAPLAN_USERNAME
+#   <REGION>_ANAPLAN_PASSWORD
+
+regions:
+  ae1:
+    active: false
+    nickname: United Arab Emirates 1
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_ae1
+      env_file: /home/cam/.hermes/.env
+      username_env_var: AE1_ANAPLAN_USERNAME
+      password_env_var: AE1_ANAPLAN_PASSWORD
+
+  ap1:
+    active: false
+    nickname: Asia Pacific 1
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_ap1
+      env_file: /home/cam/.hermes/.env
+      username_env_var: AP1_ANAPLAN_USERNAME
+      password_env_var: AP1_ANAPLAN_PASSWORD
+
+  au1a:
+    active: true
+    nickname: aws
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: https://au1a.app2.anaplan.com
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: https://au1a.app2.anaplan.com/oauth/token
+    credentials: &credentials_au1a
+      env_file: /home/cam/.hermes/.env
+      username_env_var: AU1A_ANAPLAN_USERNAME
+      password_env_var: AU1A_ANAPLAN_PASSWORD
+
+  ca1:
+    active: false
+    nickname: Canada 1
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_ca1
+      env_file: /home/cam/.hermes/.env
+      username_env_var: CA1_ANAPLAN_USERNAME
+      password_env_var: CA1_ANAPLAN_PASSWORD
+
+  eu1a:
+    active: false
+    nickname: Europe 1A
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: https://eu1a.app2.anaplan.com
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: https://eu1a.app2.anaplan.com/oauth/token
+    credentials: &credentials_eu1a
+      env_file: /home/cam/.hermes/.env
+      username_env_var: EU1A_ANAPLAN_USERNAME
+      password_env_var: EU1A_ANAPLAN_PASSWORD
+
+  eu2:
+    active: false
+    nickname: Europe 2
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_eu2
+      env_file: /home/cam/.hermes/.env
+      username_env_var: EU2_ANAPLAN_USERNAME
+      password_env_var: EU2_ANAPLAN_PASSWORD
+
+  eu3:
+    active: false
+    nickname: Europe 3
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_eu3
+      env_file: /home/cam/.hermes/.env
+      username_env_var: EU3_ANAPLAN_USERNAME
+      password_env_var: EU3_ANAPLAN_PASSWORD
+
+  eu4:
+    active: false
+    nickname: Europe 4
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_eu4
+      env_file: /home/cam/.hermes/.env
+      username_env_var: EU4_ANAPLAN_USERNAME
+      password_env_var: EU4_ANAPLAN_PASSWORD
+
+  eu5:
+    active: false
+    nickname: Europe 5
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_eu5
+      env_file: /home/cam/.hermes/.env
+      username_env_var: EU5_ANAPLAN_USERNAME
+      password_env_var: EU5_ANAPLAN_PASSWORD
+
+  gb1:
+    active: false
+    nickname: Great Britain 1
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_gb1
+      env_file: /home/cam/.hermes/.env
+      username_env_var: GB1_ANAPLAN_USERNAME
+      password_env_var: GB1_ANAPLAN_PASSWORD
+
+  id1:
+    active: false
+    nickname: Indonesia 1
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_id1
+      env_file: /home/cam/.hermes/.env
+      username_env_var: ID1_ANAPLAN_USERNAME
+      password_env_var: ID1_ANAPLAN_PASSWORD
+
+  in1:
+    active: false
+    nickname: India 1
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_in1
+      env_file: /home/cam/.hermes/.env
+      username_env_var: IN1_ANAPLAN_USERNAME
+      password_env_var: IN1_ANAPLAN_PASSWORD
+
+  me1:
+    active: false
+    nickname: Middle East 1
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_me1
+      env_file: /home/cam/.hermes/.env
+      username_env_var: ME1_ANAPLAN_USERNAME
+      password_env_var: ME1_ANAPLAN_PASSWORD
+
+  sg1:
+    active: false
+    nickname: Singapore 1
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_sg1
+      env_file: /home/cam/.hermes/.env
+      username_env_var: SG1_ANAPLAN_USERNAME
+      password_env_var: SG1_ANAPLAN_PASSWORD
+
+  us1a:
+    active: true
+    nickname: US1A
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: https://us1a.app.anaplan.com
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: https://us1a.app.anaplan.com/oauth/token
+    credentials: &credentials_us1a
+      env_file: /home/cam/.hermes/.env
+      username_env_var: US1A_ANAPLAN_USERNAME
+      password_env_var: US1A_ANAPLAN_PASSWORD
+
+  us2a:
+    active: false
+    nickname: United States 2A
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: https://us2a.app.anaplan.com
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: https://us2a.app.anaplan.com/oauth/token
+    credentials: &credentials_us2a
+      env_file: /home/cam/.hermes/.env
+      username_env_var: US2A_ANAPLAN_USERNAME
+      password_env_var: US2A_ANAPLAN_PASSWORD
+
+  us5:
+    active: false
+    nickname: United States 5
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_us5
+      env_file: /home/cam/.hermes/.env
+      username_env_var: US5_ANAPLAN_USERNAME
+      password_env_var: US5_ANAPLAN_PASSWORD
+
+  us7:
+    active: false
+    nickname: United States 7
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_us7
+      env_file: /home/cam/.hermes/.env
+      username_env_var: US7_ANAPLAN_USERNAME
+      password_env_var: US7_ANAPLAN_PASSWORD
+
+  us9:
+    active: false
+    nickname: United States 9
+    api_access_url: https://api.anaplan.com/2/0
+    playwright_access_url: REVIEW
+    integration_url: https://api.anaplan.com
+    token_url: https://auth.anaplan.com/token/authenticate
+    oauth_token_url: REVIEW
+    credentials: &credentials_us9
+      env_file: /home/cam/.hermes/.env
+      username_env_var: US9_ANAPLAN_USERNAME
+      password_env_var: US9_ANAPLAN_PASSWORD
+
+# Example .env entries for the default region. Add values manually to the
+# configured env_file; this config intentionally contains no secret values.
+#
+# AU1A_ANAPLAN_USERNAME=your-au1a-username
+# AU1A_ANAPLAN_PASSWORD=your-au1a-password
+#
+# US1A_ANAPLAN_USERNAME=your-us1a-username
+# US1A_ANAPLAN_PASSWORD=your-us1a-password
